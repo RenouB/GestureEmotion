@@ -1,0 +1,2 @@
+Interlocuter features? 
+Should we model the emotions of both participants jointly?

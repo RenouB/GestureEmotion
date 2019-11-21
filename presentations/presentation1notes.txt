@@ -1,0 +1,37 @@
+CNNs for emotion classification on PABO.
+three seperate experiments: facial, body movement, both!
+important contribution because previously many works focused on manually defined feature sets with explicitly defined feature fusion strategies
+CNN is of course more flexible than this.
+
+DATA: PABO corpus.
+Gunes, H., & Piccardi, M. (2006) A bimodal face and body gesture database for automatic analysis ofhuman nonverbal affective behavior.
+
+insert image
+
+FABO; face, body recordings w/ 2 cameras. Our authors only use body
+one subject executing same expression of emotion in cycle of 2 - 4 expressions per video.
+
+they use only upper body videos. 281 altogether, with 11 emotional states to be classified
+
+‘‘Anger’’, ‘‘Anxiety’’, ‘‘Boredom’’, ‘‘Disgust’’, ‘‘Fear’’, ‘‘Happiness’’, ‘‘Surprise’’, ‘‘Puzzlement’’, ‘‘Sadness’’ and ‘‘Uncertainty’’
+
+Emotions are divided into onset, apex, offset, neutral. apex and surrounding frames contain emotion label; everything else is neutral.
+
+MODEL
+three channel CNN with feed forward layer + lgoistic regression on top
+three channels kind of divide the model so that different representations can be learned in different places
+
+INPUT/FEATURES
+
+facial modality: videos cropped down to actor faces using an algorithm. stacks of two frames.
+
+body modality: composite image created by taking sequence of frames, adding together weighted absolute differences between subsequent pairs of frames.
+
+both facial and body modalities have different kinds of Sobel filters applied.
+intuitive goal of these filters: the uathors think first layers of CNNs represent edges a lot of the time. So they basically make edges more explicit as preprocessing step, this makes training quicker.
+the third channel has no filter. raw image.
+two other channels can handle basic building blocks, third channel can handle more sophisticated ones.
+
+multimodal: unprocessed images!
+
+RESULTS

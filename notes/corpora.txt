@@ -1,0 +1,102 @@
+Phillip
+Actors
+
+GEMEP
+18 actors, emotion annotations?
+need to read the paper!
+seems to be individual actors, not groups
+
+A motion capture library for the study of identity,
+gender, and emotion perception
+from biological motion
+http://paco.psy.gla.ac.uk/index.php/res/download-data
+recordings of single people performing isolated actions
+annotations about user's socioeconomic whatever
+actors
+
+Tutorbot corpus
+real ppl, tutor acting, playing a game
+doesnt seem to be available
+
+FABO
+actors
+
+The UCLIC Database of Affective
+Postures and Body Movements
+acted emotions
+non acted affective states from gaming
+non acted affective states from clinical setting - not distributed
+would have to contact
+
+RAMAS
+russian, actors
+link doesnt really seem available
+
+A multimodal corpus for gesture expressivity analysis
+video game recordings, wii
+
+UGI corpus
+real ppl, anonymous, from above, participant questionnaires, space game. no gaze.
+https://sites.google.com/view/ugirpi/
+collaborative ranking task
+ceiling mounted kinect that gives depth data
+annotations consist of pretty simple questionnaires that seek to get at leadership, productivity
+i guess they have recordings
+
+
+GAP corpus
+audio video group meetings, collaborative. binary positive vs negative sentiment
+apparently conceived as supplement to ELEA
+
+
+AMI corpus
+authentic and acted meetings... no affect annotations i dont think
+The data, mostly centred aroundthe idea of role‐playing in a meeting with the purpose of designing anew remote control, also includes output from a slide projector and asmartboard.A rich set ofannotationsincludetranscriptions ofthe meet-ings, dialogue act segmentation and labelling, topic segmentation andlabelling, summarization of each meeting, head and hand gestures in-cluding nods and shakes, higher‐level activities (e.g., note‐taking), sub-ject visibility (e.g., occlusion), manual head, face, mouth and handlocalization, and focus of attention
+dialog acts, attention, focus, transcriptions, lots of other things. no affect.
+
+ELEA
+real ppl, survival task, meant to study leadership
+The corpus was gathered with the aim of analyzing emergent leadership as a social phenomenon that occurs in newly formed groups. For each group in the corpus, the participants performed the winter survival task. The annotations of the corpus include self-reported and perceived personality, concepts related to leadership,  participants’ performance in the survival task, and manual transcriptions from the recordings in English. The full corpus contains approximately 10 hours of audio and video.
+annotations about percieved leadership, dominance, competence, liking, dominance rankings
+Also self reported Big Five personality traits
+would have to ask for access to data
+
+Mission Survival Corpus 2
+not clear if available
+doesnt seem to be! at fbk, could try and contact this nada person
+
+fbk personality database
+self presentation, human-human interaction with map task, human-machine interaction with map task
+
+Canal9
+swiss political debates with agreement annotations
+allegedly available on sspnet.eu, but can't access it
+
+HUMAINE database
+diverse multimodal database looking at perceived emotional content, motional signs, contextual factors to understand signs
+need to fill out agreement, sent it to get account
+- Belfast Naturalistic database (in English, naturalistic, 10 clips)
+- Castaway Reality Television dataset (in English, naturalistic, 10 clips)
+- Sensitive Artificial Listener (in English, induced, 12 clips)
+- Sensitive Artificial Listener (in Hebrew, induced, 1 clip)
+- Activity/Spaghetti dataset (in English, induced, 7 clips)
+- Green Persuasive dataset (in English, induced, 4 clips)
+- EmoTABOO (in French, induced, 2 clips)
+- DRIVAWORK corpus (in German, induced, 1 clip)
+- GEMEP corpus (in French, acted, 1 clip)
+
+IDIAP Wolf
+games played by many people
+unclear what annotations available
+
+SEMAINE
+seems to have affective anotations but only audio, face from itneractions with virtual agents
+
+Cohn-KAnade
+facial... posers.
+
+Belfast Naturalistic Database
+audio video, natural emotion, part of HUMAINE
+
+PAVIS
+https://pavis.iit.it/datasets/leadership-corpus
