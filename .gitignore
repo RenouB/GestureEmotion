@@ -1,5 +1,9 @@
+venv/
+my_creds.txt
 **/10fps_views
 **/views_zips
+**/views
+**/zips
 openpose
 **/.Rhistory
 **.Rproj
