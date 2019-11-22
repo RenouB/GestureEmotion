@@ -31,4 +31,5 @@ for key, array in annos.items():
 
 all_dfs = [pd.DataFrame(df) for df in all_dfs]
 for i, df in enumerate(all_dfs):
+    df["A_or_B"] = np.where(df["ratedActor"] == df["actorA"], "A", "B")
     df.to_csv(os.path.join(WRITE_DIR, "df{}.csv".format(i)))
