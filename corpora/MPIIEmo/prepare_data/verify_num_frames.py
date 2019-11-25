@@ -32,11 +32,26 @@ for video_id in unique_videos:
         video_path = os.path.join(TEN_FPS_VIEWS_DIR, 'view'+str(view), video_id+'.avi')
         video_id_2_frames[video_id][view] = count_frames(video_path)
 
+print(video_id_2_videotime[unique_videos[0]])
 # print out results
+incorrect_frame_alignment = []
+print("VIDEOS WITH CORRECT ALIGNMENT")
 for video_id in unique_videos:
-    if abs(video_id_2_frames[video_id] - video_id_2_videotime[video_id][1]) > 2:
+    if abs(video_id_2_frames[video_id][1] - video_id_2_videotime[video_id]) > 2:
+        incorrect_frame_alignment.append(video_id)
+    else:
         print(video_id)
         print("videoTime", video_id_2_videotime[video_id])
         for view, frames in video_id_2_frames[video_id].items():
             print('\t', view, frames)
         print('\n')
+
+print("VIDEOS WITH INCORRECT ALIGMENT")
+for video_id in incorrect_frame_alignment:
+        print(video_id)
+        print("videoTime", video_id_2_videotime[video_id])
+        for view, frames in video_id_2_frames[video_id].items():
+            print('\t', view, frames)
+        print('\n')
+
+
