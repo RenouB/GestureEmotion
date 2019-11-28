@@ -1,0 +1,95 @@
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+examples/CMakeFiles/convert_mnist_data.dir/build.make:119: recipe for target 'examples/mnist/convert_mnist_data' failed
+make[5]: *** [examples/mnist/convert_mnist_data] Error 1
+CMakeFiles/Makefile2:758: recipe for target 'examples/CMakeFiles/convert_mnist_data.dir/all' failed
+make[4]: *** [examples/CMakeFiles/convert_mnist_data.dir/all] Error 2
+make[4]: *** Waiting for unfinished jobs....
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+examples/CMakeFiles/convert_mnist_siamese_data.dir/build.make:119: recipe for target 'examples/siamese/convert_mnist_siamese_data' failed
+make[5]: *** [examples/siamese/convert_mnist_siamese_data] Error 1
+CMakeFiles/Makefile2:834: recipe for target 'examples/CMakeFiles/convert_mnist_siamese_data.dir/all' failed
+make[4]: *** [examples/CMakeFiles/convert_mnist_siamese_data.dir/all] Error 2
+[ 94%] Linking CXX executable compute_image_mean
+[ 95%] Linking CXX executable cifar10/convert_cifar_data
+[ 95%] Linking CXX executable convert_imageset
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/compute_image_mean.dir/build.make:119: recipe for target 'tools/compute_image_mean' failed
+make[5]: *** [tools/compute_image_mean] Error 1
+CMakeFiles/Makefile2:468: recipe for target 'tools/CMakeFiles/compute_image_mean.dir/all' failed
+make[4]: *** [tools/CMakeFiles/compute_image_mean.dir/all] Error 2
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/convert_imageset.dir/build.make:119: recipe for target 'tools/convert_imageset' failed
+make[5]: *** [tools/convert_imageset] Error 1
+CMakeFiles/Makefile2:582: recipe for target 'tools/CMakeFiles/convert_imageset.dir/all' failed
+make[4]: *** [tools/CMakeFiles/convert_imageset.dir/all] Error 2
+../lib/libcaffe.so.1.0.0: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+examples/CMakeFiles/convert_cifar_data.dir/build.make:119: recipe for target 'examples/cifar10/convert_cifar_data' failed
+make[5]: *** [examples/cifar10/convert_cifar_data] Error 1
+CMakeFiles/Makefile2:796: recipe for target 'examples/CMakeFiles/convert_cifar_data.dir/all' failed
+make[4]: *** [examples/CMakeFiles/convert_cifar_data.dir/all] Error 2
+[ 97%] Linking CXX executable upgrade_net_proto_text
+[ 97%] Linking CXX executable upgrade_net_proto_binary
+[ 97%] Linking CXX executable cpp_classification/classification
+[ 98%] Linking CXX executable upgrade_solver_proto_text
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+examples/CMakeFiles/classification.dir/build.make:119: recipe for target 'examples/cpp_classification/classification' failed
+make[5]: *** [examples/cpp_classification/classification] Error 1
+CMakeFiles/Makefile2:720: recipe for target 'examples/CMakeFiles/classification.dir/all' failed
+make[4]: *** [examples/CMakeFiles/classification.dir/all] Error 2
+../lib/libcaffe.so.1.0.0: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/upgrade_net_proto_text.dir/build.make:119: recipe for target 'tools/upgrade_net_proto_text' failed
+make[5]: *** [tools/upgrade_net_proto_text] Error 1
+CMakeFiles/Makefile2:658: recipe for target 'tools/CMakeFiles/upgrade_net_proto_text.dir/all' failed
+make[4]: *** [tools/CMakeFiles/upgrade_net_proto_text.dir/all] Error 2
+../lib/libcaffe.so.1.0.0: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/upgrade_net_proto_binary.dir/build.make:119: recipe for target 'tools/upgrade_net_proto_binary' failed
+make[5]: *** [tools/upgrade_net_proto_binary] Error 1
+CMakeFiles/Makefile2:544: recipe for target 'tools/CMakeFiles/upgrade_net_proto_binary.dir/all' failed
+make[4]: *** [tools/CMakeFiles/upgrade_net_proto_binary.dir/all] Error 2
+../lib/libcaffe.so.1.0.0: undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/upgrade_solver_proto_text.dir/build.make:119: recipe for target 'tools/upgrade_solver_proto_text' failed
+make[5]: *** [tools/upgrade_solver_proto_text] Error 1
+CMakeFiles/Makefile2:430: recipe for target 'tools/CMakeFiles/upgrade_solver_proto_text.dir/all' failed
+make[4]: *** [tools/CMakeFiles/upgrade_solver_proto_text.dir/all] Error 2
+[100%] Linking CXX executable extract_features
+CMakeFiles/extract_features.dir/extract_features.cpp.o: In function `std::string* google::MakeCheckOpString<int, int>(int const&, int const&, char const*)':
+extract_features.cpp:(.text._ZN6google17MakeCheckOpStringIiiEEPSsRKT_RKT0_PKc[_ZN6google17MakeCheckOpStringIiiEEPSsRKT_RKT0_PKc]+0x43): undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+CMakeFiles/extract_features.dir/extract_features.cpp.o: In function `std::string* google::MakeCheckOpString<unsigned long, unsigned long>(unsigned long const&, unsigned long const&, char const*)':
+extract_features.cpp:(.text._ZN6google17MakeCheckOpStringImmEEPSsRKT_RKT0_PKc[_ZN6google17MakeCheckOpStringImmEEPSsRKT_RKT0_PKc]+0x44): undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/extract_features.dir/build.make:119: recipe for target 'tools/extract_features' failed
+make[5]: *** [tools/extract_features] Error 1
+CMakeFiles/Makefile2:620: recipe for target 'tools/CMakeFiles/extract_features.dir/all' failed
+make[4]: *** [tools/CMakeFiles/extract_features.dir/all] Error 2
+[100%] Linking CXX executable caffe
+CMakeFiles/caffe.bin.dir/caffe.cpp.o: In function `std::string* google::MakeCheckOpString<cudaError, cudaError>(cudaError const&, cudaError const&, char const*)':
+caffe.cpp:(.text._ZN6google17MakeCheckOpStringI9cudaErrorS1_EEPSsRKT_RKT0_PKc[_ZN6google17MakeCheckOpStringI9cudaErrorS1_EEPSsRKT_RKT0_PKc]+0x43): undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+CMakeFiles/caffe.bin.dir/caffe.cpp.o: In function `std::string* google::MakeCheckOpString<unsigned long, int>(unsigned long const&, int const&, char const*)':
+caffe.cpp:(.text._ZN6google17MakeCheckOpStringImiEEPSsRKT_RKT0_PKc[_ZN6google17MakeCheckOpStringImiEEPSsRKT_RKT0_PKc]+0x43): undefined reference to `google::base::CheckOpMessageBuilder::NewString()'
+/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/libglog.so: undefined reference to `google::FlagRegisterer::FlagRegisterer<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(char const*, char const*, char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*)'
+collect2: error: ld returned 1 exit status
+tools/CMakeFiles/caffe.bin.dir/build.make:119: recipe for target 'tools/caffe' failed
+make[5]: *** [tools/caffe] Error 1
+CMakeFiles/Makefile2:506: recipe for target 'tools/CMakeFiles/caffe.bin.dir/all' failed
+make[4]: *** [tools/CMakeFiles/caffe.bin.dir/all] Error 2
+Makefile:129: recipe for target 'all' failed
+make[3]: *** [all] Error 2
+CMakeFiles/openpose_lib.dir/build.make:111: recipe for target 'caffe/src/openpose_lib-stamp/openpose_lib-build' failed
+make[2]: *** [caffe/src/openpose_lib-stamp/openpose_lib-build] Error 2
+CMakeFiles/Makefile2:72: recipe for target 'CMakeFiles/openpose_lib.dir/all' failed
+make[1]: *** [CMakeFiles/openpose_lib.dir/all] Error 2
+Makefile:83: recipe for target 'all' failed

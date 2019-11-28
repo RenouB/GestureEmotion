@@ -56,5 +56,8 @@ df4[emotions] <- center_apply(df4[emotions])
 df4 <- binarize_emotions(df4)
 
 aggregate_emotions <- df0[emotions] + df1[emotions] + df2[emotions] + df3[emotions] + df4[emotions]
+aggregate_emotions$video_ids <- df0$video_ids
+aggregate_emotions <- cbind(df0[1:7], aggregate_emotions, df0[17:19])
 aggregate_emotions <- aggregate_binarized_emotions(aggregate_emotions)
-write.csv(aggregate_emotions, "../aggregate_emotion_labels.csv")
+aggregate_emotions$A_or_B[aggregate_emotions$ratedActor == aggregate_emotions$actorA] <- "A"
+write.csv(aggregate_emotions, "../data/aggregate_emotion_labels.csv")

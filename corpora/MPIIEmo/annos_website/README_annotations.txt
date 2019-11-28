@@ -6,6 +6,8 @@ The file raw_annotations.mat contains a struct with the following fields:
 - subscenario  : ID of the subscenario
 - actorA       : ID of actor starting in kitchen
 - actorB       : ID of actor entering kitchen
+CAUTION: the readme appears wrong. I've looked at many different videos,
+and person B starts off in the kitchen, not A.
 - ratedActor   : indicates, to which actor the ratings belong
 - videoTime    : the corresponding time in the video, to which the rating belongs (in units of 100ms; sampling rate was 10hz)
 
