@@ -1,5 +1,5 @@
 venv/
-my_creds.txt
+**/mycreds.txt
 **/10fps_views
 **/views_zips
 **/views
