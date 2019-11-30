@@ -1,5 +1,6 @@
 import numpy as np
 import os, sys
+from scipy.spatial.distance import cosine
 import matplotlib.pyplot as plt
 # quick fix to get script to run from anywhere
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
@@ -82,10 +83,22 @@ def map_new_pose_to_person(last_person1, last_person2, current_person1, current_
     else:
         last2_keypoints = [np.array([10000,10000]) for i in range(25)]
 
+    # begin trying cosine similarity
+    # current1_ar = np.array(current1_keypoints).flatten()
+    # last1_ar = np.array(last1_keypoints).flatten()
+    # last2_ar = np.array(last2_keypoints).flatten()
+    # cosine11 = cosine(current1_ar, last1_ar)
+    # cosine12 = cosine(current1_ar, last2_ar)
+    #
+    # if cosine11 > cosine12:
+    #     return (1,1)
+    # else:
+    #     return(1,2)
+
     # for comparison, find all body parts which are detected in all skeletons
     common_indices = [i for i in range(len(current1_keypoints)) if
-                        current1_keypoints[i].sum() and current2_keypoints[i].sum()
-                        and last1_keypoints[i].sum() and last2_keypoints[i].sum()
+                        current1_keypoints[i].sum() != 20000 and current2_keypoints[i].sum() != 20000
+                        and last1_keypoints[i].sum() != 20000  and last2_keypoints[i].sum() != 20000
                         and i in STABLE_BODY_PART_INDICES]
 
     current1_common_keypoints = np.array([current1_keypoints[i] for i in common_indices])
@@ -131,13 +144,13 @@ def map_person_to_a_or_b(person1_poses, person2_poses):
     for row in range(1,30):
         for col in common_indices:
             total_displacement_person1 += abs(first_fifteen_person1[row - 1][col] -
-                            first_fifteen_person1[row][col])
+                            first_fifteen_person1[row][col]).sum()
             total_displacement_person2 += abs(first_fifteen_person2[row - 1][col] -
-                            first_fifteen_person2[row][col])
+                            first_fifteen_person2[row][col]).sum()
 
     print("P1", total_displacement_person1)
     print("P2", total_displacement_person2)
     if total_displacement_person1 > total_displacement_person2:
-        return {1:"A", 2:"B"}
+        return {"A":1, "B":2}
     else:
-        return {1:"B", 2:"A"}
+        return {"A":2, "B":1}

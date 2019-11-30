@@ -3,6 +3,7 @@ import os
 import pydrive
 import numpy
 import json
+import pickle
 import numpy as np
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -54,11 +55,15 @@ RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
 all_videos = {}
 
 # begin looping through view folders
-for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != "all"]:
+for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != "all"][:1]:
     print("#############", current_view, "##################")
     # loop through video in folder
-    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view)):
+    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view))[:10]:
         print("#############", current_video, "###############")
+        if current_video not in all_videos:
+            all_videos[current_video] = {}
+        if current_view not in all_videos[current_video]:
+            all_videos[current_video][current_view] = {}
         person1_poses = {}
         person2_poses = {}
         # these keep track of detected poses from last frame - initialize them
@@ -133,3 +138,16 @@ for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != 
         # finally, once we have sequence of all poses for persons 1 and 2, map
         # these back to actors A or B from annotations
         a_or_b = map_person_to_a_or_b(person1_poses, person2_poses)
+
+        if a_or_b['A'] == 1:
+            A = person1_poses
+            B = person2_poses
+        else:
+            A = person2_poses
+            B = person1_poses
+
+        all_videos[current_video][current_view]['A'] = A
+        all_videos[current_video][current_view]['B'] = B
+
+with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all.pkl'), 'wb') as f:
+    pickle.dump(all_videos, f)
