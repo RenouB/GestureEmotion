@@ -68,57 +68,36 @@ def map_new_pose_to_person(last_person1, last_person2, current_person1, current_
      '''
 
     # convert keypoints to arrays
-    current1_keypoints = [np.array(current_person1[i:i+2]) for i in range(0, 73, 3)]
-    # checks if current_person2 exists
-    if sum(current_person2) == 75*10000:
-        current2_keypoints = [np.array(current_person2[i:i+2]) for i in range(0, 73, 3)]
-    else:
-        current2_keypoints = [np.array([10000, 10000]) for i in range(25)]
+    current1_keypoints = np.array([np.array(current_person1[i:i+2]) for i in range(0, 73, 3)])
+    current2_keypoints = np.array([np.array(current_person2[i:i+2]) for i in range(0, 73, 3)])
+    last1_keypoints = np.array([np.array(last_person1[i:i+2]) for i in range(0, 73, 3)])
+    last2_keypoints = np.array([np.array(last_person2[i:i+2]) for i in range(0, 73, 3)])
 
-    last1_keypoints = [np.array(last_person1[i:i+2]) for i in range(0, 73, 3)]
+    common11 = [i for i in range(len(current1_keypoints)) if current1_keypoints[i].sum()
+                    and last1_keypoints[i].sum() and i in STABLE_BODY_PART_INDICES]
+    common12 = [i for i in range(len(current1_keypoints)) if current1_keypoints[i].sum()
+                    and last2_keypoints[i].sum() and i in STABLE_BODY_PART_INDICES]
 
-    # checks if last_person2 exists
-    if sum(last_person2) == 75*10000:
-        last2_keypoints = [np.array(last_person2[i:i+2]) for i in range(0, 73, 3)]
-    else:
-        last2_keypoints = [np.array([10000,10000]) for i in range(25)]
-
-    # begin trying cosine similarity
-    # current1_ar = np.array(current1_keypoints).flatten()
-    # last1_ar = np.array(last1_keypoints).flatten()
-    # last2_ar = np.array(last2_keypoints).flatten()
-    # cosine11 = cosine(current1_ar, last1_ar)
-    # cosine12 = cosine(current1_ar, last2_ar)
+    distance11 = np.linalg.norm(current1_keypoints[common11].flatten() - last1_keypoints[common11].flatten()) / len(common11)
+    distance12 = np.linalg.norm(current1_keypoints[common12].flatten() - last2_keypoints[common12].flatten()) / len(common12)
+    # print("####################################")
+    # print(current1_keypoints[common11].flatten())
+    # print(last1_keypoints[common11].flatten())
+    # print(distance11)
+    # print("\n")
+    # print(current1_keypoints[common12].flatten())
+    # print(last2_keypoints[common12].flatten())
+    # print(distance12)
+    # print("###################################")
     #
-    # if cosine11 > cosine12:
-    #     return (1,1)
-    # else:
-    #     return(1,2)
-
-    # for comparison, find all body parts which are detected in all skeletons
-    common_indices = [i for i in range(len(current1_keypoints)) if
-                        current1_keypoints[i].sum() != 20000 and current2_keypoints[i].sum() != 20000
-                        and last1_keypoints[i].sum() != 20000  and last2_keypoints[i].sum() != 20000
-                        and i in STABLE_BODY_PART_INDICES]
-
-    current1_common_keypoints = np.array([current1_keypoints[i] for i in common_indices])
-    current2_common_keypoints = np.array([current2_keypoints[i] for i in common_indices])
-    last1_common_keypoints = np.array([last1_keypoints[i] for i in common_indices])
-    last2_common_keypoints = np.array([last2_keypoints[i] for i in common_indices])
-
-    # fine distances from current_person1 to last_person1, current_person1 to
-    #last_person2
-    distance_c1_l1 = np.linalg.norm(current1_common_keypoints - \
-                        last1_common_keypoints, axis=1).mean()
-    distance_c1_l2 = np.linalg.norm(current1_common_keypoints - \
-                        last2_common_keypoints, axis=1).mean()
-
-    # if c1 closer to l1, assign 1 -> 1. else assign 1 -> 2
-    if distance_c1_l1 > distance_c1_l2:
-        return (1,2)
+    # print('\n')
+    # euclidian distance
+    if distance11 > distance12:
+        assignment = (1,2)
     else:
-        return (1,1)
-
+        assignment = (1,1)
+    # print("ASSIGNMENT:", assignment)
+    return assignment
 def map_person_to_a_or_b(person1_poses, person2_poses):
     '''Not yet completed. Maps set of poses from persons 1, 2 to labels A, B
     from annotations.
@@ -127,14 +106,10 @@ def map_person_to_a_or_b(person1_poses, person2_poses):
     '''
     first_fifteen_person1 = np.array([person1_poses[i] for i in range(30)])
     first_fifteen_person2 = np.array([person2_poses[i] for i in range(30)])
-    print(first_fifteen_person1[:][8])
     print("###############")
-    print(first_fifteen_person2[:][8])
     # get body parts that were detected in all frames for each skeleton
-    print(first_fifteen_person1.shape)
     p1_detected_part_indices = np.where(first_fifteen_person1.min(0) > 0)
     p2_detected_part_indices = np.where(first_fifteen_person2.min(0) > 0)
-
 
     common_indices = np.intersect1d(p1_detected_part_indices, p2_detected_part_indices)
     common_indices = np.intersect1d(common_indices, STABLE_BODY_PART_INDICES)

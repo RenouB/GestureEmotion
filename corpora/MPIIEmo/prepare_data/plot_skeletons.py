@@ -24,32 +24,36 @@ def plot_body_keypoints(body_keypoints, color, alpha=1):
             continue
         plt.plot([start_x, end_x], [-start_y, -end_y], color=color, alpha=alpha)
 
-def plot_frame(video, view, frame, alpha=1):
+def plot_frame(video, view, frame, actors, alpha=1):
     personA_keypoints = all_videos[video][view]['A'][frame]
     personB_keypoints = all_videos[video][view]['B'][frame]
 
-    plot_body_keypoints(personA_keypoints, 'blue', alpha)
-    plot_body_keypoints(personB_keypoints, 'red', alpha)
+    if actors == 3 or actors == 1:
+        plot_body_keypoints(personA_keypoints, 'blue', alpha)
+    if actors == 3 or actors == 2:
+        plot_body_keypoints(personB_keypoints, 'red', alpha)
 
-def plot_video(video, view):
+def plot_video(video, view, actors, framestep=15):
     personA_keypoints = all_videos[video][view]['A']
     total_frames = max(personA_keypoints.keys())
-    for frame in range(0, total_frames, 10):
-        plot_frame(video, view, frame, alpha=max(.1, frame / total_frames))
+    for frame in range(0, total_frames, framestep):
+        plot_frame(video, view, frame, actors, alpha=max(.1, frame / total_frames))
 
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-video", action="store_true", default=True)
     parser.add_argument("-file", type=str)
     parser.add_argument("-view", type=str, default="view1")
+    parser.add_argument("-actors", type=int, default=3)
+    parser.add_argument("-framestep", type=int, default=15)
     parser.add_argument("-frame", type=int, default=1)
     args = parser.parse_args()
 
     if args.video:
-        plot_video(args.file, args.view)
+        plot_video(args.file, args.view, args.actors, args.framestep)
 
     else:
-        plot_frame(args.video_folder, args.view, args.frame)
+        plot_frame(args.video_folder, args.view, args.frame, args.actors)
 
     plt.xlim(0, 1624)
     plt.ylim(-1224,0)
