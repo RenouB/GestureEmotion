@@ -1,0 +1,46 @@
+Reminder
+
+Direction: predicting emotions using gesture / facial / speech features
+  face features: baseline = action units
+                 higher level: mutual gaze?
+
+baseline input: sequence of features corresponding to frames, ie we wanna model sequentially
+baseline output: discrete emotion categories for each actor in each frame
+
+Things we've done so far:
+  - Rudimentary data analysis
+  - generated emotion labels following the original
+
+GESTURE FEATURES
+  - tried to install openpose on server
+  - did it on colab instead
+  - began generating features for videos
+  - generating images of openpose output every 10 frames so that we can manually verify quality of output
+  - began normalizing output
+  - write algorithm to associate skeletons to correct person in sequence of frames using minimum distance
+  - wrote algorithm to associate skeleton sequences to actor label based on greatest displacement in first 10 frames
+  - centre skeletons using mid hip as 0
+  - scaled skeletons by vector norm of vector between mid hip and neck
+  - working on interpolating missing keypoints
+
+FACE FEATURES
+  - Gained familiarity with OpenFace
+  - Extracted features from the dataset
+  - Preliminary statistics on the OpenFace output
+
+NEXT STEPS (before next presentation):
+  - complete raw feature extraction
+  - complete normalization and verification
+  - tidy/refactor preprocessing code
+  - research, choose, implement two baselines on subset of data
+
+
+
+
+The main thing, make sure to have a concise direction for your project. We want to make sure everyone is on the right track == describe the problem you want to solve ("we want the model to ____”), what is the input and what do you want to predict == how can you assess the model and its quality (“The model output will be: ____”, and “It can be defined as: ____”), how can you obtain the data needed, what type of methods will you deploy in order to model your problem setting? Think about the following:
+
+1. Clear Problem Description: Do you understand the purpose of the model?
+
+2: Measure its performance: How can you show the performance of the model (if it works well or not)?
+
+Please submit your slides as PDF! Otherwise, content may get lost.

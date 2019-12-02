@@ -13,7 +13,7 @@ from oauth2client.client import GoogleCredentials
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
-from process_utils import map_new_pose_to_person, centre_body_keypoints, map_person_to_a_or_b
+from process_utils import map_new_pose_to_person, map_person_to_a_or_b, scale_keypoints, translate_keypoints
 
 '''
 the download portion of this script doesnt yet work
@@ -58,7 +58,7 @@ all_videos = {}
 for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != "all"][:1]:
     print("#############", current_view, "##################")
     # loop through video in folder
-    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view))[:10]:
+    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view))[:3]:
         print("#############", current_video, "###############")
         if current_video not in all_videos:
             all_videos[current_video] = {}
@@ -149,5 +149,25 @@ for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != 
         all_videos[current_video][current_view]['A'] = A
         all_videos[current_video][current_view]['B'] = B
 
-with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all.pkl'), 'wb') as f:
+with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all_raw.pkl'), 'wb') as f:
     pickle.dump(all_videos, f)
+
+# begin normalizing poses
+all_videos_normalized = {}
+for current_video in all_videos.keys():
+    all_videos_normalized[current_video] = {}
+    for current_view in all_videos[current_video].keys():
+        all_videos_normalized[current_video][current_view] = {}
+        for actor in all_videos[current_video][current_view].keys():
+            all_videos_normalized[current_video][current_view][actor] = {}
+            for frame, keypoints in all_videos[current_video][current_view][actor].items():
+                if (keypoints[8].sum() != 0 and keypoints[1].sum() != 0) and \
+                    10000 not in keypoints:
+                    normalized_keypoints = scale_keypoints(translate_keypoints(keypoints))
+                    all_videos_normalized[current_video][current_view][actor][frame] = \
+                        normalized_keypoints
+                else:
+                    all_videos_normalized[current_video][current_view][actor][frame] = \
+                            np.array([10000,10000]*25)
+with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all_normalized.pkl'), 'wb') as f:
+    pickle.dump(all_videos_normalized, f)
