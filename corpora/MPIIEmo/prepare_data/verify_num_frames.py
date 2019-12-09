@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 from imutils.video import count_frames
 import cv2
+import pickle
 print("Completed imports")
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
@@ -55,3 +56,9 @@ for video_id in incorrect_frame_alignment:
         print('\n')
 
 
+print("Saving as dictionary")
+dct_to_save = {}
+for video_id in unique_videos:
+    dct_to_save[video_id] = {'anno_time': video_id_2_videotime[video_id], 'frames_per_view':video_id_2_frames[video_id]}
+with open('video_times_and_frames.pkl', 'wb') as f:
+    pickle.dump(dct_to_save, f)
