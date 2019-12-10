@@ -26,7 +26,7 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 
 TEN_FPS_VIEWS_DIR = constants["TEN_FPS_VIEWS_DIR"]
-
+parent_id = constants["MPIIEMO_ID"]
 paths = [os.path.join(TEN_FPS_VIEWS_DIR, "view{}.zip".format(i)) for i in range(1,9)]
 filenames = ["view{}_10fps.zip".format(i) for i in range(1,9)]
 
