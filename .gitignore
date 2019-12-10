@@ -1,4 +1,6 @@
 venv/
+MLSTM-FCN/
+drive_download/
 **/mycreds.txt
 **/10fps_views
 **/views_zips
@@ -10,6 +12,7 @@ openpose
 **.RData
 **.odp
 **.pptx
+**.json
 **.zip
 **.jpg
 **.avi
