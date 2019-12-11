@@ -13,6 +13,7 @@ from definitions import constants
 
 PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
 BODY_CENTER = constants["BODY_CENTER"]
+
 def plot_body_keypoints(body_keypoints, color, alpha=1):
     connection_mapping = constants["PAFS"]
     for start, end in connection_mapping:

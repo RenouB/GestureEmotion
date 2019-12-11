@@ -29,16 +29,15 @@ def interpolate_missing_keypoints(body_keypoints, body_keypoints_sequence):
     if len(np.intersect1d(missing_keypoints, WAIST_UP_BODY_PART_INDICES)) > 7:
         return np.array([[10000,10000]*25])
     else:
+        pass
         # start interpolating missing keypoints
-        for i in range(len(body_keypoints_sequence)):
+        # for i in range(len(body_keypoints_sequence)):
 
 
 def scale_keypoints(body_keypoints):
     neck = body_keypoints[1]
     mid_hip = body_keypoints[8]
     l2 = np.linalg.norm(neck - mid_hip)
-    print('################')
-    print("L2:", l2)
 
     if l2 == 0:
         return body_keypoints

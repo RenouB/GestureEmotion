@@ -16,36 +16,10 @@ from definitions import constants
 from process_utils import map_new_pose_to_person, map_person_to_a_or_b, scale_keypoints, translate_keypoints
 
 '''
-the download portion of this script doesnt yet work
-the rest  will go through all views, all videos, extract body poses from openpose
+will go through all views, all videos, extract body poses from openpose
 json output. it will assign each each pose to either person a or b,
 centre around 0 and scale
 '''
-
-# download section - not working
-# gauth = GoogleAuth()
-# # Try to load saved client credentials
-# # gaut
-# h.LoadCredentialsFile("mycreds.txt")
-# # if gauth.credentials is None:
-# #     # Authenticate if they're not there
-# #     gauth.LocalWebserverAuth()
-# # elif gauth.access_token_expired:
-# #     # Refresh them if expired
-# #     gauth.Refresh()
-# # else:
-# #     # Initialize the saved creds
-# #     gauth.Authorize()
-# # Save the current credentials to a file
-# gauth.LocalWebserverAuth()
-# drive = GoogleDrive(gauth)
-# gauth.SaveCredentialsFile("mycreds.txt")
-#
-# RAW_BODY_FEATS_DRIVE_ID = constants["RAW_BODY_FEATS_DRIVE_ID"]
-# download = drive.CreateFile({'id': RAW_BODY_FEATS_DRIVE_ID})
-# print("Downloading")
-# download.GetContentFile("body_feats/raw/all")
-
 # get relevant directories
 PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
 RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
@@ -55,11 +29,13 @@ RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
 all_videos = {}
 
 # begin looping through view folders
-for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != "all"][:1]:
-    print("#############", current_view, "##################")
+for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != "all"]:
+    print("\n\n#############", current_view, "##################")
     # loop through video in folder
-    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view))[:3]:
-        print("#############", current_video, "###############")
+    i = 0
+    for current_video in os.listdir(os.path.join(RAW_BODY_FEATS_DIR, current_view)):
+        i += 1
+        print("#############", i, "###############")
         if current_video not in all_videos:
             all_videos[current_video] = {}
         if current_view not in all_videos[current_video]:
@@ -152,6 +128,9 @@ for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != 
 with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all_raw.pkl'), 'wb') as f:
     pickle.dump(all_videos, f)
 
+print('\n\n#################################')
+print('Saved all_raw.pkl')
+print('#################################')
 # begin normalizing poses
 all_videos_normalized = {}
 for current_video in all_videos.keys():
