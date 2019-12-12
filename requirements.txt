@@ -6,5 +6,5 @@ numpy
 statsmodels
 scipy
 sklearn
-tensorflow
+#tensorflow
 imutils

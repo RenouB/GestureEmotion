@@ -52,11 +52,13 @@ for video, views in list(all_raw.items())[:5]:
 
 		working_view['A']['skeleton_count'] += len(A)
 		working_view['B']['skeleton_count'] += len(B)
-		working_view['num_frames_with_two_skeletons'] += len([frame for frame in A if frame in B])
-		working_view['num_frames_at_least_one_skeleton'] += len(set(A.keys()).union(B.keys()))
-		working_view['num_frames_with_no_skeleton'] += len([i for i in range(num_frames_in_vid) \
-															if i not in A.keys() and i not in B.keys()])
+		frames_with_A_skeleton = set([i for i in A if A[i].sum() != 500000])
+		frames_with_B_skeleton = set([i for i in B if B[i].sum() != 500000])
 		
+		working_view['num_frames_with_two_skeletons'] += len(frames_with_A_skeleton.intersection(frames_with_B_skeleton))
+		working_view['num_frames_at_least_one_skeleton'] += len(frames_with_A_skeleton.union(frames_with_B_skeleton))
+		working_view['num_frames_with_no_skeleton'] += len(set([i for i in A]).difference(frames_with_A_skeleton.union(frames_with_B_skeleton)))
+
 		for frame, keypoints in A.items():
 			for i, row in enumerate(keypoints):
 				if row.sum() != 0:
@@ -121,9 +123,9 @@ df = pd.DataFrame(index=index, columns=['aggregate','view1','view2','view3','vie
 
 
 
-df.loc['one_skel', 'aggregate'] = round(aggregate["num_frames_at_least_one_skeleton"], 2)
-df.loc['two_skels', 'aggregate'] = round(aggregate["num_frames_with_two_skeletons"], 2)
-df.loc['no_skels', 'aggregate'] = round(aggregate["num_frames_with_no_skeleton"], 2)
+df.loc['one_skel', 'aggregate'] = round(aggregate["num_frames_at_least_one_skeleton"]*100, 2)
+df.loc['two_skels', 'aggregate'] = round(aggregate["num_frames_with_two_skeletons"]*100, 2)
+df.loc['no_skels', 'aggregate'] = round(aggregate["num_frames_with_no_skeleton"]*100, 2)
 
 for i in range(25):
 	df.loc['all_'+str(i)+'_'+BODY_KEYPOINT_MAPPING[i], 'aggregate'] = round(aggregate['keypoint_counts'][i]*100)
@@ -134,9 +136,9 @@ df.loc['all_mean', 'aggregate'] = round(df.loc[[index for index in df.index if i
 
 for view in per_view:
 	working_view = per_view[view]
-	df.loc['one_skel', view] = round(working_view["num_frames_at_least_one_skeleton"], 2)
-	df.loc['two_skels', view] = round(working_view["num_frames_with_two_skeletons"], 2)
-	df.loc['no_skels', view] = round(working_view["num_frames_with_no_skeleton"], 2)
+	df.loc['one_skel', view] = round(working_view["num_frames_at_least_one_skeleton"]*100, 2)
+	df.loc['two_skels', view] = round(working_view["num_frames_with_two_skeletons"]*100, 2)
+	df.loc['no_skels', view] = round(working_view["num_frames_with_no_skeleton"]*100, 2)
 
 	for i in range(25):
 		df.loc['all_'+str(i)+'_'+BODY_KEYPOINT_MAPPING[i], view] = round(working_view['all']['keypoint_counts'][i]*100)
