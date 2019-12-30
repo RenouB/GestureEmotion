@@ -9,7 +9,7 @@
 cd ../../../drive_download/
 if [ ! -d "./raw_features" ]; then
   echo "raw_features dir not detected; unzipping downloaded drive files"
-  unzip ./\*.zip
+  unzip ./raw\*.zip
   mkdir zips
   mv *.zip zips
 fi

@@ -57,9 +57,9 @@ for current_view in [item for item in os.listdir(RAW_BODY_FEATS_DIR) if item != 
                 # load json and extract poses
                 js = json.load(f)
                 people = js['people']
-                if current_view == "view6":
-                    js['people'] = [person for person in js['people'] if mean([coord[1] for coord in \
-                                person['pose_keypoints_2d']]) < -300]
+                # if current_view == "view6":
+                #     js['people'] = [person for person in js['people'] if np.mean([coord[1] for coord in \
+                #                 person['pose_keypoints_2d']]) < -300]
                 # if there are no people in frame, put None
                 if not len(people):
                     person1_poses[frame_id] = [10000]*75

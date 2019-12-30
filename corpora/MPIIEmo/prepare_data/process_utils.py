@@ -13,6 +13,12 @@ from definitions import constants
 STABLE_BODY_PART_INDICES = constants["STABLE_BODY_PART_INDICES"]
 WAIST_UP_BODY_PART_INDICES = constants["WAIST_UP_BODY_PART_INDICES"]
 
+def get_frame_image_filename(i):
+    i_str = str(i)
+    if len(i_str) < 4:
+        zeros = '0'*(4 - len(i_str))
+    return zeros+i_str+'.png' 
+
 def translate_keypoints(body_keypoints):
     mid_hip = body_keypoints[8]
     translated_keypoints = []
