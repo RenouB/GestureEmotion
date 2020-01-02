@@ -1,4 +1,5 @@
 google-colab
+opencv-python
 pydrive
 pandas
 torch
@@ -6,5 +7,6 @@ numpy
 statsmodels
 scipy
 sklearn
-#tensorflow
+tensorflow
 imutils
+matplotlib

@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from process_utils2 import filter_keypoints, get_crop_coordinates, get_frame_image_filename, write_cropped_images, \
 convert_keypoints_to_array, crop_and_assign, add_keypoints_to_sequences, construct_reference_histograms
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-4])
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 

@@ -1,0 +1,46 @@
+Namespace(color='hsv', distance='cor', hist_diff=True, num_bins=32, only_hue=True, plot=False, print_all=False)
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_1_A11_B12.avi/12classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_1_A11_B12.avi/11classified’: File exists
+VIDEO SplitUp_1_A11_B12.avi
+Len ref indices: 3
+percentage correct: 0.63
+None
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/JobOffe_1_A02_B01.avi/02classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/JobOffe_1_A02_B01.avi/01classified’: File exists
+VIDEO JobOffe_1_A02_B01.avi
+Len ref indices: 6
+percentage correct: 1.00
+None
+VIDEO ReiseGe_1_A08_B07.avi
+Len ref indices: 4
+percentage correct: 0.67
+None
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_2_A09_B10.avi/09classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_2_A09_B10.avi/10classified’: File exists
+VIDEO SplitUp_2_A09_B10.avi
+Len ref indices: 13
+percentage correct: 1.00
+None
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/JobOffe_2_A14_B13.avi/13classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/JobOffe_2_A14_B13.avi/14classified’: File exists
+VIDEO JobOffe_2_A14_B13.avi
+Len ref indices: 6
+percentage correct: 0.53
+None
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/ReiseGe_1_A06_B05.avi/06classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/ReiseGe_1_A06_B05.avi/05classified’: File exists
+VIDEO ReiseGe_1_A06_B05.avi
+Len ref indices: 5
+percentage correct: 0.21
+None
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_1_A03_B04.avi/04classified’: File exists
+mkdir: cannot create directory ‘/home/renoub/Documents/university/masters/fall2019/hci/corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp/SplitUp_1_A03_B04.avi/03classified’: File exists
+VIDEO SplitUp_1_A03_B04.avi
+Len ref indices: 7
+percentage correct: 1.00
+None
+VIDEO SplitUp_1_A15_B16.avi
+Len ref indices: 6
+percentage correct: 1.00
+None
+percentage correct: 0.80

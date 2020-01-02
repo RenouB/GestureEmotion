@@ -3,7 +3,7 @@ import os, sys
 from scipy.spatial.distance import cosine
 import matplotlib.pyplot as plt
 # quick fix to get script to run from anywhere
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-4])
 sys.path.insert(0, PROJECT_DIR)
 import cv2
 from definitions import constants
@@ -20,7 +20,11 @@ ACTOR_REFERENCE_IMAGES_DIR = constants["ACTOR_REFERENCE_IMAGES_DIR"]
 
 
 def filter_view6(all_keypoints):
-	return [keypoints for keypoints in all_keypoints if keypoints[BODY_CENTER][1] >= 300 ]
+	keypoints = [keypoints for keypoints in all_keypoints if keypoints[BODY_CENTER][1] >= 300 ]
+	if len(keypoints) == 0:
+		return ['none', 'none']
+	else:
+		return keypoints
 
 def filter_missing_important(keypoints):
 	if type(keypoints) == str:
@@ -139,7 +143,7 @@ def convert_keypoints_to_array(body_keypoints):
 	# 		row[1] = 0
 	return keypoints
 
-def crop_and_assign(color, distance, keypoints1, keypoints2, frame_image, histA, histB, actorA, actorB):
+def crop_and_assign(color, distance, only_hue, keypoints1, keypoints2, frame_image, histA, histB, actorA, actorB):
 	
 	cropped1 = None
 	cropped2 = None
@@ -148,13 +152,13 @@ def crop_and_assign(color, distance, keypoints1, keypoints2, frame_image, histA,
 		return None
 	
 	if type(keypoints1) != str:			
-		min_x, max_x, min_y, max_y = get_torso_coordinates(keypoints1)
+		min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints1)
 		# min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints1)
 
 		cropped1 = frame_image[min_y:max_y, min_x:max_x].copy()
 
 	if type(keypoints2) != str:
-		min_x, max_x, min_y, max_y = get_torso_coordinates(keypoints2)
+		min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints2)
 		# min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints2)
 		cropped2 = frame_image[min_y:max_y, min_x:max_x].copy()
 
@@ -175,27 +179,14 @@ def crop_and_assign(color, distance, keypoints1, keypoints2, frame_image, histA,
 
 	if color == 'hsv':
 		hsv = cv2.cvtColor(cropped, cv2.COLOR_BGR2HSV)
-		hist0 = cv2.calcHist(cropped, [0], None, [255], [0,255])
-		hist1 = cv2.calcHist(cropped, [1], None, [255], [0,255])
-		hist2 = cv2.calcHist(cropped, [2], None, [255], [0,255])
-		
-		normalized0 = cv2.normalize(hist0, hist0).flatten()
-		normalized1 = cv2.normalize(hist1, hist1).flatten()
-		normalized2 = cv2.normalize(hist2, hist2).flatten()
-
-		hist = np.concatenate([normalized0, normalized1, normalized2], axis=0)
-	
+		if only_hue:
+			hist = cv2.calcHist(cropped, [0], None, [255], [0,255])
+		else:
+			hist = get_all_channels_hist(hsv, 255)	
 	else:
-		hist0 = cv2.calcHist(cropped, [0], None, [256], [0,256])
-		hist1 = cv2.calcHist(cropped, [1], None, [256], [0,256])
-		hist2 = cv2.calcHist(cropped, [2], None, [256], [0,256])
-		
-		normalized0 = cv2.normalize(hist0, hist0).flatten()
-		normalized1 = cv2.normalize(hist1, hist1).flatten()
-		normalized2 = cv2.normalize(hist2, hist2).flatten()
+		hist = get_all_channels_hist(cropped, 256)
+	hist = cv2.normalize(hist, hist)
 
-		hist = np.concatenate([normalized0, normalized1, normalized2], axis=0)
-	
 	similarityA = cv2.compareHist(histA, hist, distance)
 	similarityB = cv2.compareHist(histB, hist, distance)
 
@@ -253,38 +244,88 @@ def add_keypoints_to_sequences(all_videos, video, view, frame_index, assignment,
 
 	return all_videos
 
-def construct_reference_histograms(color):
-	reference = {}
-	for image in os.listdir(ACTOR_REFERENCE_IMAGES_DIR):
+def get_all_channels_hist(image, num_bins, max_range):
+	hist0 = cv2.calcHist(image, [0], None, [min(max_range, num_bins)], [0,max_range])
+	hist1 = cv2.calcHist(image, [1], None, [min(max_range, num_bins)], [0,max_range])
+	hist2 = cv2.calcHist(image, [2], None, [min(max_range, num_bins)], [0,max_range])
+
+	return np.concatenate([hist0, hist1, hist2], axis=0)
+
+def construct_reference_histograms(color, only_hue, num_bins):
+	reference_hists = {}
+	reference_indices = {}
+	for image in [file for file in os.listdir(ACTOR_REFERENCE_IMAGES_DIR) if file.endswith('.png')]:
 		image_id = image[:2]
 		# print(image_id)
-
 		original = cv2.imread(os.path.join(ACTOR_REFERENCE_IMAGES_DIR, image))
 		# plt.imshow(original)
 		# plt.show()
 		if color == 'hsv':
 			hsv = cv2.cvtColor(original, cv2.COLOR_BGR2HSV)
-			hist0 = cv2.calcHist(original, [0], None, [255], [0,255])
-			hist1 = cv2.calcHist(original, [1], None, [255], [0,255])
-			hist2 = cv2.calcHist(original, [2], None, [255], [0,255])
 			
-			normalized0 = cv2.normalize(hist0, hist0).flatten()
-			normalized1 = cv2.normalize(hist1, hist1).flatten()
-			normalized2 = cv2.normalize(hist2, hist2).flatten()
+			if only_hue:
+				hist = cv2.calcHist(hsv, [0], None, [min(num_bins, 255)], [0,255])
+			else:
+				hist = get_all_channels_hist(hsv, num_bins, 255)
 
-			hist = np.concatenate([normalized0, normalized1, normalized2], axis=0)
-
-		else:
-			hist0 = cv2.calcHist(original, [0], None, [256], [0,256])
-			hist1 = cv2.calcHist(original, [1], None, [256], [0,256])
-			hist2 = cv2.calcHist(original, [2], None, [256], [0,256])
+		elif color =='rgb':
+			hist = get_all_channels_hist(original, num_bins, 256)
 			
-			normalized0 = cv2.normalize(hist0, hist0).flatten()
-			normalized1 = cv2.normalize(hist1, hist1).flatten()
-			normalized2 = cv2.normalize(hist2, hist2).flatten()
 
-			hist = np.concatenate([normalized0, normalized1, normalized2], axis=0)
-		
+		elif color=='gray':
+			gray = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
+			hist = cv2.calcHist(gray, [0], None, [num_bins], [0,256])
+			
+		reference_hists[image_id] = hist
+		reference_indices[image_id] = [i for i in range(len(hist))]
+	return reference_hists, reference_indices
 
-		reference[image_id] = hist
-	return reference
+
+def construct_pairwise_reference_histograms(color, only_hue, num_bins):
+	reference_hists = {}
+	reference_indices = {}
+
+	for i in range(1,17,2):
+		first_actor = ''+'0'*(2-len(str(i))) + str(i)
+		second_actor = ''+'0'*(2-len(str(i+1))) + str(i+1)
+	
+		first = cv2.imread(os.path.join(ACTOR_REFERENCE_IMAGES_DIR, first_actor+'.png'))
+		second = cv2.imread(os.path.join(ACTOR_REFERENCE_IMAGES_DIR, second_actor+'.png'))
+
+		if color == 'hsv':
+			first = cv2.cvtColor(first, cv2.COLOR_BGR2HSV)
+			second = cv2.cvtColor(second, cv2.COLOR_BGR2HSV)
+			
+			if only_hue:
+				first_hist = cv2.calcHist(first, [0], None, [min(num_bins, 255)], [0,255])
+				second_hist = cv2.calcHist(second, [0], None, [min(num_bins, 255)], [0,255])
+			else:
+				first_hist = get_all_channels_hist(first, num_bins, 255)
+				second_hist = get_all_channels_hist(second, num_bins, 255)
+
+		elif color =='rgb':
+			first_hist = get_all_channels_hist(first, num_bins, 256)
+			second_hist = get_all_channels_hist(second, num_bins, 256)
+
+		elif color=='gray':
+			first = cv2.cvtColor(first, cv2.COLOR_BGR2GRAY)
+			second = cv2.cvtColor(second, cv2.COLOR_BGR2GRAY)
+			first_hist = cv2.calcHist(first, [0], None, [num_bins], [0,256])
+			second_hist = cv2.calcHist(second, [0], None, [num_bins], [0,256])
+
+		first_hist = cv2.normalize(first_hist, first_hist).flatten()
+		second_hist = cv2.normalize(second_hist, second_hist).flatten()
+
+		only_in_first = [i for i in range(len(first_hist)) if first_hist[i] > 0 and second_hist[i] == 0]
+		only_in_second = [i for i in range(len(second_hist)) if second_hist[i] > 0 and first_hist[i] == 0]
+		indices_to_compare = sorted(only_in_first + only_in_second)
+
+		first_hist = np.array([first_hist[i] for i in indices_to_compare])
+		second_hist = np.array([second_hist[i] for i in indices_to_compare])
+
+		reference_hists[first_actor] = first_hist
+		reference_hists[second_actor] = second_hist
+		reference_indices[first_actor] = indices_to_compare
+		reference_indices[second_actor] = indices_to_compare
+	
+	return reference_hists, reference_indices
