@@ -11,6 +11,7 @@ constants = \
 "MPIIEMO_DATA_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data"),
 "MPIIEMO_ANNOS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website"),
 "TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/10fps_views"),
+"MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/manually_selected_images")
 "ACTOR_REFERENCE_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website/actor_ids/"),
 "RAW_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/raw"),
 "PROCESSED_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/processed"),
@@ -34,10 +35,12 @@ constants = \
 
 color_histogram_constants = \
 {
-1: {'color': 'hsv'
-	'distance': 'cor'
-	'num_bins': 32
-	'only_hue': True
+1: {'color': 'hsv',
+	'distance': 'cor',
+	'num_bins': 32,
+	'only_hue': True,
+	'hist_diff': False,
+	'actors' : ['02', '01', '09', '10', '03', '04', '15', '16']
 	}	
 }
 

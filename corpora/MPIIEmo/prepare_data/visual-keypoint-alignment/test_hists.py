@@ -7,8 +7,8 @@ import cv2
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 from process_utils2 import filter_keypoints, get_crop_coordinates, get_frame_image_filename, write_cropped_images, \
-convert_keypoints_to_array, crop_and_assign, add_keypoints_to_sequences, construct_reference_histograms, get_all_channels_hist, \
-construct_pairwise_reference_histograms
+convert_keypoints_to_array, add_keypoints_to_sequences, construct_reference_histograms, get_all_channels_hist, \
+construct_reference_histograms
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-4])
 sys.path.insert(0, PROJECT_DIR)
@@ -30,12 +30,8 @@ if __name__ == "__main__":
 	print(args)
 	TEST_DIR = os.path.join(PROJECT_DIR, 'corpora/MPIIEmo/prepare_data/visual-keypoint-alignment/tmp')
 	
-	if args.hist_diff:
-		reference_hists, reference_indices = construct_pairwise_reference_histograms(args.color, \
-																args.only_hue, args.num_bins)
-	else:
-		reference_hists, reference_indices = construct_reference_histograms(args.color, \
-																args.only_hue, args.num_bins)
+	reference_hists, reference_indices = construct_reference_histograms(args.color, \
+																args.only_hue, args.num_bins, args.hist_diff)
 	# loop over each folder, get list of images in each actor folder
 	# load them, get histogram, and compare them to reference
 	# print metrics
@@ -136,6 +132,17 @@ if __name__ == "__main__":
 				print("SIM FIRST: {:.2f} SIM SECOND: {:.2f}".format(second_sim_first, second_sim_second))
 				print("\n")
 
+
+			print("############")
+			print("skeleton one")
+			print(first_hist)
+			print("skeleton two")
+			print(second_hist)
+			print("ref1")
+			print(ref1)
+			print("ref2")
+			print(ref2)
+
 			if args.plot:
 				fig = plt.figure()
 
@@ -184,7 +191,8 @@ if __name__ == "__main__":
 			num_comparisons += 1
 			video_comparisons += 1
 
-
+			first_image = cv2.cvtColor(first_image, cv2.COLOR_HSV2BGR)
+			second_image = cv2.cvtColor(second_image, cv2.COLOR_HSV2BGR)
 			if best == first_sim_first or best == second_sim_second:
 				cv2.imwrite(os.path.join(first_write_dir,str(i)+'.png'), first_image)
 				cv2.imwrite(os.path.join(second_write_dir,str(i)+'.png'), second_image)
