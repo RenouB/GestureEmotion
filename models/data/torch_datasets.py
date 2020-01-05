@@ -8,10 +8,11 @@ from argparse import ArgumentParser
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
 sys.path.insert(0, PROJECT_DIR)
-
 from definitions import constants
-from data_constructors import construct_data_filename
 MODELS_DIR = constants["MODELS_DIR"]
+sys.path.insert(0, MODELS_DIR)
+from models.data.data_constructors import construct_data_filename
+
 
 class PoseDataset(Dataset):
 	def __init__(self, interval=4, seq_length=4, joint=False, debug=False):
@@ -36,10 +37,13 @@ class PoseDataset(Dataset):
 
 	def __getitem__(self, i):
 		if not self.joint:
-			return {'pose':self.poses[i], 'labels':self.labels[i]}
+			return {'pose': self.poses[i],
+					 'labels':self.labels[i]}
 		else:
-			return {'poseA': self.poses['A'][i], 'labelA': self.labels['A'][i],
-				'poseB': self.poses['B'][i], 'labelB': self.labels['B'][i]}
+			return {'poseA': self.poses['A'][i],
+					 'labelsA': self.labels['A'][i],
+					'poseB': self.poses['B'][i], 
+					'labelsB': self.labels['B'][i]}
 
 
 if __name__ == "__main__":

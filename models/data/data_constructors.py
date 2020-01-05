@@ -31,73 +31,92 @@ def construct_data_filename(interval, seq_length, joint, debug):
 
 	return filename
 
+
 def construct_pose_data(interval, seq_length, joint, debug):
 	annotations = pd.read_csv(GOLD_STANDARD_PATH)
 
 	if debug:
 		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "debug_cnn.pkl"), "rb") as f:
-			data = pickle.load(f)
+			raw_data = pickle.load(f)
 	else:
 		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all.pkl"), "rb") as f:
-			data = pickle.load(f)
+			raw_data = pickle.load(f)
 
-	poses = {'A': [], 'B':[]}
-	labels = {'A': [], 'B':[]} 
-	print('beginning first iteration')
-	for video, views in data.items():
+	data = {}
+	total_pose_before = 0
+	total_pose_after = 0
+	total_labels_before = 0
+	total_labels_after = 0
+	print('beginning first pass')
+	for video, views in raw_data.items():
+		print(video)
 		annotations_video_id = video[:-4]
+		if video not in data:
+			data[video] ={}
 		for view, actors in views.items():
+			if view not in data[video]:
+				data[video][view] = {}
 			for actor, frames in actors.items():
+				if actor not in data[video][view]:
+					data[video][view][actor] = {'poses':[],'labels':[]}
+				poses = data[video][view][actor]['poses']
+				labels = data[video][view][actor]['labels']
 				for frame in range(interval*(seq_length-1), len(frames)):
 					sequence_keypoints = [actors[actor][frame_index] for frame_index in 
 										range(frame-(interval*(seq_length-1)),frame+1, interval) 
 										if type(actors[actor][frame_index]) != str]
 
 					if len(sequence_keypoints) != seq_length:
-						poses[actor].append(None)
-						labels[actor].append(None)
+						poses.append(None)
+						labels.append(None)
 						continue
-
-					# print(annotations_video_id)
-					# print(actor)
-					# print(frame)
 					current_labels = annotations.loc[(annotations["video_ids"] == annotations_video_id)
 					 & (annotations["A_or_B"] == actor) & (annotations["videoTime"] == frame)]
 					
+					if not len(current_labels):
+						continue
+
 					current_labels = current_labels.loc[:,["Anger","Happiness","Sadness","Surprise"]].values[0]
 					
-					poses[actor].append(sequence_keypoints)
-					labels[actor].append(list(current_labels))
-		print(video)
+					poses.append(np.array([keypoints.flatten() for keypoints in sequence_keypoints]))
+					labels.append(np.array(current_labels))
+		
 
-	print('beginning second pass')
-	filtered_poses = {'A': [], 'B': []}
-	filtered_labels = {'A': [], 'B': []}
-	if joint:
-		for i, pose in enumerate(poses['A']):
-			if pose is not None and poses['B'][i] is not None:
-				filtered_poses['A'].append(pose)
-				filtered_poses['B'].append(poses['B'][i])
-				filtered_labels['A'].append(labels['A'][i])
-				filtered_labels['B'].append(labels['B'][i])
+			filtered = {'A': {'poses':[], 'labels':[]}, 
+						'B': {'poses':[],'labels':[]}}
+			posesA = data[video][view]['A']['poses']
+			posesB = data[video][view]['B']['poses']
+			labelsA = data[video][view]['A']['labels']
+			labelsB = data[video][view]['B']['labels']
+			if joint:
+				for i, pose in enumerate(posesA):
+					if pose is not None and posesB[i] is not None:
+						filtered['A']['poses'].append(pose)
+						filtered['B']['poses'].append(posesB[i])
+						filtered['A']['labels'].append(labelsA[i])
+						filtered['B']['labels'].append(labelsB[i])
+					else:
+						continue
 			else:
-				continue
-	else:
-		filtered_poses['A'] = [pose for pose in poses['A'] if pose is not None]
-		filtered_poses['B'] = [pose for pose in poses['B'] if pose is not None]
-		filtered_labels['A'] = [label for label in labels['A'] if label is not None]
-		filtered_labels['B'] = [label for label in labels['B'] if label is not None]
+				filtered['A']['poses'] = [pose for pose in posesA if pose is not None]
+				filtered['B']['poses'] = [pose for pose in posesB if pose is not None]
+				filtered['A']['labels'] = [label for label in labelsA if label is not None]
+				filtered['B']['labels'] = [label for label in labelsB if label is not None]
+			
+			total_pose_before += (len(data[video][view]['A']['poses']) + len(data[video][view]['B']['poses']))
+			total_labels_before += len(data[video][view]['A']['labels']) + len(data[video][view]['B']['labels'])
+			total_pose_after += len(filtered['A']['poses']) +len(filtered['B']['poses'])
+			total_labels_after += len(filtered['A']['labels']) + len(filtered['B']['labels'])
 
-	print(len(poses['A']), len(poses['B']), len(labels['A']), len(labels['B']))
-	print(len(filtered_poses['A']), len(filtered_poses['B']), len(filtered_labels['A']), 
-		len(filtered_labels['B']))
-	
+			data[video][view]['A']['poses'] = filtered['A']['poses']
+			data[video][view]['B']['poses'] = filtered['B']['poses']
+			data[video][view]['A']['labels'] = filtered['A']['labels']
+			data[video][view]['B']['labels'] = filtered['B']['labels']
+					
 	filename = construct_data_filename(interval, seq_length, joint, debug)
 
-	with open(os.path.join(MODELS_DIR, 'data', 'poses-'+filename), 'wb') as f:
-		pickle.dump(filtered_poses, f)
-	with open(os.path.join(MODELS_DIR, 'data', 'labels-'+filename), 'wb') as f:
-		pickle.dump(filtered_labels, f)
+	with open(os.path.join(MODELS_DIR, 'data', filename), 'wb') as f:
+		pickle.dump(data, f)
 
 
 if __name__ == "__main__":
