@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Subset
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
 print(PROJECT_DIR)
@@ -70,13 +70,15 @@ def construct_pose_data(interval, seq_length, joint, debug):
 						poses.append(None)
 						labels.append(None)
 						continue
-					current_labels = annotations.loc[(annotations["video_ids"] == annotations_video_id)
+					current_labels = annotations.loc[(annotations["video_ids"] \
+								== annotations_video_id)
 					 & (annotations["A_or_B"] == actor) & (annotations["videoTime"] == frame)]
 					
 					if not len(current_labels):
 						continue
 
-					current_labels = current_labels.loc[:,["Anger","Happiness","Sadness","Surprise"]].values[0]
+					current_labels = \
+					 	current_labels.loc[:,["Anger","Happiness","Sadness","Surprise"]].values[0]
 					
 					poses.append(np.array([keypoints.flatten() for keypoints in sequence_keypoints]))
 					labels.append(np.array(current_labels))
@@ -103,9 +105,11 @@ def construct_pose_data(interval, seq_length, joint, debug):
 				filtered['A']['labels'] = [label for label in labelsA if label is not None]
 				filtered['B']['labels'] = [label for label in labelsB if label is not None]
 			
-			total_pose_before += (len(data[video][view]['A']['poses']) + len(data[video][view]['B']['poses']))
-			total_labels_before += len(data[video][view]['A']['labels']) + len(data[video][view]['B']['labels'])
-			total_pose_after += len(filtered['A']['poses']) +len(filtered['B']['poses'])
+			total_pose_before += (len(data[video][view]['A']['poses']) \
+				 		+ len(data[video][view]['B']['poses']))
+			total_labels_before += len(data[video][view]['A']['labels']) \
+					    + len(data[video][view]['B']['labels'])
+			total_pose_after += len(filtered['A']['poses']) + len(filtered['B']['poses'])
 			total_labels_after += len(filtered['A']['labels']) + len(filtered['B']['labels'])
 
 			data[video][view]['A']['poses'] = filtered['A']['poses']

@@ -13,15 +13,12 @@ PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 
-MANUALLY_SELECTED_VIEWS_DIR = constants["MANUALLY_SELECTED_VIEWS_DIR"]
+MANUALLY_SELECTED_IMAGES_DIR = constants["MANUALLY_SELECTED_IMAGES_DIR"]
 RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
-NECK = constants["NECK"]
-BODY_CENTER = constants["BODY_CENTER"]
-
-
+PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
 all_videos = {}
-for view in os.listdir(RAW_BODY_FEATS_DIR):
-	view_dir = os.path.join(MANUALLY_SELECTED_VIEWS_DIR, view)
+for view in ['view2']: #os.listdir(RAW_BODY_FEATS_DIR):
+	view_dir = os.path.join(MANUALLY_SELECTED_IMAGES_DIR, view)
 	for video in os.listdir(view_dir):
 		video_dir = os.path.join(view_dir, video)
 		raw_feats_dir = os.path.join(RAW_BODY_FEATS_DIR, view, video)
@@ -46,7 +43,11 @@ for view in os.listdir(RAW_BODY_FEATS_DIR):
 		
 			actorA_images = sorted(os.listdir(os.path.join(video_dir, 'A')))
 			actorB_images = sorted(os.listdir(os.path.join(video_dir, 'B')))
-			
+			print(get_body_image_filename(frame_index, 1))
+			print(get_body_image_filename(frame_index, 2))
+			print(actorA_images[:20])
+			print(actorA_images[:20])
+			print(video_dir)
 			if get_body_image_filename(frame_index, 1) in actorA_images or \
 				get_body_image_filename(frame_index, 2) in actorB_images:
 				assignment = {1:'A', 2:'B'}
@@ -58,7 +59,7 @@ for view in os.listdir(RAW_BODY_FEATS_DIR):
 			all_videos = add_keypoints_to_sequences(all_videos, video, view, frame_index, 
 												assignment, keypoints1, keypoints2)
 				
-with open(os.path.join(RAW_BODY_FEATS_DIR, 'all_manually_selected.pkl'), 'wb') as f:
+with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'debug_cnn.pkl'), 'wb') as f:
 	pickle.dump(all_videos, f)
 
 

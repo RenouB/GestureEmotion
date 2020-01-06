@@ -133,9 +133,8 @@ def get_body_image_filename(i, ii):
 	i += 1
 	i_str = str(i)
 	ii_str = str(ii)
-	if len(i_str) < 4:
-		zeros = '0'*(4 - len(i_str))
-		return zeros+i_str+'-'+ii_str'.jpg' 
+
+	return i_str+'-'+ii_str+'.jpg' 
 
 def get_crop_coordinates(body_keypoints):
 	if type(body_keypoints) == str or body_keypoints is None:

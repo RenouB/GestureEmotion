@@ -11,15 +11,16 @@ sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 
 TEN_FPS_VIEWS_DIR = constants["TEN_FPS_VIEWS_DIR"]
+MANUALLY_SELETED_IMAGES_DIR = constants["MANUALLY_SELECTED_IMAGES_DIR"]
 RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
 NECK = constants["NECK"]
 BODY_CENTER = constants["BODY_CENTER"]
 
-for view in ['view2', 'view3']: #os.listdir(RAW_BODY_FEATS_DIR):
+for view in ['view6']: #os.listdir(RAW_BODY_FEATS_DIR):
 	view_dir = os.path.join(TEN_FPS_VIEWS_DIR, view)
 	for video in [video for video in os.listdir(view_dir) if not video.endswith("images")]:
 
-		cropped_images_dir = os.path.join(TEN_FPS_VIEWS_DIR, view, 'cropped_images', video)
+		cropped_images_dir = os.path.join(MANUALLY_SELETED_IMAGES_DIR, view, video)
 		video_dir = os.path.join(view_dir, video)
 		raw_feats_dir = os.path.join(RAW_BODY_FEATS_DIR, view, video)
 

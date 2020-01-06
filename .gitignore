@@ -1,11 +1,15 @@
+pydial/
 venv/
 MLSTM-FCN/
 drive_download/
+model/outputs
+!drive_download/.gitkeep
 **/mycreds.txt
 **/10fps_views
 **/views_zips
 **/views
 **/zips
+**.weights
 openpose
 **/.Rhistory
 **.Rproj

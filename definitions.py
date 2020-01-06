@@ -10,8 +10,10 @@ constants = \
 "PROJECT_DIR" : PROJECT_DIR,
 "MPIIEMO_DATA_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data"),
 "MPIIEMO_ANNOS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website"),
+"GOLD_STANDARD_PATH": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data/aggregate_emotion_labels.csv"),
 "TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/10fps_views"),
-"MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/manually_selected_images")
+"MODELS_DIR": os.path.join(PROJECT_DIR, 'models'),
+"MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/manually_selected_images"),
 "ACTOR_REFERENCE_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website/actor_ids/"),
 "RAW_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/raw"),
 "PROCESSED_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/processed"),
@@ -29,7 +31,8 @@ constants = \
 "TOO_CLOSE_THRESHOLD":120,
 "BODY_CENTER" : 8,
 "NECK": 1,
-"GOOGLE_DRIVE_FOLDER_ID" : "1rEFKedGwxqhQl0Z6fSRpaX9H058h6KAZ"
+"GOOGLE_DRIVE_FOLDER_ID" : "1rEFKedGwxqhQl0Z6fSRpaX9H058h6KAZ",
+"ACTOR_PAIRS": ['0102','0304','0506','0708','0910','1112','1314','1516']
 }
 
 
@@ -44,7 +47,8 @@ color_histogram_constants = \
 	}	
 }
 
-multicnn_constants = \
+cnn_params = \
 {
-	"INPUT_DIM" : 75
+	"POSE_DIM" : 50,
+	"NUM_CLASSES": 4
 }
