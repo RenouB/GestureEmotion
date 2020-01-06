@@ -1,8 +1,9 @@
 import torch
+from torch.nn import functional as F
 from torch import nn
 from CNN import CNN
 
-class OneActorOneModalityCNN(nn.module):
+class OneActorOneModalityCNN(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes, 
 				 cnn_output_dim, num_classes, dropout):
 		
@@ -12,15 +13,15 @@ class OneActorOneModalityCNN(nn.module):
 		self.dropout = nn.Dropout(dropout)
 		self.classify = nn.Linear(cnn_output_dim, num_classes)
 	
-	def forward(feats):
+	def forward(self, feats):
 		feats = self.dropout(feats)
-		feats = self.poseCNN(feats)
+		feats = self.CNN(feats)
 		feats = self.dropout(feats)
 		out = self.classify(feats)
 
 		return out
 
-class TwoActorsOneModalityCNN(nn.module):
+class TwoActorsOneModalityCNN(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes, 
 				 cnn_output_dim, num_classes, dropout):
 		
@@ -30,21 +31,28 @@ class TwoActorsOneModalityCNN(nn.module):
 		self.dropout = nn.Dropout(dropout)
 		self.classify = nn.Linear(cnn_output_dim * 2, num_classes)
 	
-	def forward(feats1, feats2):
+	def forward(self, feats1, feats2):
 		feats1 = self.dropout(feats1)
 		feats1 = self.CNN(feats1)
 
 		feats2 = self.dropout(feats2)
 		feats2 = self.CNN(feats2)
+
+		both1 = torch.cat([feats1, feats2], dim=1)
+		both1 = self.dropout(both1)
+		out1 = self.classify(both1)
+
+
+		both2 = torch.cat([feats2, feats1], dim=1)
+		both2 = self.dropout(both2)
+		out2 = self.classify(both2)
 		
-		both = torch.cat([feats1, feats2], dim=0)
-		both = self.dropout(both)
-		out = self.classify(both)
+		out = torch.cat([out1, out2], dim=0)
 
 		return out
 
 
-class OneActorTwoModalities(nn.module):
+class OneActorTwoModalities(nn.Module):
 	def __init__(self, mode1_dim, mode2_dim, n_filters, filter_sizes, 
 				 cnn_output_dim, num_classes, dropout):
 		
@@ -55,7 +63,7 @@ class OneActorTwoModalities(nn.module):
 		self.dropout = nn.Dropout(dropout)
 		self.classify = nn.Linear(cnn_output_dim * 2, num_classes)
 	
-	def forward(mode1_feats, mode2_feats):
+	def forward(self, mode1_feats, mode2_feats):
 		mode1_feats = self.dropout(mode1_feats)
 		mode1_feats = self.poseCNN(mode1_feats)
 		
@@ -66,7 +74,7 @@ class OneActorTwoModalities(nn.module):
 
 		return out
 
-class TwoActorsTwoModalities(nn.module):
+class TwoActorsTwoModalities(nn.Module):
 	def __init__(self, mode1_dim, mode2_dim, n_filters, filter_sizes, 
 				 cnn_output_dim, linear_output_dim, num_classes, dropout):
 		
@@ -79,12 +87,12 @@ class TwoActorsTwoModalities(nn.module):
 		
 		self.classify = nn.Linear(linear_output_dim * 2, num_classes)
 	
-	def forward(actor1_feats, actor2_feats):
+	def forward(self, actor1_feats, actor2_feats):
 		actor1_mode1, actor1_mode2 = actor1_feats
 		actor2_mode1, actor2_mode2 = actor2_feats
 
-		dropout_mode1 = self.dropout(feats) for feats in [actor1_mode1, actor2_mode1]
-		dropout_mode2 = self.dropout(feats) for feats in [actor1_mode2, actor2_mode2]
+		dropout_mode1 = [self.dropout(feats) for feats in [actor1_mode1, actor2_mode1]]
+		dropout_mode2 = [self.dropout(feats) for feats in [actor1_mode2, actor2_mode2]]
 
 		modes1 = [mode1_CNN(mode1) for mode1 in dropout_mode1]
 		modes2 = [mode2_CNN(mode2) for mode2 in dropout_mode2]
