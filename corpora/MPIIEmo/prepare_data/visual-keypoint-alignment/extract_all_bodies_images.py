@@ -16,7 +16,7 @@ RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
 NECK = constants["NECK"]
 BODY_CENTER = constants["BODY_CENTER"]
 
-for view in ['view6']: #os.listdir(RAW_BODY_FEATS_DIR):
+for view in ['view4']: #os.listdir(RAW_BODY_FEATS_DIR):
 	view_dir = os.path.join(TEN_FPS_VIEWS_DIR, view)
 	for video in [video for video in os.listdir(view_dir) if not video.endswith("images")]:
 

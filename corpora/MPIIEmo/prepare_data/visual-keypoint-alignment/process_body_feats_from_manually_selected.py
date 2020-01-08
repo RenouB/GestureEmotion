@@ -17,7 +17,7 @@ MANUALLY_SELECTED_IMAGES_DIR = constants["MANUALLY_SELECTED_IMAGES_DIR"]
 RAW_BODY_FEATS_DIR = constants["RAW_BODY_FEATS_DIR"]
 PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
 all_videos = {}
-for view in ['view2']: #os.listdir(RAW_BODY_FEATS_DIR):
+for view in ['view6']: #os.listdir(RAW_BODY_FEATS_DIR):
 	view_dir = os.path.join(MANUALLY_SELECTED_IMAGES_DIR, view)
 	for video in os.listdir(view_dir):
 		video_dir = os.path.join(view_dir, video)

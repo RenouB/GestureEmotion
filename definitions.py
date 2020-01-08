@@ -18,6 +18,7 @@ constants = \
 "RAW_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/raw"),
 "PROCESSED_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/processed"),
 "VERIFICATION_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/prepare_data/verification_images"),
+"HISTOGRAMS_DATA_DIR": os.path.join(PROJECT_DIR, 'models/VisualPoseAlignment/data'),
 "MPIIEMO_ID" : "1rEFKedGwxqhQl0Z6fSRpaX9H058h6KAZ",
 "KEYPOINTS_FOR_SCALING" : (9, 15),
 "RAW_BODY_FEATS_DRIVE_ID" : "12tf83gQiewTNKgiyfnC4wUlWXZ6zp6rL",
