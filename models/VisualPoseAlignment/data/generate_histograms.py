@@ -38,8 +38,6 @@ def convert_to_histogram(im, num_bins, color, only_hue):
 		else:
 			hist = get_all_channels_hist(im, num_bins, 256)
 	elif color == 'rgb':
-		color = cv2.COLOR_BGR2HSV
-		im = cv2.cvtColor(im, color)
 		hist = get_all_channels_hist(im, num_bins, 256)
 	elif color == 'gray':
 		color = cv2.COLOR_BRG2GRAY

@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch import nn
 from CNN import CNN
-
+torch.manual_seed(200)
 class OneActorOneModalityCNN(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes, 
 				 cnn_output_dim, num_classes, dropout):
@@ -16,9 +16,10 @@ class OneActorOneModalityCNN(nn.Module):
 	def forward(self, feats):
 		feats = self.dropout(feats)
 		feats = self.CNN(feats)
+		feats = F.relu(feats)
 		feats = self.dropout(feats)
 		out = self.classify(feats)
-
+		out = torch.sigmoid(out)
 		return out
 
 class TwoActorsOneModalityCNN(nn.Module):

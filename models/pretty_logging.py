@@ -31,7 +31,7 @@ def construct_basename(args):
 		basename = 'TEST-'+basename
 	return basename
 
-def get_logs_weights_scores_dirs(model_type, attention, joint, modalities):
+def get_write_dir(model_type, attention, joint, modalities):
 	if model_type == 'CNN':
 		model_dir ='MultiChannelCNN'
 	if attention:
@@ -51,22 +51,24 @@ def get_logs_weights_scores_dirs(model_type, attention, joint, modalities):
 	else:
 		mode_dir = 'both'
 	
-	return os.path.join(MODELS_DIR, model_dir, 'outputs', 'logs', attention_dir,
-				 joint_dir, mode_dir), \
-		os.path.join(MODELS_DIR, model_dir, 'outputs', 'weights', attention_dir,
-				 joint_dir, mode_dir), \
-		os.path.join(MODELS_DIR, model_dir, 'outputs', 'scores', attention_dir,
-				 joint_dir, mode_dir)
+	return os.path.join(MODELS_DIR, model_dir, attention_dir, joint_dir, mode_dir)
+
 
 class PrettyLogger():
 	def __init__(self, args, logs_dir, basename, starttime):
 		self.starttime = starttime
+		try:
+			os.system("rm {}".format(os.path.join(logs_dir, basename+'.log')))
+		except:
+			pass
 		logging.basicConfig(filename=os.path.join(logs_dir, basename+'.log'),
 		 					level=logging.INFO, format='%(message)s')
 
 		logging.info(str(args))
 		# logging.info('\n')
-
+		logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch", 
+													"macro-p", "macro-r", "macro-f",
+													"micro-p", "micro-r","micro-f",  "acc"))
 		return 
 
 	def update_scores(self, scores, epoch, mode):

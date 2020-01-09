@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
 torch.manual_seed(200)
-from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import multilabel_confusion_matrix, classification_report
 from base_models import OneActorOneModalityCNN, TwoActorsOneModalityCNN
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
@@ -19,7 +19,7 @@ from models.data.torch_datasets import PoseDataset
 from models.evaluation import get_scores
 import argparse
 import logging
-from models.pretty_logging import PrettyLogger, construct_basename, get_logs_weights_scores_dirs
+from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
 import time
 
 def compute_epoch(model, data_loader, loss_fxn, optim, 
@@ -50,8 +50,7 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 				labelsB = batch['labelsB']
 				out = model(poseA, poseB)
 				labels = torch.cat([labelsA, labelsB], dim=0)
-		
-		predictions = (out > 0).int()
+		predictions = (out > 0.5).int()
 		epoch_labels.append(labels)
 		epoch_predictions.append(predictions)
 
@@ -72,14 +71,14 @@ if __name__ == '__main__':
 	parser.add_argument('-joint', action="store_true", default=False)
 	parser.add_argument('-modalities', default=0)
 	parser.add_argument('-attention', default=False)
-	parser.add_argument('-interval', default=4)
-	parser.add_argument('-seq_length', default=4)
+	parser.add_argument('-interval', default=3)
+	parser.add_argument('-seq_length', default=5)
 
 	parser.add_argument('-n_filters', default=2)
 	parser.add_argument('-filter_sizes', default=3)
 	parser.add_argument('-cnn_output_dim', default=50)
 
-	parser.add_argument('-batchsize', type=int, default=50)
+	parser.add_argument('-batchsize', type=int, default=20)
 	parser.add_argument('-lr', type=float, default=0.001)
 	parser.add_argument('-l2', type=float, default=0.0001)
 	parser.add_argument('-dropout', default=0.5, type=float, help='dropout probability')
@@ -112,9 +111,8 @@ if __name__ == '__main__':
 	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = construct_basename(args)+'-'+starttime
-	log_dir, weights_dir, scores_dir = get_logs_weights_scores_dirs('CNN', 
-						attention=False, joint=args.joint, modalities=args.modalities)
-	logger = PrettyLogger(args, log_dir, basename, starttime)
+	write_dir = get_write_dir('CNN', attention=False, joint=args.joint, modalities=args.modalities)
+	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
 	# TODO: Add different modalities
 	if not args.joint:
@@ -128,7 +126,7 @@ if __name__ == '__main__':
 						range(1, args.filter_sizes+1), args.cnn_output_dim, 
 						cnn_params["NUM_CLASSES"], args.dropout)
 
-	loss_fxn = torch.nn.BCEWithLogitsLoss()
+	loss_fxn = torch.nn.BCELoss()
 	
 	if args.optim == 'adam':
 		optim = Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
@@ -141,7 +139,9 @@ if __name__ == '__main__':
 	best_f1 = -1
 	best_k = -1
 	final_scores_per_fold = []
+	losses ={}
 	for k in range(args.num_folds):
+		losses[k] = {'train':[], 'dev':[]}
 		logger.new_fold(k)
 		train_indices, dev_indices = data.split_data(k)
 		train_data = Subset(data, train_indices)
@@ -163,6 +163,8 @@ if __name__ == '__main__':
 										 train_loader, loss_fxn, optim,
 										 args.joint, args.modalities, print_denominator,
 										 train=True)
+
+			losses[k]['train'].append(epoch_loss / len(train_data))
 			scores = get_scores(epoch_labels, epoch_predictions, detailed=False)
 			logger.update_scores(scores, epoch, 'TRAIN')
 
@@ -174,7 +176,9 @@ if __name__ == '__main__':
 										 dev_loader, loss_fxn, optim,
 										 args.joint, args.modalities, print_denominator,
 										 train=False)
+			losses[k]['dev'].append(dev_loss / len(dev_data))
 			scores = get_scores(dev_labels, dev_predictions, detailed=True)
+			
 			logger.update_scores(scores, epoch, 'DEV')
 
 
@@ -186,15 +190,22 @@ if __name__ == '__main__':
 				print('#########################################')
 				best_f1 = scores['micro_f']
 				best_k = k
-				torch.save(model.state_dict(), os.path.join(weights_dir, basename+'.weights'))
+				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
 		
 		conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
 		scores['confusion_matrix'] = conf
 		final_scores_per_fold.append(scores)
 
-	with open(os.path.join(scores_dir, basename+'.pkl'), 'wb') as f:
+		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'w+') as f:
+			f.write('\n')
+			f.write("FOLD {}".format(k))
+			f.write(classification_report(dev_labels, dev_predictions))
+
+	final_scores_per_fold.append(losses)
+	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
 		pickle.dump(final_scores_per_fold, f)
 	logger.close(best_f1, best_k)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))
 	print("best f1: {:.2f}".format(best_f1))
+	print("last dev loss: {:.2f}".format(dev_loss))

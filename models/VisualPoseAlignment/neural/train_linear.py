@@ -10,7 +10,7 @@ from torch.nn import functional as F
 from torch.utils.data import Dataset
 
 torch.manual_seed(200)
-from sklearn.metrics import multilabel_confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import multilabel_confusion_matrix, precision_recall_fscore_support, classification_report
 
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
@@ -118,19 +118,19 @@ def compute_test_epoch(model, data_loader, loss_fxn, optim,
 		
 		hists = batch['hist']
 		hists = hists.double()
-		epoch_labels.append(batch['label'][0])	
-		out = model(hists).squeeze(0)
-		predictions = out.argmax(1)
 		
+		epoch_labels.append(batch['label'][0][0])	
+		out = model(hists).squeeze(0)
+		predictions = F.sigmoid(out).argmax(1)
+		print(predictions.shape)
 		num_zeroes = sum(predictions == 0)
 		num_ones = sum(predictions == 1)
 		
 		if num_zeroes > num_ones:
-			epoch_predictions += [1] * len(out)
+			epoch_predictions += [1]
 		else:
-			epoch_predictions += [0] * len(out)
-	
-	return torch.cat(epoch_labels, dim=0), torch.Tensor(epoch_predictions), epoch_loss	
+			epoch_predictions += [0]
+	return torch.Tensor(epoch_labels), torch.Tensor(epoch_predictions), epoch_loss	
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -187,24 +187,27 @@ if __name__ == '__main__':
 		test = pickle.load(f)
 	print(train.keys())
 	
-	input_dim = train['0102']['hists'].shape[2]
-	model = torch.nn.Sequential(nn.Dropout(args.dropout), nn.Linear(input_dim, 50), nn.ReLU(), 
+
+	
+	all_labels = []
+	all_predictions = []
+	for pair_id in ['1112', '0304']:	
+		print("PROCESSING PAIR", pair_id)
+		input_dim = train['0102']['hists'].shape[2]
+		model = torch.nn.Sequential(nn.Dropout(args.dropout), nn.Linear(input_dim, 50), nn.ReLU(), 
 		 							nn.Dropout(args.dropout), nn.Linear(50, 2))
-	if args.optim == 'adam':
-		optim = Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
-	
-	elif args.optim == 'sgd':
-		optim = SGD(model.parameters(), lr=args.lr)
-
-	model.double()
-	
-
-	for pair_id in ['0708', '1314']:	
+		if args.optim == 'adam':
+			optim = Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
+		
+		elif args.optim == 'sgd':
+			optim = SGD(model.parameters(), lr=args.lr)
+		model.double()
 		train_data = TrainDataset(train[pair_id])
 		train_loader = DataLoader(train_data, batch_size = args.batchsize)
 		test_data = TestDataset(test[pair_id])
 		test_loader = DataLoader(test_data, batch_size = 1)
-		
+		actorA= int(pair_id[:2])
+		actorB = int(pair_id[2:])
 		# print(len(train[pair_id]))
 		logging.info('\n')
 		logging.info("################################################")
@@ -219,22 +222,27 @@ if __name__ == '__main__':
 			model.train()
 			epoch_labels, epoch_predictions, epoch_loss = compute_train_epoch(model,
 										 train_loader, loss_fxn, optim, print_denominator)
-			print(epoch_labels.shape)
-			print('//////////////')
-			print(epoch_predictions.shape)
 			scores = get_scores(epoch_labels, epoch_predictions, detailed=False)
 			logger.update_scores(scores, epoch, 'TRAIN')
 
-			print("################################################")
-			print("                     EVAL")
-			print("################################################")
-			model.eval()
-			test_labels, test_predictions, test_loss = compute_test_epoch(model,
-										 test_loader, loss_fxn, optim, print_denominator)
-			scores = get_scores(test_labels, test_predictions, detailed=True)
-			logger.update_scores(scores, epoch, 'DEV')
-
-
+		print("################################################")
+		print("                     EVAL")
+		print("################################################")
+		model.eval()
+		test_labels, test_predictions, test_loss = compute_test_epoch(model,
+									 test_loader, loss_fxn, optim, print_denominator)
+		scores = get_scores(test_labels, test_predictions, detailed=True)
+		logger.update_scores(scores, epoch, 'DEV')
+		print(pair_id)
+		print("LEN TEST LABELS", len(test_labels))
+		test_labels = test_labels.numpy()
+		test_predictions = test_predictions.numpy()
+		test_labels[np.where(test_labels == 1)] = actorB
+		test_labels[np.where(test_labels == 0)] = actorA
+		test_predictions[np.where(test_predictions ==1)] = actorB
+		test_predictions[np.where(test_predictions ==0)] = actorB
+		all_labels += test_labels.tolist()
+		all_predictions += test_predictions.tolist()
 			# if scores['micro_f'] > best_f1:
 			# 	print('#########################################')
 			# 	print('       New best : {:.2f} (previous {:.2f})'.format(scores['micro_f'], best_f1))
@@ -246,9 +254,10 @@ if __name__ == '__main__':
 		
 		# conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
 		# scores['confusion_matrix'] = conf
-
-	# with open(os.path.join(scores_dir, basename+'.pkl'), 'wb') as f:
-	# 	pickle.dump(final_scores_per_fold, f)
+	print(len(all_labels))
+	print(len(all_predictions))
+	with open(os.path.join('./outputs/scores', basename+'-scores.csv'), 'w+') as f:
+		f.write(classification_report(all_labels, all_predictions))
 	# logger.close(best_f1, best_k)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))

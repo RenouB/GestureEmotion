@@ -36,6 +36,39 @@ def add_keypoints_to_sequences(all_videos, video, view, frame_index, assignment,
 
 	return all_videos
 
+def translate_keypoints(body_keypoints):
+    mid_hip = body_keypoints[BODY_CENTER]
+    translated_keypoints = []
+    for keypoint in body_keypoints:
+        if keypoint.sum() == 0:
+            translated_keypoints.append(keypoint)
+        else:
+            translated_keypoints.append(keypoint - mid_hip)
+    return np.array(translated_keypoints)
+
+def interpolate_missing_keypoints(body_keypoints, body_keypoints_sequence):
+    # if half of the waist-up body parts are missing, eliminate this pose
+    missing_keypoints = np.where(body_keypoints.sum(axis=1))
+    if len(np.intersect1d(missing_keypoints, WAIST_UP_BODY_PART_INDICES)) > 7:
+        return np.array([[10000,10000]*25])
+    else:
+        pass
+        # start interpolating missing keypoints
+        # for i in range(len(body_keypoints_sequence)):
+
+def scale_keypoints(body_keypoints):
+    neck = body_keypoints[NECK]
+    mid_hip = body_keypoints[BODY_CENTER]
+    l2 = np.linalg.norm(neck - mid_hip)
+
+    if l2 == 0:
+        return body_keypoints
+    return body_keypoints / l2
+
+def normalize_keypoints(keypoints):
+	if type(keypoints) == str:
+		return keypoints
+	return scale_keypoints(translate_keypoints(keypoints))
 ############# Filtering
 
 def filter_view6(all_keypoints):
@@ -98,6 +131,7 @@ def filter_keypoints(all_keypoints, view):
 		all_keypoints = filter_view6(all_keypoints)
 	# print("view6")
 	# print([type(keypoints) for keypoints in all_keypoints])
+	all_keypoints = filter_too_close(all_keypoints)
 	
 	all_keypoints = [filter_missing_important(keypoints) for keypoints in all_keypoints]
 	# print("important")
@@ -107,7 +141,6 @@ def filter_keypoints(all_keypoints, view):
 	# print("toomany")
 	# print([type(keypoints) for keypoints in all_keypoints])
 	
-	all_keypoints = filter_too_close(all_keypoints)
 	# print("tooclose")
 	# print([type(keypoints) for keypoints in all_keypoints])
 	if len(all_keypoints) == 1:
@@ -276,7 +309,8 @@ def get_most_similar_pair(one_sim_A, one_sim_B, two_sim_A, two_sim_B, reverse):
 
 	return best
 
-def assign(cropped1, cropped2, histA, histB, color, distance, only_hue, num_bins, comparison_indices, actorA, actorB):
+def assign(cropped1, cropped2, histA, histB, color, distance, only_hue, 
+	num_bins, comparison_indices, actorA, actorB):
 	
 	if distance == 'cor':
 		distance = cv2.HISTCMP_CORREL

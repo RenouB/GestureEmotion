@@ -55,7 +55,7 @@ class PoseDataset(Dataset):
 						self.actorsB += [actor]*len(poses)
 						self.viewsB += [view]*len(poses)			
 
-		self.unique_actor_pairs = list(set(self.actor_pairsA.copy()))
+		self.unique_actor_pairs = sorted(list(set(self.actor_pairsA.copy())))
 
 		if not joint:
 			self.poses = self.posesA + self.posesB

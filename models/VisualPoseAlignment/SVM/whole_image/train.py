@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import time
 from argparse import ArgumentParser
-from sklearn.metrics import multilabel_confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import multilabel_confusion_matrix, precision_recall_fscore_support, classification_report
 from sklearn.svm import LinearSVC
 
 
@@ -96,8 +96,8 @@ if __name__ == "__main__":
 		scores = get_scores(test_labels, predictions, detailed=True)
 		test_labels[np.where(test_labels == 1)] = actorB
 		test_labels[np.where(test_labels == 0)] = actorA
-		predictions[np.where(predictions == 0)] = actorA
 		predictions[np.where(predictions == 1)] = actorB
+		predictions[np.where(predictions == 0)] = actorA
 		all_test_labels = np.concatenate([all_test_labels, test_labels])
 		all_test_predictions = np.concatenate([all_test_predictions, predictions])
 		pair_scores[pair_id] = scores
@@ -114,5 +114,5 @@ if __name__ == "__main__":
 	pair_scores['all'] = scores
 	logger.update_scores(scores, 'ALL', 'DEV')
 	logger.close(0, 0)
-	with open(os.path.join('./outputs/scores', basename+'scores.pkl'), 'wb') as f:
-		pickle.dump(pair_scores, f)
+	with open(os.path.join('./outputs/scores', basename+'scores.csv'), 'w+') as f:
+		f.write(classification_report(all_test_labels, all_test_predictions))

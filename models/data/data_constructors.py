@@ -31,7 +31,6 @@ def construct_data_filename(interval, seq_length, joint, debug):
 
 	return filename
 
-
 def construct_pose_data(interval, seq_length, joint, debug):
 	annotations = pd.read_csv(GOLD_STANDARD_PATH)
 
@@ -39,7 +38,7 @@ def construct_pose_data(interval, seq_length, joint, debug):
 		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "debug_cnn.pkl"), "rb") as f:
 			raw_data = pickle.load(f)
 	else:
-		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all.pkl"), "rb") as f:
+		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
 			raw_data = pickle.load(f)
 
 	data = {}
@@ -118,15 +117,18 @@ def construct_pose_data(interval, seq_length, joint, debug):
 			data[video][view]['B']['labels'] = filtered['B']['labels']
 					
 	filename = construct_data_filename(interval, seq_length, joint, debug)
-
+	print("Total poses before filtering:", total_pose_before)
+	print("Total labels before filtering:", total_labels_before)
+	print("Total poses after filtering:", total_pose_after)
+	print("Total labels after filtering:", total_labels_after)
 	with open(os.path.join(MODELS_DIR, 'data', filename), 'wb') as f:
 		pickle.dump(data, f)
 
 
 if __name__ == "__main__":
 	parser = ArgumentParser()
-	parser.add_argument('-interval', default=4)
-	parser.add_argument('-seq_len', default=4)
+	parser.add_argument('-interval', default=3, type=int)
+	parser.add_argument('-seq_len', default=5, type=int)
 	parser.add_argument('-joint', action='store_true', default=False)
 	parser.add_argument('-debug', action="store_true", default=False)
 	args = parser.parse_args()

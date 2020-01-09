@@ -11,6 +11,7 @@ model/outputs
 **/zips
 **.weights
 openpose
+**.csv
 **/.Rhistory
 **.Rproj
 **.RData
