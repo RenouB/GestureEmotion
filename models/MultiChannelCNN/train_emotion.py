@@ -116,8 +116,11 @@ if __name__ == '__main__':
 	print("################################################")
 	print("                  STARTING")
 	print('epochs', args.epochs)
-	if args.cuda and torch.cuda.is_available():
-		device = torch.device('cuda:'+str(args.gpu))
+	if args.cuda:
+		use_gpu = lambda x=True: torch.set_default_tensor_type(torch.cuda.FloatTensor 
+                                             if torch.cuda.is_available() and x 
+                                             else torch.FloatTensor)
+		use_gpu()
 	else:
 		device = torch.device('cpu')
 	print("device: ", device)
