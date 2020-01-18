@@ -90,9 +90,10 @@ def construct_pose_data(interval, seq_length, joint, debug):
 			labelsA = data[video][view]['A']['labels']
 			labelsB = data[video][view]['B']['labels']
 			if joint:
-				for i, pose in enumerate(posesA):
-					if pose is not None and posesB[i] is not None:
-						filtered['A']['poses'].append(pose)
+				for i in range(min(len(posesA), len(posesB))):
+					
+					if posesA[i] is not None and posesB[i] is not None:
+						filtered['A']['poses'].append(posesA[i])
 						filtered['B']['poses'].append(posesB[i])
 						filtered['A']['labels'].append(labelsA[i])
 						filtered['B']['labels'].append(labelsB[i])

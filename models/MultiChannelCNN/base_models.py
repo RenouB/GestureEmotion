@@ -3,27 +3,34 @@ from torch.nn import functional as F
 from torch import nn
 from CNN import CNN
 torch.manual_seed(200)
+
 class OneActorOneModalityCNN(nn.Module):
-	def __init__(self, feats_dim, n_filters, filter_sizes, 
-				 cnn_output_dim, num_classes, dropout):
+	def __init__(self, feats_dim, n_filters, filter_sizes,
+				 cnn_output_dim, project_output_dim, num_classes, dropout):
 		
 		super().__init__()
-				
-		self.CNN = CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout)
+		
 		self.dropout = nn.Dropout(dropout)
-		self.classify = nn.Linear(cnn_output_dim, num_classes)
+		self.cnn_block = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
+										nn.ReLU())
 	
+		self.project = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
+		self.classify = nn.Linear(project_output_dim, num_classes)
+	
+		print(self)
+
 	def forward(self, feats):
 		feats = self.dropout(feats)
-		feats = self.CNN(feats)
-		feats = F.relu(feats)
-		feats = self.dropout(feats)
-		out = self.classify(feats)
-		out = torch.sigmoid(out)
+
+		feats = self.cnn_block(feats)
+		feats = self.project(feats)
+		feats = self.classify(feats)
+		out = torch.sigmoid(feats)
 		return out
 
+
 class TwoActorsOneModalityCNN(nn.Module):
-	def __init__(self, feats_dim, n_filters, filter_sizes, 
+	def __init__(self, feats_dim, n_filters, filter_sizes, n_conv,
 				 cnn_output_dim, num_classes, dropout):
 		
 		super().__init__()

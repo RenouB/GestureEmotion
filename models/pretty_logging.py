@@ -24,16 +24,31 @@ def construct_basename(args):
 	lr_str = 'lr'+str(args.lr)
 	dropout_str = 'dr'+str(args.dropout)
 	epochs_str = 'ep'+str(args.epochs)
-
-	basename = '-'.join([joint_str, mode_str, att_str, lr_str, dropout_str, epochs_str])
+	basename = '-'.join([joint_str, mode_str, args.keypoints, att_str, lr_str, dropout_str, epochs_str])
 	
 	if args.test:
 		basename = 'TEST-'+basename
 	return basename
 
-def get_write_dir(model_type, attention, joint, modalities):
+def construct_crf_basename(args):
+	if args.joint:
+		joint_str = 'JOINT'
+	else:
+		joint_str = 'IND'
+
+	mode_str = str(args.modalities)
+
+	basename = '-'.join([joint_str, mode_str, args.keypoints])
+	
+	if args.test:
+		basename = 'TEST-'+basename
+	return basename
+
+def get_write_dir(model_type, attention, joint, modalities, emotion=None):
 	if model_type == 'CNN':
 		model_dir ='MultiChannelCNN'
+	elif model_type == 'CRF':
+		model_dir = 'CRF'
 	if attention:
 		attention_dir = 'attention'
 	else:
@@ -51,7 +66,19 @@ def get_write_dir(model_type, attention, joint, modalities):
 	else:
 		mode_dir = 'both'
 	
-	return os.path.join(MODELS_DIR, model_dir, attention_dir, joint_dir, mode_dir)
+	if emotion is not None:
+		if emotion == 0:
+			emotion_str = 'anger'
+		if emotion == 1:
+			emotion_str = 'happiness'
+		if emotion == 2:
+			emotion_str = 'sadness'
+		if emotion == 3:
+			emotion_str = 'surprise'
+			
+		return os.path.join(MODELS_DIR, model_dir, emotion_str, joint_dir, mode_dir)
+	else:
+		return os.path.join(MODELS_DIR, model_dir, attention_dir, joint_dir, mode_dir)
 
 
 class PrettyLogger():

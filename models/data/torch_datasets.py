@@ -15,10 +15,10 @@ from models.data.data_constructors import construct_data_filename
 
 
 class PoseDataset(Dataset):
-	def __init__(self, interval=4, seq_length=4, joint=False, debug=False):
+	def __init__(self, interval=4, seq_length=4, keypoints='full',joint=False, debug=False, emotion=None):
 		self.joint = joint
 		
-		filename = construct_data_filename(interval, seq_length, joint, debug)
+		filename = construct_data_filename(interval, seq_length, True, debug)
 		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
 			self.data = pickle.load(f)
 		
@@ -40,8 +40,30 @@ class PoseDataset(Dataset):
 			
 			for view, actors in views.items():
 				for actor in actors:
-					poses = actors[actor]["poses"]
-					labels = actors[actor]["labels"]
+					poses = np.array(actors[actor]["poses"])
+					new_shape = poses.shape[:-1]+(25,2)
+					poses = poses.reshape(new_shape)
+
+					if keypoints == 'full':
+						poses = poses[:,:,constants["WAIST_UP_BODY_PART_INDICES"],:]
+					elif keypoints == "full-hh":
+						poses = poses[:,:,constants["FULL-HH"],:]
+					elif keypoints == "full-head":
+						poses = poses[:,:,constants["FULL-HEAD"],:]
+					elif keypoints == "head":
+						poses = poses[:,:,constants["HEAD"],:]
+					elif keypoints == "hands":
+						poses = poses[:,:,constants["HANDS"],:]
+					
+					poses = poses.reshape(new_shape[:2]+(-1,))
+					poses = list(poses)
+					
+					if emotion is not None:
+						labels = np.array(actors[actor]["labels"])[:,emotion]
+						labels = labels.tolist()
+						
+					else:
+						labels = actors[actor]["labels"]
 					if actor == 'A':
 						self.actor_pairsA += [pair]*len(poses)
 						self.posesA += poses
@@ -63,25 +85,7 @@ class PoseDataset(Dataset):
 			self.actors = self.actorsA + self.actorsB 
 			self.actor_pairs = self.actor_pairsA + self.actor_pairsB
 			self.views = self.viewsA + self.viewsB
-		# 	print("in COnsTRUCTOR")
-		# 	print("len actor pairs", len(self.actor_pairs))
-		# 	print("len actors", len(self.actors))		
-		# 	print("len labels", len(self.labels))
-		# 	print("len poses", len(self.poses))
-		# 	print("len views", len(self.views))
-		# if joint:
-		# 	print("in CONSTRUCTOR")
-		# 	print("len actor pairs A", len(self.actor_pairsA))
-		# 	print("len actor pairs B", len(self.actor_pairsB))
-		# 	print("actors A", len(self.actorsA))
-		# 	print("actors B", len(self.actorsB))
-		# 	print("len labels A", len(self.labelsA))
-		# 	print("len labels B", len(self.labelsB))
-		# 	print("poses A", len(self.posesA))
-		# 	print("poses B", len(self.posesB))
-		# 	print("views A", len(self.viewsA))
-		# 	print("views B", len(self.viewsB))
-	
+		
 	def __len__(self):
 		if not self.joint:
 			return len(self.poses) - 1
@@ -100,8 +104,19 @@ class PoseDataset(Dataset):
 					'viewA': self.viewsA[i], 'viewB': self.viewsB[i],
 					'actor_pairsA': self.actor_pairsA[i], 'actor_pairsB': self.actor_pairsB[i]}
 
-	def split_data(self, fold):
-		dev_pair = self.unique_actor_pairs[fold-1]
+	def split_data(self, fold, emotion=None):
+		if emotion == 0:
+			dev_pair = '0506'
+		elif emotion == 1:
+			dev_pair = '0102'
+		elif emotion == 2:
+			dev_pair = '0910'
+		elif emotion == 3:
+			dev_pair = '0708'
+		else:
+		
+			dev_pair = self.unique_actor_pairs[fold]
+		print("DEV PAIR: ", dev_pair)
 		dev_indices = []
 		train_indices = []
 

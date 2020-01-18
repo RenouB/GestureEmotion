@@ -7,6 +7,7 @@ numpy
 statsmodels
 scipy
 sklearn
+sklearn_crfsuite
 tensorflow
 imutils
 matplotlib
