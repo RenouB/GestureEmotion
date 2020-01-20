@@ -8,7 +8,7 @@ from torch.optim import Adam, SGD
 from torch.nn import functional as F
 torch.manual_seed(200)
 from sklearn.metrics import multilabel_confusion_matrix, classification_report
-from base_models import OneActorOneModalityCNN, TwoActorsOneModalityCNN
+from base_models import OneActorOneModalityCNN, TwoActorsOneModalityCNN, TwoActorsOneModalitySimpleCNN
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
 sys.path.insert(0, PROJECT_DIR)
@@ -21,6 +21,18 @@ import argparse
 import logging
 from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
 import time
+
+def get_input_dim(keypoints):
+	if keypoints == 'full':
+		return len(constants["WAIST_UP_BODY_PART_INDICES"]) * 2
+	if keypoints == 'full-hh':
+		return len(constants["FULL-HH"]) * 2
+	if keypoints == 'full-head':
+		return len(constants["FULL-HEAD"]) * 2
+	if keypoints == 'head':
+		return len(constants["HEAD"]) * 2
+	if keypoints == 'hands':
+		return len(constants["HANDS"]) * 2
 
 def compute_epoch(model, data_loader, loss_fxn, optim, 
 					joint, modalities, print_denominator, train):
@@ -45,11 +57,14 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 		else:
 			if modalities == 0:
 				poseA = batch['poseA']
-				labelsA = batch['labelsA']
+				labelsA = batch['labelsA'].unsqueeze(1)
 				poseB = batch['poseB']
-				labelsB = batch['labelsB']
+				labelsB = batch['labelsB'].unsqueeze(1)
 				out = model(poseA, poseB)
-				labels = torch.cat([labelsA, labelsB], dim=0)
+				labels = torch.cat([labelsA, labelsB], dim=1)
+				labels = labels.flatten()
+		
+		labels = labels.unsqueeze(1)
 		predictions = (out > 0.5).int()
 		epoch_labels.append(labels)
 		epoch_predictions.append(predictions)
@@ -68,18 +83,22 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-epochs', type=int, default=1)
 	parser.add_argument('-joint', action="store_true", default=False)
-	parser.add_argument('-modalities', default=0)
+	parser.add_argument('-modalities', default=0, type=int)
 	parser.add_argument('-attention', default=False)
-	parser.add_argument('-interval', default=3)
-	parser.add_argument('-seq_length', default=5)
+	parser.add_argument('-interval', default=3, type=int)
+	parser.add_argument('-seq_length', default=5, type=int)
+	parser.add_argument("-emotion", default=0, type=int)
+	parser.add_argument("-keypoints", default='full')
 
-	parser.add_argument('-n_filters', default=2)
-	parser.add_argument('-filter_sizes', default=3)
-	parser.add_argument('-cnn_output_dim', default=50)
-
+	parser.add_argument('-n_filters', default=50, type=int)
+	parser.add_argument('-filter_sizes', default=3, type=int)
+	parser.add_argument('-cnn_output_dim', default=60, type=int)
+	parser.add_argument('-project_output_dim', default=30, type=int)
+	parser.add_argument('-att_vector_dim', default=30, type=int)
+	parser.add_argument('-simple', action="store_true", default=False)
 	parser.add_argument('-batchsize', type=int, default=20)
 	parser.add_argument('-lr', type=float, default=0.001)
-	parser.add_argument('-l2', type=float, default=0.0001)
+	parser.add_argument('-l2', type=float, default=0.001)
 	parser.add_argument('-dropout', default=0.5, type=float, help='dropout probability')
 	parser.add_argument('-optim', default='adam')
 	
@@ -100,8 +119,11 @@ if __name__ == '__main__':
 	print("################################################")
 	print("                  STARTING")
 	print('epochs', args.epochs)
-	if args.cuda and torch.cuda.is_available():
-		device = torch.device('cuda:'+str(args.gpu))
+	if args.cuda:
+		use_gpu = lambda x=True: torch.set_default_tensor_type(torch.cuda.FloatTensor 
+                                             if torch.cuda.is_available() and x 
+                                             else torch.FloatTensor)
+		use_gpu()
 	else:
 		device = torch.device('cpu')
 	print("device: ", device)
@@ -110,41 +132,54 @@ if __name__ == '__main__':
 	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = construct_basename(args)+'-'+starttime
-	write_dir = get_write_dir('CNN', attention=False, joint=args.joint, modalities=args.modalities)
+	write_dir = get_write_dir('CNN', attention=False, joint=args.joint, modalities=args.modalities, 
+		emotion= args.emotion)
+	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
 	# TODO: Add different modalities
-	if not args.joint:
-		if args.modalities == 0:
-			model = OneActorOneModalityCNN(cnn_params["POSE_DIM"], args.n_filters,
-						range(1, args.filter_sizes+1), args.cnn_output_dim,
-						cnn_params["NUM_CLASSES"], args.dropout)
-	else:
-		if args.modalities == 0:
-			model = TwoActorsOneModalityCNN(cnn_params["POSE_DIM"], args.n_filters, 
-						range(1, args.filter_sizes+1), args.cnn_output_dim, 
-						cnn_params["NUM_CLASSES"], args.dropout)
-
-	loss_fxn = torch.nn.BCELoss()
-	
-	if args.optim == 'adam':
-		optim = Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
-	elif args.optim == 'sgd':
-		optim = SGD(model.parameters(), lr=args.lr)
-
-	model.double()
-	data = PoseDataset(args.interval, args.seq_length, args.joint, args.debug)
-
+	data = PoseDataset(args.interval, args.seq_length, args.keypoints, args.joint, args.debug, args.emotion)
+	print(data.unique_actor_pairs)
 	best_f1 = -1
 	best_k = -1
-	final_scores_per_fold = []
-	losses ={}
+	final_scores_per_fold = {}
+	losses = {}
+	f1s = {}
+	final_f1s = []
+
+	input_dim = get_input_dim(args.keypoints)
+	
 	for k in range(args.num_folds):
+		if not args.joint:
+			if args.modalities == 0:
+				model = OneActorOneModalityCNN(input_dim, args.n_filters,
+							range(1, args.filter_sizes+1), args.cnn_output_dim,
+							args.project_output_dim, 1, args.dropout)
+		else:
+			if args.modalities == 0:
+				if not args.simple:
+					model = TwoActorsOneModalityCNN(input_dim, args.n_filters, 
+							range(1, args.filter_sizes+1), args.cnn_output_dim, 
+							args.project_output_dim, args.att_vector_dim, 1, args.dropout)
+				else:
+					model = TwoActorsOneModalitySimpleCNN(input_dim, args.n_filters, 
+							range(1, args.filter_sizes+1), args.cnn_output_dim, 
+							args.project_output_dim, args.att_vector_dim, 1, args.dropout)
+		loss_fxn = torch.nn.BCELoss()
+		
+		if args.optim == 'adam':
+			optim = Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
+		elif args.optim == 'sgd':
+			optim = SGD(model.parameters(), lr=args.lr)
+
+		model.double()
+
 		losses[k] = {'train':[], 'dev':[]}
+		f1s[k] = {'train':[], 'dev':[]}
 		logger.new_fold(k)
-		train_indices, dev_indices = data.split_data(k)
+		train_indices, dev_indices = data.split_data(k, args.emotion)
 		train_data = Subset(data, train_indices)
-		train_loader =DataLoader(train_data, batch_size=args.batchsize)
+		train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 		dev_data = Subset(data, dev_indices)
 		dev_loader = DataLoader(dev_data, batch_size=args.batchsize)
 		print("################################################")
@@ -165,6 +200,7 @@ if __name__ == '__main__':
 
 			losses[k]['train'].append(epoch_loss / len(train_data))
 			scores = get_scores(epoch_labels, epoch_predictions, detailed=False)
+			f1s[k]['train'].append(scores['micro_f'])
 			logger.update_scores(scores, epoch, 'TRAIN')
 
 			print("################################################")
@@ -177,7 +213,7 @@ if __name__ == '__main__':
 										 train=False)
 			losses[k]['dev'].append(dev_loss / len(dev_data))
 			scores = get_scores(dev_labels, dev_predictions, detailed=True)
-			
+			f1s[k]['dev'].append(scores['micro_f'])
 			logger.update_scores(scores, epoch, 'DEV')
 
 
@@ -189,22 +225,37 @@ if __name__ == '__main__':
 				print('#########################################')
 				best_f1 = scores['micro_f']
 				best_k = k
+				best_epoch = epoch
 				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
+		
+		train_classification_report = classification_report(epoch_labels, epoch_predictions)
+		dev_classification_report = classification_report(dev_labels, dev_predictions)
 		
 		conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
 		scores['confusion_matrix'] = conf
-		final_scores_per_fold.append(scores)
-
-		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'w+') as f:
+		final_scores_per_fold[k] = scores
+		final_f1s.append(scores['micro_f'])
+		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
 			f.write('\n')
-			f.write("FOLD {}".format(k))
-			f.write(classification_report(dev_labels, dev_predictions))
+			f.write("FOLD {} \n".format(k))
+			f.write("####################################\n")
+			f.write("TRAIN \n")
+			f.write("####################################\n")
+			f.write(train_classification_report)
+			f.write('\n')
+			f.write("#################################### \n")
+			f.write("DEV \n")
+			f.write("#################################### \n")
+			f.write(dev_classification_report)
 
-	final_scores_per_fold.append(losses)
+	final_scores_per_fold['losses'] = losses
+	final_scores_per_fold['f1s'] = f1s
 	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
 		pickle.dump(final_scores_per_fold, f)
 	logger.close(best_f1, best_k)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))
 	print("best f1: {:.2f}".format(best_f1))
-	print("last dev loss: {:.2f}".format(dev_loss))
+	print("at epoch: {}".format(best_epoch))
+	print("last dev loss: {}".format(dev_loss))
+	print("mean micro f1 {:.2f}".format(np.mean(final_f1s)))

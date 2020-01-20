@@ -80,6 +80,10 @@ def construct_pose_data(interval, seq_length, joint, debug):
 					 	current_labels.loc[:,["Anger","Happiness","Sadness","Surprise"]].values[0]
 					
 					poses.append(np.array([keypoints.flatten() for keypoints in sequence_keypoints]))
+					poses.append(np.array([np.concatenate([-keypoints[:,0], keypoints[:,1]], axis=0).flatten()
+									for keypoints in sequence_keypoints]))
+					
+					labels.append(np.array(current_labels))
 					labels.append(np.array(current_labels))
 		
 
@@ -117,7 +121,7 @@ def construct_pose_data(interval, seq_length, joint, debug):
 			data[video][view]['A']['labels'] = filtered['A']['labels']
 			data[video][view]['B']['labels'] = filtered['B']['labels']
 					
-	filename = construct_data_filename(interval, seq_length, joint, debug)
+	filename = 'perturb-'+construct_data_filename(interval, seq_length, joint, debug)
 	print("Total poses before filtering:", total_pose_before)
 	print("Total labels before filtering:", total_labels_before)
 	print("Total poses after filtering:", total_pose_after)

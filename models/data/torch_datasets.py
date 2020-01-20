@@ -18,7 +18,7 @@ class PoseDataset(Dataset):
 	def __init__(self, interval=4, seq_length=4, keypoints='full',joint=False, debug=False, emotion=None):
 		self.joint = joint
 		
-		filename = construct_data_filename(interval, seq_length, True, debug)
+		filename = 'perturb-'+construct_data_filename(interval, seq_length, True, debug)
 		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
 			self.data = pickle.load(f)
 		
@@ -105,17 +105,17 @@ class PoseDataset(Dataset):
 					'actor_pairsA': self.actor_pairsA[i], 'actor_pairsB': self.actor_pairsB[i]}
 
 	def split_data(self, fold, emotion=None):
-		if emotion == 0:
-			dev_pair = '0506'
-		elif emotion == 1:
-			dev_pair = '0102'
-		elif emotion == 2:
-			dev_pair = '0910'
-		elif emotion == 3:
-			dev_pair = '0708'
-		else:
+		# if emotion == 0:
+		# 	dev_pair = '0506'
+		# elif emotion == 1:
+		# 	dev_pair = '0102'
+		# elif emotion == 2:
+		# 	dev_pair = '0910'
+		# elif emotion == 3:
+		# 	dev_pair = '0708'
+		# else:
 		
-			dev_pair = self.unique_actor_pairs[fold]
+		dev_pair = self.unique_actor_pairs[fold]
 		print("DEV PAIR: ", dev_pair)
 		dev_indices = []
 		train_indices = []

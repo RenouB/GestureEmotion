@@ -20,7 +20,7 @@ def get_scores(labels, predictions, detailed):
 	exact_acc = len([i for i, pred in enumerate(predictions) \
 					 if torch.all(torch.eq(predictions[i], labels[i]))]) \
 					  / len(labels)
-
+	
 	acc_per_class = np.array([sum(labels[:,i] == predictions[:,i]) / \
 						len(labels) for i in range(len(labels[0]))])
 	av_acc = acc_per_class.mean()

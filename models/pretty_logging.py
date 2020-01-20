@@ -49,6 +49,9 @@ def get_write_dir(model_type, attention, joint, modalities, emotion=None):
 		model_dir ='MultiChannelCNN'
 	elif model_type == 'CRF':
 		model_dir = 'CRF'
+	elif model_type == 'random':
+		model_dir = 'rand'
+
 	if attention:
 		attention_dir = 'attention'
 	else:
@@ -77,6 +80,7 @@ def get_write_dir(model_type, attention, joint, modalities, emotion=None):
 			emotion_str = 'surprise'
 			
 		return os.path.join(MODELS_DIR, model_dir, emotion_str, joint_dir, mode_dir)
+
 	else:
 		return os.path.join(MODELS_DIR, model_dir, attention_dir, joint_dir, mode_dir)
 
@@ -108,7 +112,7 @@ class PrettyLogger():
 			logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch", 
 													"macro-p", "macro-r", "macro-f",
 													"micro-p", "micro-r","micro-f",  "acc"))
-		logging.info('{:>7}, {:>7}, {:>7.2f}, {:>7.2f}, {:>7.2f}, {:>7.2f}, {:>7.2f}, {:>7.2f}, {:>7.2f}'.format(
+		logging.info('{:>7}, {:>7}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}'.format(
 						*[mode, epoch] + scores_to_log))
 		
 		if mode == 'DEV':

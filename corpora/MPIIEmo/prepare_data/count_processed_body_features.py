@@ -65,6 +65,6 @@ print("Total frames: {}".format(together_counts['total']))
 print("Percentage with intact keypoints: {:.2f}".format(together_counts['intact'] / together_counts['total']))
 print("Total intact: {}".format(together_counts["intact"]))
 for key in ['none', 'tooclose', 'toomany', 'nocenter']:
-	print(key, "{:.2f}".format(together_counts[key] / together_counts['total']))
+	print(key, "{}".format(together_counts[key]))
 for actor in ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16']:
 	print(actor, together_counts[actor])	

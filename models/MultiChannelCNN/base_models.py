@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 from torch import nn
-from CNN import CNN
+from layers import CNN, Attention, SimpleAttention
 torch.manual_seed(200)
 
 class OneActorOneModalityCNN(nn.Module):
@@ -13,7 +13,6 @@ class OneActorOneModalityCNN(nn.Module):
 		self.dropout = nn.Dropout(dropout)
 		self.cnn_block = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
 										nn.ReLU())
-	
 		self.project = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
 		self.classify = nn.Linear(project_output_dim, num_classes)
 	
@@ -30,35 +29,80 @@ class OneActorOneModalityCNN(nn.Module):
 
 
 class TwoActorsOneModalityCNN(nn.Module):
-	def __init__(self, feats_dim, n_filters, filter_sizes, n_conv,
-				 cnn_output_dim, num_classes, dropout):
+	def __init__(self, feats_dim, n_filters, filter_sizes,
+				 cnn_output_dim, project_output_dim, att_vector_dim, 
+				 num_classes, dropout):
 		
 		super().__init__()
-				
-		self.CNN = CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout)
+		
 		self.dropout = nn.Dropout(dropout)
-		self.classify = nn.Linear(cnn_output_dim * 2, num_classes)
+		self.cnn_block = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
+										nn.ReLU())
+		self.project = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
+		self.attend = Attention(project_output_dim, att_vector_dim, dropout)
+		self.classify = nn.Linear(project_output_dim, num_classes)
 	
 	def forward(self, feats1, feats2):
+
 		feats1 = self.dropout(feats1)
-		feats1 = self.CNN(feats1)
+		feats1 = self.cnn_block(feats1)
+		feats1 = self.project(feats1)
 
 		feats2 = self.dropout(feats2)
-		feats2 = self.CNN(feats2)
-
-		both1 = torch.cat([feats1, feats2], dim=1)
-		both1 = self.dropout(both1)
-		out1 = self.classify(both1)
-
-
-		both2 = torch.cat([feats2, feats1], dim=1)
-		both2 = self.dropout(both2)
-		out2 = self.classify(both2)
+		feats2 = self.cnn_block(feats2)
+		feats2 = self.project(feats2)
 		
-		out = torch.cat([out1, out2], dim=0)
+		attend1 = self.attend(feats1, feats2)
+		attend1 = self.dropout(attend1)
+		attend2 = self.attend(feats2, feats1)
+		attend2 = self.dropout(attend2)
 
+		out1 = self.classify(attend1)
+		out1 = torch.sigmoid(out1)
+		
+		out2 = self.classify(attend2)
+		out2 = torch.sigmoid(out2)
+		
+		out = torch.cat([out1, out2], dim=1).reshape((-1,1))
 		return out
 
+class TwoActorsOneModalitySimpleCNN(nn.Module):
+	def __init__(self, feats_dim, n_filters, filter_sizes,
+				 cnn_output_dim, project_output_dim, att_vector_dim, 
+				 num_classes, dropout):
+		
+		super().__init__()
+		
+		self.dropout = nn.Dropout(dropout)
+		self.cnn_block = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
+										nn.ReLU())
+		self.project = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
+		self.attend = SimpleAttention(project_output_dim, att_vector_dim, dropout)
+		self.classify = nn.Linear(project_output_dim, num_classes)
+	
+	def forward(self, feats1, feats2):
+
+		feats1 = self.dropout(feats1)
+		feats1 = self.cnn_block(feats1)
+		feats1 = self.project(feats1)
+
+		feats2 = self.dropout(feats2)
+		feats2 = self.cnn_block(feats2)
+		feats2 = self.project(feats2)
+		
+		attend1 = self.attend(feats1, feats2)
+		attend1 = self.dropout(attend1)
+		attend2 = self.attend(feats2, feats1)
+		attend2 = self.dropout(attend2)
+
+		out1 = self.classify(attend1)
+		out1 = torch.sigmoid(out1)
+		
+		out2 = self.classify(attend2)
+		out2 = torch.sigmoid(out2)
+		
+		out = torch.cat([out1, out2], dim=1).reshape((-1,1))
+		return out
 
 class OneActorTwoModalities(nn.Module):
 	def __init__(self, mode1_dim, mode2_dim, n_filters, filter_sizes, 
