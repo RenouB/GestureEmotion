@@ -200,7 +200,7 @@ if __name__ == '__main__':
 
 			losses[k]['train'].append(epoch_loss / len(train_data))
 			scores = get_scores(epoch_labels, epoch_predictions, detailed=False)
-			f1s[k]['train'].append(scores['micro_f'])
+			f1s[k]['train'].append(scores['macro_f'])
 			logger.update_scores(scores, epoch, 'TRAIN')
 
 			print("################################################")
@@ -213,7 +213,7 @@ if __name__ == '__main__':
 										 train=False)
 			losses[k]['dev'].append(dev_loss / len(dev_data))
 			scores = get_scores(dev_labels, dev_predictions, detailed=True)
-			f1s[k]['dev'].append(scores['micro_f'])
+			f1s[k]['dev'].append(scores['macro_f'])
 			logger.update_scores(scores, epoch, 'DEV')
 
 
@@ -223,7 +223,7 @@ if __name__ == '__main__':
 				print('       New best : {:.2f} (previous {:.2f})'.format(scores['micro_f'], best_f1))
 				print('         saving model weights')
 				print('#########################################')
-				best_f1 = scores['micro_f']
+				best_f1 = scores['macro_f']
 				best_k = k
 				best_epoch = epoch
 				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
@@ -234,7 +234,7 @@ if __name__ == '__main__':
 		conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
 		scores['confusion_matrix'] = conf
 		final_scores_per_fold[k] = scores
-		final_f1s.append(scores['micro_f'])
+		final_f1s.append(scores['macro_f'])
 		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
 			f.write('\n')
 			f.write("FOLD {} \n".format(k))
@@ -258,4 +258,4 @@ if __name__ == '__main__':
 	print("best f1: {:.2f}".format(best_f1))
 	print("at epoch: {}".format(best_epoch))
 	print("last dev loss: {}".format(dev_loss))
-	print("mean micro f1 {:.2f}".format(np.mean(final_f1s)))
+	print("mean macro f1 {:.2f}".format(np.mean(final_f1s)))
