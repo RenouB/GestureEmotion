@@ -16,16 +16,12 @@ def construct_basename(args):
 
 	mode_str = str(args.modalities)
 
-	if args.attention:
-		att_str = 'ATT'
-	else:
-		att_str = 'NO-ATT'
-
 	lr_str = 'lr'+str(args.lr)
+	l2_str = 'l2'+str(args.l2)
 	dropout_str = 'dr'+str(args.dropout)
 	epochs_str = 'ep'+str(args.epochs)
-	basename = '-'.join([joint_str, mode_str, args.keypoints, att_str, lr_str, dropout_str, epochs_str])
-	
+	basename = '-'.join([joint_str, mode_str, args.keypoints, lr_str, l2_str, dropout_str, epochs_str])
+
 	if args.test:
 		basename = 'TEST-'+basename
 	return basename
@@ -39,12 +35,12 @@ def construct_crf_basename(args):
 	mode_str = str(args.modalities)
 
 	basename = '-'.join([joint_str, mode_str, args.keypoints])
-	
+
 	if args.test:
 		basename = 'TEST-'+basename
 	return basename
 
-def get_write_dir(model_type, attention, joint, modalities, emotion=None):
+def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 	if model_type == 'CNN':
 		model_dir ='MultiChannelCNN'
 	elif model_type == 'CRF':
@@ -52,11 +48,6 @@ def get_write_dir(model_type, attention, joint, modalities, emotion=None):
 	elif model_type == 'random':
 		model_dir = 'rand'
 
-	if attention:
-		attention_dir = 'attention'
-	else:
-		attention_dir = 'base'
-	
 	if joint:
 		joint_dir = 'joint'
 	else:
@@ -68,22 +59,17 @@ def get_write_dir(model_type, attention, joint, modalities, emotion=None):
 		mode_dir = 'speech'
 	else:
 		mode_dir = 'both'
-	
-	if emotion is not None:
-		if emotion == 0:
-			emotion_str = 'anger'
-		if emotion == 1:
-			emotion_str = 'happiness'
-		if emotion == 2:
-			emotion_str = 'sadness'
-		if emotion == 3:
-			emotion_str = 'surprise'
-			
-		return os.path.join(MODELS_DIR, model_dir, emotion_str, joint_dir, mode_dir)
 
-	else:
-		return os.path.join(MODELS_DIR, model_dir, attention_dir, joint_dir, mode_dir)
+	if emotion == 0:
+		emotion_str = 'anger'
+	if emotion == 1:
+		emotion_str = 'happiness'
+	if emotion == 2:
+		emotion_str = 'sadness'
+	if emotion == 3:
+		emotion_str = 'surprise'
 
+	return os.path.join(MODELS_DIR, model_dir, input_type, emotion_str, joint_dir, mode_dir)
 
 class PrettyLogger():
 	def __init__(self, args, logs_dir, basename, starttime):
@@ -97,24 +83,24 @@ class PrettyLogger():
 
 		logging.info(str(args))
 		# logging.info('\n')
-		logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch", 
+		logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
 													"macro-p", "macro-r", "macro-f",
 													"micro-p", "micro-r","micro-f",  "acc"))
-		return 
+		return
 
 	def update_scores(self, scores, epoch, mode):
 		scores_to_log = \
 				[scores['macro_p'], scores['macro_r'], scores['macro_f'],
-				scores['micro_p'], scores['micro_r'], scores['micro_f'], 
+				scores['micro_p'], scores['micro_r'], scores['micro_f'],
 				scores['exact_acc']]
-		
+
 		if mode != 'DEV':
-			logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch", 
+			logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
 													"macro-p", "macro-r", "macro-f",
 													"micro-p", "micro-r","micro-f",  "acc"))
 		logging.info('{:>7}, {:>7}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}'.format(
 						*[mode, epoch] + scores_to_log))
-		
+
 		if mode == 'DEV':
 			logging.info('--------'*11)
 

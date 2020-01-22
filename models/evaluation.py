@@ -16,11 +16,11 @@ def get_scores(labels, predictions, detailed):
 	micro_p, micro_r, micro_f, _ = precision_recall_fscore_support(labels, predictions, average='micro')
 	macro_p, macro_r, macro_f, _ = precision_recall_fscore_support(labels, predictions, average='macro')
 	prfs_per_class = precision_recall_fscore_support(labels, predictions, average=None)
-	
+
 	exact_acc = len([i for i, pred in enumerate(predictions) \
 					 if torch.all(torch.eq(predictions[i], labels[i]))]) \
 					  / len(labels)
-	
+
 	acc_per_class = np.array([sum(labels[:,i] == predictions[:,i]) / \
 						len(labels) for i in range(len(labels[0]))])
 	av_acc = acc_per_class.mean()
@@ -28,7 +28,7 @@ def get_scores(labels, predictions, detailed):
 	scores = {'exact_acc': exact_acc, 'av_acc': av_acc,
 			'micro_p':micro_p, 'micro_r':micro_r, 'micro_f':micro_f,
 			'macro_p': macro_p, 'macro_r': macro_r, 'macro_f':macro_f}
-	
+
 	if detailed:
 		for i in range(len(labels[0])):
 			scores[i] = {}
