@@ -1,0 +1,104 @@
+import os
+import sys
+import pickle
+import numpy as np
+import pandas as pd
+from argparse import ArgumentParser
+from torch.utils.data import Dataset, Subset, DataLoader
+from torch_datasets import PoseDataset
+from scipy.signal import argrelextrema
+
+
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+print(PROJECT_DIR)
+sys.path.insert(0, PROJECT_DIR)
+from definitions import constants
+
+PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
+GOLD_STANDARD_PATH = constants["GOLD_STANDARD_PATH"]
+MODELS_DIR = constants["MODELS_DIR"]
+SVM_PART_PAIRS = constants["SVM_ANGLES"]
+
+def get_v(body_part1, body_part2):
+	return np.array([body_part1[0] - body_part2[0], 
+				body_part1[1] - body_part2[1]])
+
+def get_angle(v1, v2):
+	return np.arccos(np.dot(v1,v2) / (np.linalg.norm(v1)*np.linalg.norm(v2)))
+
+def keypoint_sequence_to_angles_seq(keypoints_seq):
+	# keypoints_seq = 5 x 50
+	angles_seq = []
+	keypoints_seq = np.squeeze(keypoints_seq, axis=0)
+	for seq in keypoints_seq:
+		seq = seq.reshape(25,2)
+		angles = []
+		for part_pairs in SVM_PART_PAIRS:
+				# use pair1 to create v1
+			pair1 = part_pairs[0]
+			body_part1 = seq[pair1[0]]
+			body_part2 = seq[pair1[1]]
+			if 0 in body_part1 or 0 in body_part2:
+				angles.append(0)
+				continue
+			v1 = get_v(body_part1, body_part2)
+			pair2 = part_pairs[1]
+			body_part1 = seq[pair2[0]]
+			body_part2 = seq[pair2[1]]
+			if 0 in body_part1 or 0 in body_part2:
+				angles.append(0)
+				continue
+			v2 = get_v(body_part1, body_part2)
+			angle = get_angle(v1, v2)
+			angles.append(angle)
+		angles_seq.append(angles)
+
+	return np.array(angles_seq)
+
+def compute_statistics(angles_seq):
+
+	features = []
+	for col_index in range(angles_seq.shape[1]):
+		column = angles_seq[:,col_index]
+		# num local maxima
+		
+		features.append(len(argrelextrema(column, np.greater)[0]))	
+		features.append(len(argrelextrema(column, np.less)[0]))
+		features.append(column.mean())
+		features.append(column.std())
+		features.append(column.max())
+		features.append(column.mean())
+		features.append((np.diff(np.sign(column)) != 0).sum())
+		mean_centered = column - column.mean()
+		features.append((np.diff(np.sign(mean_centered)) != 0).sum())
+	features = np.array(features)
+	# print(features)
+	print("##################")
+	print(features)
+	return features
+
+if __name__ == "__main__":
+	parser = ArgumentParser()
+	parser.add_argument('-interval', default=3, type=int)
+	parser.add_argument('-seq_len', default=5, type=int)
+	parser.add_argument('-joint', action='store_true', default=True)
+	args = parser.parse_args()
+
+	brute_data = PoseDataset(args.interval, args.seq_len, 'all', input='brute')
+	
+	views = []
+	actor_pairs = []
+	actors = []
+	labels = []
+	features = []
+
+	brute_data_loader = DataLoader(brute_data)
+	for datapoint in brute_data_loader:
+		views.append(datapoint['view'])
+		actor_pairs.append(datapoint['actor_pair'])
+		actors.append(datapoint['actor'])
+		labels.append(datapoint['labels'])
+
+		poses = datapoint['pose'].numpy()
+		angles_seq = keypoint_sequence_to_angles_seq(poses)
+		features.append(compute_statistics(angles_seq))

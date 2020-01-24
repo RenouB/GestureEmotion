@@ -48,7 +48,8 @@ class PoseDataset(Dataset):
 
 			for view, actors in views.items():
 				for actor in actors:
-
+					if keypoints == 'all':
+						keypoints_to_retain = [i for i in range(25)]
 					if keypoints == 'full':
 						keypoints_to_retain = constants["WAIST_UP_BODY_PART_INDICES"]
 					elif keypoints == "full-hh":
