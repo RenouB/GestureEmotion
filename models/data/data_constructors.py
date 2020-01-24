@@ -16,18 +16,14 @@ GOLD_STANDARD_PATH = constants["GOLD_STANDARD_PATH"]
 MODELS_DIR = constants["MODELS_DIR"]
 
 
-def construct_data_filename(interval, seq_length, joint, debug):
+def construct_data_filename(interval, seq_length, joint):
 	if joint:
 		joint_str = 'joint-'
 	else:
 		joint_str = 'ind-'
-	if debug:
-		debug_str = 'debug-'
-	else:
-		debug_str = ''
 	interval_str = 'int'+str(interval)+'-'
 	seq_string = 'seq'+str(seq_length)
-	filename = debug_str+joint_str+interval_str+seq_string+'.pkl'
+	filename = joint_str+interval_str+seq_string+'.pkl'
 
 	return filename
 

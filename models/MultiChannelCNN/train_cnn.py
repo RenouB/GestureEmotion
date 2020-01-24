@@ -17,7 +17,7 @@ from definitions import constants, cnn_params
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
 from models.data.torch_datasets import PoseDataset
-from models.evaluation import get_scores
+from models.evaluation import get_scores, update_scores_per_fold, average_scores_across_folds
 import argparse
 import logging
 from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
@@ -89,7 +89,7 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 
 
 	return torch.cat(epoch_labels, dim=0), torch.cat(epoch_predictions, dim=0), \
-			epoch_loss, torch.cat(epoch_att_weights, dim=0)
+			epoch_loss, torch.cat(epoch_att_weights, axis=0)
 
 
 if __name__ == '__main__':
@@ -108,7 +108,6 @@ if __name__ == '__main__':
 	parser.add_argument('-cnn_output_dim', default=60, type=int)
 	parser.add_argument('-project_output_dim', default=30, type=int)
 	parser.add_argument('-att_vector_dim', default=30, type=int)
-	parser.add_argument('-simple', action="store_true", default=False)
 	parser.add_argument('-batchsize', type=int, default=20)
 	parser.add_argument('-lr', type=float, default=0.001)
 	parser.add_argument('-l2', type=float, default=0.001)
@@ -118,7 +117,7 @@ if __name__ == '__main__':
 	parser.add_argument('-cuda', default=False, action='store_true',  help='use cuda')
 	# parser.add_argument('-gpu', default=0, type=int, help='gpu id') could probs delete this
 
-	parser.add_argument('-num_folds', default=1, type=int)
+	parser.add_argument('-num_folds', default=8, type=int)
 	parser.add_argument('-test', action='store_true', default=False)
 	parser.add_argument('-debug', action='store_true', default=False)
 	parser.add_argument('-comment', default='')
@@ -154,27 +153,24 @@ if __name__ == '__main__':
 
 	# TODO: Add different modalities
 	data = PoseDataset(args.interval, args.seq_length, args.keypoints,
-			args.joint, args.debug, args.emotion, args.input)
-
-	print(data.unique_actor_pairs)
-	best_f1 = -1
-	best_k = -1
-	final_scores_per_fold = {}
-	losses = {}
-	att_weights = {}
-	f1s = {}
-	final_f1s = []
-
+			args.joint, args.emotion, args.input)
 	input_dim = get_input_dim(args.keypoints)
+	scores_per_fold = {'train':{}, 'dev':{}}
+	
+	best_f1 = 0
 
 	for k in range(args.num_folds):
+		
+		logger.new_fold(k)
+		
 		if not args.joint:
 			if args.modalities == 0:
 				if args.input == 'brute':
 					model = OneActorOneModalityBrute(input_dim, args.n_filters,
 							range(1, args.filter_sizes+1), args.cnn_output_dim,
-							args.project_output_dim, args.att_vector_dim,
-							1, args.dropout)
+							args.project_output_dim, 1, args.dropout)
+
+
 				else:
 					model = OneActorOneModalityDeltas(input_dim, args.n_filters,
 							range(1, args.filter_sizes+1), args.cnn_output_dim,
@@ -190,11 +186,10 @@ if __name__ == '__main__':
 
 		model.double()
 
-		losses[k] = {'train':[], 'dev':[]}
-		f1s[k] = {'train':[], 'dev':[]}
-		att_weights[k] = {'train':[], 'dev':[]}
-		logger.new_fold(k)
 		train_indices, dev_indices = data.split_data(k, args.emotion)
+		if args.debug:
+			train_indices = train_indices[:1500]
+			dev_indices = dev_indices[:1500]
 		train_data = Subset(data, train_indices)
 		train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 		dev_data = Subset(data, dev_indices)
@@ -204,6 +199,11 @@ if __name__ == '__main__':
 		print("            Length train data: {}".format(len(train_data)))
 		print("              Length dev data: {}".format(len(dev_data)))
 		print("################################################")
+	
+
+		scores_per_fold['train'][k] = {'macro':[], 0:[], 1:[], 'loss':[], 'att_weights':[], 'acc':[]}
+		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
+		
 		for epoch in range(args.epochs):
 			print("                    TRAIN")
 			print("################################################")
@@ -217,11 +217,13 @@ if __name__ == '__main__':
 										 train=True)
 			epoch_labels = epoch_labels.cpu()
 			epoch_predictions = epoch_predictions.cpu()
-			losses[k]['train'].append(epoch_loss / len(train_data))
-			scores = get_scores(epoch_labels, epoch_predictions, detailed=False)
-			f1s[k]['train'].append(scores['macro_f'])
-			att_weights[k]['train'].append(epoch_att_weights.cpu().numpy())
+			
+			epoch_att_weights = epoch_att_weights.cpu().numpy()
+			scores = get_scores(epoch_labels, epoch_predictions)
+			scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'train',
+								epoch_loss, epoch_att_weights, len(train_data), k)
 			logger.update_scores(scores, epoch, 'TRAIN')
+
 
 			print("################################################")
 			print("                     EVAL")
@@ -234,53 +236,55 @@ if __name__ == '__main__':
 										 train=False)
 			dev_labels = dev_labels.cpu()
 			dev_predictions = dev_predictions.cpu()
-			losses[k]['dev'].append(dev_loss / len(dev_data))
-			scores = get_scores(dev_labels, dev_predictions, detailed=True)
-			f1s[k]['dev'].append(scores['macro_f'])
-			att_weights[k]['dev'].append(dev_att_weights.cpu().numpy())
+	
+			dev_att_weights = dev_att_weights.cpu().numpy()
+			scores = get_scores(dev_labels, dev_predictions)
+			scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'dev',
+								dev_loss, dev_att_weights, len(dev_data), k)
 			logger.update_scores(scores, epoch, 'DEV')
 
-
-
-			if scores['macro_f'] > best_f1:
+		unique_labels = np.unique(dev_labels.numpy())
+		print(unique_labels)
+		if 1 in unique_labels:
+			print()
+			f1 = scores['macro_f']
+			print(scores)
+			print(f1)
+			if f1 > best_f1:
 				print('#########################################')
-				print('       New best : {:.2f} (previous {:.2f})'.format(scores['micro_f'], best_f1))
+				print('       New best : {:.2f} (previous {:.2f})'.format(f1, best_f1))
+				print('        at fold : {}'.format(k))
 				print('         saving model weights')
 				print('#########################################')
-				best_f1 = scores['macro_f']
-				best_k = k
+				best_f1 = f1
 				best_epoch = epoch
+				best_fold = k
 				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
 
-		train_classification_report = classification_report(epoch_labels, epoch_predictions)
-		dev_classification_report = classification_report(dev_labels, dev_predictions)
 
-		conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
-		scores['confusion_matrix'] = conf
-		final_scores_per_fold[k] = scores
-		final_f1s.append(scores['macro_f'])
-		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
-			f.write('\n')
-			f.write("FOLD {} \n".format(k))
-			f.write("####################################\n")
-			f.write("TRAIN \n")
-			f.write("####################################\n")
-			f.write(train_classification_report)
-			f.write('\n')
-			f.write("#################################### \n")
-			f.write("DEV \n")
-			f.write("#################################### \n")
-			f.write(dev_classification_report)
 
-	final_scores_per_fold['losses'] = losses
-	final_scores_per_fold['f1s'] = f1s
-	final_scores_per_fold['att_weights'] = att_weights
+	av_scores = average_scores_across_folds(scores_per_fold)
+
+	best_epoch = np.amax(av_scores['dev'][1][:,2]).astype(np.int)
+	class_zero_scores = av_scores['dev'][0][best_epoch]
+	class_one_scores = av_scores['dev'][1][best_epoch]
+	macro_scores = av_scores['dev']['macro'][best_epoch]
+
 	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
-		pickle.dump(final_scores_per_fold, f)
-	logger.close(best_f1, best_k)
+		pickle.dump(av_scores, f)
+
+	with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
+		f.write("BEST EPOCH: {} \n".format(best_epoch))
+		f.write("{:>8} {:>8} {:>8} {:>8} {:>8}\n".format("class", "p", "r", "f", "acc"))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("0", class_zero_scores[0], 
+			class_zero_scores[1], class_zero_scores[2]))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("1", class_one_scores[0], 
+			class_one_scores[1], class_one_scores[2]))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro", 
+				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
+
+
+	logger.close(0, 0)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))
-	print("best f1: {:.2f}".format(best_f1))
-	print("at epoch: {}".format(best_epoch))
-	print("last dev loss: {}".format(dev_loss))
-	print("mean macro f1 {:.2f}".format(np.mean(final_f1s)))
+

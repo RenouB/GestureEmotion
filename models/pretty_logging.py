@@ -83,22 +83,19 @@ class PrettyLogger():
 
 		logging.info(str(args))
 		# logging.info('\n')
-		logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
+		logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
 													"macro-p", "macro-r", "macro-f",
-													"micro-p", "micro-r","micro-f",  "acc"))
+													"acc"))
 		return
 
 	def update_scores(self, scores, epoch, mode):
 		scores_to_log = \
-				[scores['macro_p'], scores['macro_r'], scores['macro_f'],
-				scores['micro_p'], scores['micro_r'], scores['micro_f'],
-				scores['exact_acc']]
+				[scores['macro_p'], scores['macro_r'], scores['macro_f'], scores['acc']]
 
 		if mode != 'DEV':
-			logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
-													"macro-p", "macro-r", "macro-f",
-													"micro-p", "micro-r","micro-f",  "acc"))
-		logging.info('{:>7}, {:>7}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}'.format(
+			logging.info('{:>7}, {:>7}, {:>7}, {:>7}, {:>7}, {:>7}'.format('',"epoch",
+													"macro-p", "macro-r", "macro-f", "acc"))
+		logging.info('{:>7}, {:>7}, {:>7.4f}, {:>7.4f}, {:>7.4f}, {:>7.4f}'.format(
 						*[mode, epoch] + scores_to_log))
 
 		if mode == 'DEV':

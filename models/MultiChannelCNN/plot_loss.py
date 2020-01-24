@@ -12,52 +12,40 @@ from argparse import ArgumentParser
 if __name__ == "__main__":
 	parser = ArgumentParser()
 	parser.add_argument('scores')
-	parser.add_argument('metric')
 	args = parser.parse_args()
-	emotion = args.scores.split('/')[0]
+	emotion = args.scores.split('/')[1]
 	with open(args.scores, 'rb') as f:
 		scores = pickle.load(f)
 	
-	if args.metric == 'loss':
-		train_losses = []
-		dev_losses =[]
-		for fold in scores['losses'].keys():
-			train_losses.append(scores['losses'][fold]['train'])
-			dev_losses.append(scores['losses'][fold]['dev'])
-		
-		train_losses = np.array(train_losses).mean(axis=0)
-		dev_losses = np.array(dev_losses).mean(axis=0)
+	train_losses = []
+	dev_losses =[]
+	for fold in scores['losses'].keys():
+		train_losses.append(scores['losses'][fold]['train'])
+		dev_losses.append(scores['losses'][fold]['dev'])
+	
+	train_losses = np.array(train_losses).mean(axis=0)
+	dev_losses = np.array(dev_losses).mean(axis=0)
 
-		fig = plt.figure()
-		ax = fig.add_subplot(2,1,1)
-		ax.plot(train_losses)
-		ax.set_title("train {}".format(args.metric))
+	fig = plt.figure()
+	ax = fig.add_subplot(2,1,1)
+	ax.plot(train_losses, color="#333cff")
+	ax.plot(dev_losses, color="#0d0f40")
+	ax.set_title("losses")
 
-		ax = fig.add_subplot(2,1,2)
-		ax.plot(dev_losses)
-		ax.set_title("dev {}".format(args.metric))
-		fig.suptitle(emotion, fontsize=14)
-		plt.tight_layout()
-		plt.show()
+	train_f1s = []
+	dev_f1s =[]
+	for fold in scores['f1s'].keys():
+		train_f1s.append(scores['f1s'][fold]['train'])
+		dev_f1s.append(scores['f1s'][fold]['dev'])
+	
+	train_f1s = np.array(train_f1s).mean(axis=0)
+	dev_f1s = np.array(dev_f1s).mean(axis=0)
 
-	if args.metric == 'f1':
-		train_f1s = []
-		dev_f1s =[]
-		for fold in scores['f1s'].keys():
-			train_f1s.append(scores['f1s'][fold]['train'])
-			dev_f1s.append(scores['f1s'][fold]['dev'])
-		
-		train_f1s = np.array(train_f1s).mean(axis=0)
-		dev_f1s = np.array(dev_f1s).mean(axis=0)
-
-		fig = plt.figure()
-		ax = fig.add_subplot(2,1,1)
-		ax.plot(train_f1s)
-		ax.set_title("train {}".format(args.metric))
-
-		ax = fig.add_subplot(2,1,2)
-		ax.plot(dev_f1s)
-		ax.set_title("dev {}".format(args.metric))
-		fig.suptitle(emotion, fontsize=14)
-		plt.tight_layout()
-		plt.show()
+	ax = fig.add_subplot(2,1,2)
+	ax.plot(train_f1s, color="#ff3342")
+	ax.plot(dev_f1s, color="#801a21")
+	ax.set_title("f1s")
+	ax.legend()
+	fig.suptitle(emotion, fontsize=14)
+	plt.tight_layout()
+	plt.show()

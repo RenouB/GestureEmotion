@@ -25,7 +25,7 @@ class OneActorOneModalityBrute(nn.Module):
 		feats = self.project(feats)
 		feats = self.classify(feats)
 		out = torch.sigmoid(feats)
-		return out, None
+		return out, torch.Tensor([[0,0,0]])
 
 class OneActorOneModalityDeltas(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes,

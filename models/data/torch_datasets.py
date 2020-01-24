@@ -14,11 +14,15 @@ sys.path.insert(0, MODELS_DIR)
 from models.data.data_constructors import construct_data_filename
 
 
+
+
+
 class PoseDataset(Dataset):
 	def __init__(self, interval=4, seq_length=4, keypoints='full',joint=False,
-					debug=False, emotion=None, input='brute'):
+					emotion=None, input='brute'):
 		self.joint = joint
-		filename = 'perturb-'+construct_data_filename(interval, seq_length, True, debug)
+		filename = 'perturb-'+construct_data_filename(interval, seq_length, True)
+		
 		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
 			self.data = pickle.load(f)
 
@@ -32,11 +36,10 @@ class PoseDataset(Dataset):
 		self.actorsB = []
 		self.viewsA = []
 		self.viewsB = []
-		if input == 'deltas':
-			self.deltasA = []
-			self.deltasB = []
-			self.delta_deltasA = []
-			self.delta_deltasB = []
+		self.deltasA = []
+		self.deltasB = []
+		self.delta_deltasA = []
+		self.delta_deltasB = []
 
 		for video_id, views in self.data.items():
 			actorA = video_id.split('_')[2][1:]
@@ -64,20 +67,19 @@ class PoseDataset(Dataset):
 					poses = poses.reshape(new_shape[:2]+(-1,))
 					poses = list(poses)
 
-					if input == 'deltas':
-						deltas = np.array(actors[actor]["deltas"])
-						new_shape = deltas.shape[:-1]+(25,2)
-						deltas = deltas.reshape(new_shape)
-						deltas = deltas[:,:,keypoints_to_retain,:]
-						deltas = deltas.reshape(new_shape[:2]+(-1,))
-						deltas = list(deltas)
+					deltas = np.array(actors[actor]["deltas"])
+					new_shape = deltas.shape[:-1]+(25,2)
+					deltas = deltas.reshape(new_shape)
+					deltas = deltas[:,:,keypoints_to_retain,:]
+					deltas = deltas.reshape(new_shape[:2]+(-1,))
+					deltas = list(deltas)
 
-						delta_deltas = np.array(actors[actor]["delta_deltas"])
-						new_shape = delta_deltas.shape[:-1]+(25,2)
-						delta_deltas = delta_deltas.reshape(new_shape)
-						delta_deltas = delta_deltas[:,:,keypoints_to_retain,:]
-						delta_deltas = delta_deltas.reshape(new_shape[:2]+(-1,))
-						delta_deltas = list(deltas)
+					delta_deltas = np.array(actors[actor]["delta_deltas"])
+					new_shape = delta_deltas.shape[:-1]+(25,2)
+					delta_deltas = delta_deltas.reshape(new_shape)
+					delta_deltas = delta_deltas[:,:,keypoints_to_retain,:]
+					delta_deltas = delta_deltas.reshape(new_shape[:2]+(-1,))
+					delta_deltas = list(deltas)
 
 
 					if emotion is not None:
@@ -89,18 +91,16 @@ class PoseDataset(Dataset):
 					if actor == 'A':
 						self.actor_pairsA += [pair]*len(poses)
 						self.posesA += poses
-						if input == 'deltas':
-							self.deltasA += deltas
-							self.delta_deltasA += delta_deltas
+						self.deltasA += deltas
+						self.delta_deltasA += delta_deltas
 						self.labelsA += labels
 						self.actorsA += [actor]*len(poses)
 						self.viewsA += [view]*len(poses)
 					else:
 						self.actor_pairsB += [pair]*len(poses)
 						self.posesB += poses
-						if input == 'deltas':
-							self.deltasB += deltas
-							self.delta_deltasB += delta_deltas
+						self.deltasB += deltas
+						self.delta_deltasB += delta_deltas
 						self.labelsB += labels
 						self.actorsB += [actor]*len(poses)
 						self.viewsB += [view]*len(poses)
@@ -139,15 +139,6 @@ class PoseDataset(Dataset):
 					'actor_pairsA': self.actor_pairsA[i], 'actor_pairsB': self.actor_pairsB[i]}
 
 	def split_data(self, fold, emotion=None):
-		# if emotion == 0:
-		# 	dev_pair = '0506'
-		# elif emotion == 1:
-		# 	dev_pair = '0102'
-		# elif emotion == 2:
-		# 	dev_pair = '0910'
-		# elif emotion == 3:
-		# 	dev_pair = '0708'
-		# else:
 
 		dev_pair = self.unique_actor_pairs[fold]
 		print("DEV PAIR: ", dev_pair)
@@ -177,10 +168,9 @@ if __name__ == "__main__":
 	parser.add_argument('-interval', default=4)
 	parser.add_argument('-seq_len', default=4)
 	parser.add_argument('-joint', action='store_true', default=False)
-	parser.add_argument('-debug', action="store_true", default=False)
 	args = parser.parse_args()
 
-	dataset = PoseDataset(args.interval, args.seq_len, args.joint, args.debug)
+	dataset = PoseDataset(args.interval, args.seq_len, args.joint)
 
 	for item in dataset:
 		print(item['labelA'])
