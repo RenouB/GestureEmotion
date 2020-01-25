@@ -2,7 +2,6 @@ import os
 import sys
 import pickle
 import numpy as np
-import pandas as pd
 from argparse import ArgumentParser
 from torch.utils.data import Dataset, Subset, DataLoader
 from torch_datasets import PoseDataset
@@ -20,7 +19,7 @@ MODELS_DIR = constants["MODELS_DIR"]
 SVM_PART_PAIRS = constants["SVM_ANGLES"]
 
 def get_v(body_part1, body_part2):
-	return np.array([body_part1[0] - body_part2[0], 
+	return np.array([body_part1[0] - body_part2[0],
 				body_part1[1] - body_part2[1]])
 
 def get_angle(v1, v2):
@@ -61,8 +60,8 @@ def compute_statistics(angles_seq):
 	for col_index in range(angles_seq.shape[1]):
 		column = angles_seq[:,col_index]
 		# num local maxima
-		
-		features.append(len(argrelextrema(column, np.greater)[0]))	
+
+		features.append(len(argrelextrema(column, np.greater)[0]))
 		features.append(len(argrelextrema(column, np.less)[0]))
 		features.append(column.mean())
 		features.append(column.std())
@@ -72,9 +71,9 @@ def compute_statistics(angles_seq):
 		mean_centered = column - column.mean()
 		features.append((np.diff(np.sign(mean_centered)) != 0).sum())
 	features = np.array(features)
+
+	# print("##################")
 	# print(features)
-	print("##################")
-	print(features)
 	return features
 
 if __name__ == "__main__":
@@ -85,20 +84,32 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	brute_data = PoseDataset(args.interval, args.seq_len, 'all', input='brute')
-	
+
 	views = []
 	actor_pairs = []
 	actors = []
 	labels = []
 	features = []
-
-	brute_data_loader = DataLoader(brute_data)
+	# brute_data = Subset(brute_data, indices=range(200))
+	brute_data_loader = DataLoader(brute_data, batch_size=1)
 	for datapoint in brute_data_loader:
-		views.append(datapoint['view'])
-		actor_pairs.append(datapoint['actor_pair'])
+		views.append(datapoint['view'][0])
+		actor_pairs.append(datapoint['actor_pair'][0])
 		actors.append(datapoint['actor'])
-		labels.append(datapoint['labels'])
+		labels.append(datapoint['labels'].squeeze(0).tolist())
 
 		poses = datapoint['pose'].numpy()
 		angles_seq = keypoint_sequence_to_angles_seq(poses)
 		features.append(compute_statistics(angles_seq))
+
+	labels = np.array(labels)
+	features = np.array(features)
+
+	data ={'features':features, 'labels':labels, 'actor_pairs':actor_pairs, 'actors':actors, 'views':views}
+	print('views', len(views))
+	print('actor_pairs', len(actor_pairs))
+	print('actors', len(actors))
+	print('labels', labels.shape)
+	print('features', features.shape)
+	with open("svm_data.pkl", 'wb') as f:
+		pickle.dump(data, f)

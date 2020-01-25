@@ -14,6 +14,33 @@ sys.path.insert(0, MODELS_DIR)
 from models.data.data_constructors import construct_data_filename
 
 
+class SvmPoseDataset(Dataset):
+
+	def __init__(self, emotion=0):
+		with open(constants["SVM_DATA_PATH"], 'rb') as f:
+			data = pickle.load(f)
+		self.features = data['features']
+		self.labels = data['labels'][:,emotion]
+		self.actor_pairs = data['actor_pairs']
+		self.unique_actor_pairs = constants["ACTOR_PAIRS"]
+
+	def __len__(self):
+		return len(self.labels)
+
+	def __getitem__(self, i):
+		return {'features': self.features[i], 'label':self.labels[i]}
+
+	def split_data(self, k):
+		dev_indices = []
+		train_indices = []
+		dev_actor_pair = self.unique_actor_pairs[k]
+		for i, pair in enumerate(self.actor_pairs):
+			if pair == dev_actor_pair:
+				dev_indices.append(i)
+			else:
+				train_indices.append(i)
+
+		return train_indices, dev_indices
 
 
 
@@ -22,7 +49,7 @@ class PoseDataset(Dataset):
 					emotion=None, input='brute'):
 		self.joint = joint
 		filename = 'perturb-'+construct_data_filename(interval, seq_length, True)
-		
+
 		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
 			self.data = pickle.load(f)
 

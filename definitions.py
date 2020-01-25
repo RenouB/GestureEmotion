@@ -12,6 +12,7 @@ constants = \
 "MPIIEMO_ANNOS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website"),
 "GOLD_STANDARD_PATH": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data/aggregate_emotion_labels.csv"),
 "TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/10fps_views"),
+"SVM_DATA_PATH": os.path.join(PROJECT_DIR, "models/data/svm_data.pkl"),
 "MODELS_DIR": os.path.join(PROJECT_DIR, 'models'),
 "MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/manually_selected_images"),
 "ACTOR_REFERENCE_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website/actor_ids/"),
@@ -25,7 +26,7 @@ constants = \
 "PAFS" : [(17, 15), (15, 0), (0, 16), (16, 18), (0,1), (1, 2), (2, 3), (3, 4),
           (1,5), (5,6), (6,7), (1,8), (8,9), (9, 10), (10, 11), (11, 24), (11, 22),
           (22, 23), (8,12), (12,13), (13,14), (14,21), (14,19), (19, 20)],
-"SVM_ANGLES": [ [ (6,5), (2,5) ], 
+"SVM_ANGLES": [ [ (6,5), (2,5) ],
 				[ (3,2), (5,2) ],
 				[ (4,3), (2,3) ],
 				[ (7,6), (5,6) ],
@@ -59,7 +60,7 @@ color_histogram_constants = \
 	'only_hue': True,
 	'hist_diff': False,
 	'actors' : ['02', '01', '09', '10', '03', '04', '15', '16']
-	}	
+	}
 }
 
 cnn_params = \

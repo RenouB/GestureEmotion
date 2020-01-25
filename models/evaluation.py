@@ -29,13 +29,13 @@ def average_scores_across_folds(scores_per_fold):
 	return av_scores
 
 def update_scores_per_fold(scores_per_fold, scores, split, loss, att_weights, data_len, k):
-	
+
 	scores_per_fold[split][k]['att_weights'].append(att_weights)
 	scores_per_fold[split][k]['loss'].append(loss / data_len)
 	scores_per_fold[split][k]['acc'].append(np.expand_dims(np.array(scores['acc']), axis=0))
-	scores_per_fold[split][k]['macro'].append(np.array([scores['macro_p'], 
+	scores_per_fold[split][k]['macro'].append(np.array([scores['macro_p'],
 											scores['macro_r'], scores['macro_f']]))
-	
+
 	labels = [key for key in scores_per_fold[split][0].keys() if type(key) == int]
 	for label in labels:
 		try:
@@ -46,18 +46,20 @@ def update_scores_per_fold(scores_per_fold, scores, split, loss, att_weights, da
 			# scores_per_fold[split][k][1].append(np.array([scores[1]['p'], scores[1]['r'],
 			# 									scores[1]['f']]))
 	return scores_per_fold
-	
+
 
 def get_scores(labels, predictions):
-	labels = labels.cpu().numpy()[:,0]
-	predictions = predictions.cpu().numpy()[:,0]
-	
+	if type(labels) != np.ndarray:
+		labels = labels.cpu().numpy()[:,0]
+	if type(predictions) != np.ndarray:
+		predictions = predictions.cpu().numpy()[:,0]
+
 
 	macro_p, macro_r, macro_f, _ = precision_recall_fscore_support(labels, predictions,
 									average='macro')
 	ps, rs, fs, _ = precision_recall_fscore_support(labels, predictions,
 								average=None)
-	
+
 	unique_labels = np.unique(labels)
 	unique_predictions = np.unique(predictions)
 
@@ -81,34 +83,34 @@ def get_scores(labels, predictions):
 	# scores = {}
 	# macro_p = 0
 	# macro_r = 0
-	
+
 	# for clss in classes:
 	# 	scores[clss] = {}
-	# 	true_positives = len(np.intersect1d(np.where(labels == clss)[0], 
+	# 	true_positives = len(np.intersect1d(np.where(labels == clss)[0],
 	# 						np.where(predictions == clss)[0]))
-	# 	false_positives = len(np.intersect1d(np.where(labels != clss)[0], 
+	# 	false_positives = len(np.intersect1d(np.where(labels != clss)[0],
 	# 						np.where(predictions == clss)[0]))
-	# 	true_negatives = len(np.intersect1d(np.where(labels != clss)[0], 
+	# 	true_negatives = len(np.intersect1d(np.where(labels != clss)[0],
 	# 						np.where(predictions != clss)[0]))
-	# 	false_negatives = len(np.intersect1d(np.where(labels == clss)[0], 
+	# 	false_negatives = len(np.intersect1d(np.where(labels == clss)[0],
 	# 						np.where(predictions != clss)[0]))
 	# 	try:
 	# 		p = true_positives / (true_positives + false_positives)
 	# 	except ZeroDivisionError:
 	# 		p = 0
 	# 	scores[clss]['p']  = p
-		
+
 	# 	try:
 	# 		r = true_positives / (true_positives + false_negatives)
 	# 	except ZeroDivisionError:
 	# 		r = 0
 	# 	scores[clss]['r']  = r
-		
+
 	# 	try:
 	# 		scores[clss]['f'] = 2*p*r / (p+r)
 	# 	except ZeroDivisionError:
 	# 		scores[clss]['f'] = 0
-		
+
 	# 	macro_p += p
 	# 	macro_r += r
 

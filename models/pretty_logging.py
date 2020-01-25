@@ -43,8 +43,8 @@ def construct_crf_basename(args):
 def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 	if model_type == 'CNN':
 		model_dir ='MultiChannelCNN'
-	elif model_type == 'CRF':
-		model_dir = 'CRF'
+	elif model_type == 'SVM':
+		model_dir = 'SVM'
 	elif model_type == 'random':
 		model_dir = 'rand'
 
