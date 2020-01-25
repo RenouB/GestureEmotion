@@ -7,7 +7,8 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 from process_utils2 import filter_keypoints, get_crop_coordinates, get_body_image_filename, \
-convert_keypoints_to_array, crop, add_keypoints_to_sequences, normalize_keypoints
+convert_keypoints_to_array, crop, add_keypoints_to_sequences, normalize_keypoints, \
+interpolate_keypoints_all_frames, interpolate_missing_coordinates
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
@@ -24,7 +25,7 @@ for split, folder in [(train, 'train'), (test, 'test')]:
 		for video in os.scandir(view.path):
 			print(video.path)
 			raw_feats_dir = os.path.join(RAW_BODY_FEATS_DIR, view.name, video.name)
-		
+
 			# put corresponding entry in split
 			if video.name not in split:
 				split[video.name] = {}
@@ -40,7 +41,7 @@ for split, folder in [(train, 'train'), (test, 'test')]:
 			for frame_index, js in enumerate(video_jsons):
 				with open(os.path.join(raw_feats_dir, js)) as f:
 					people = json.load(f)['people']
-				
+
 				all_keypoint_arrays = []
 				for person in people:
 					keypoints =person['pose_keypoints_2d']
@@ -59,17 +60,19 @@ for split, folder in [(train, 'train'), (test, 'test')]:
 					get_body_image_filename(frame_index, 2) in actorA_images:
 					assignment = {1:'B', 2:'A'}
 
-				split = add_keypoints_to_sequences(split, video.name, view.name,
-							 frame_index, assignment, keypoints1, keypoints2)
 				all_together = add_keypoints_to_sequences(all_together, video.name, view.name,
 							 frame_index, assignment, keypoints1, keypoints2)
-					
-with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'train-all_manually_selected_cnn.pkl'), 'wb') as f:
-	pickle.dump(train, f)
-with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'test-all_manually_selected_cnn.pkl'), 'wb') as f:
-	pickle.dump(test, f)
-with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'all_manually_selected_cnn.pkl'), 'wb') as f:
+
+# begin interpolation - replace with nearest neighbour or 2
+for video, views in all_together.items():
+	for view, actor in views.items():
+		for actor, frames in actor.items():
+			all_keypoints = list(frames.values())
+			all_keypoints = interpolate_keypoints_all_frames(all_keypoints)
+			for i, keypoints in enumerate(all_keypoints):
+				all_together[video][view][actor][i] = keypoints
+
+
+
+with open(os.path.join(PROCESSED_BODY_FEATS_DIR, 'interp_all_manually_selected_cnn.pkl'), 'wb') as f:
 	pickle.dump(all_together, f)
-
-
-

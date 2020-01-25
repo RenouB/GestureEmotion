@@ -12,7 +12,7 @@ from definitions import constants, color_histogram_constants
 
 # indices of stable body parts such as shoulder, head, hip, etc.
 WAIST_UP_BODY_PART_INDICES = constants["WAIST_UP_BODY_PART_INDICES"]
-NECK = constants["NECK"] 
+NECK = constants["NECK"]
 BODY_CENTER = constants["BODY_CENTER"]
 WAIST_UP_FILTER_RATIO = constants["WAIST_UP_FILTER_RATIO"]
 TOO_CLOSE_THRESHOLD = constants["TOO_CLOSE_THRESHOLD"]
@@ -29,7 +29,7 @@ def add_keypoints_to_sequences(all_videos, video, view, frame_index, assignment,
 	if assignment[1] == 'A':
 		all_videos[video][view]['A'][frame_index] = keypoints1
 		all_videos[video][view]['B'][frame_index] = keypoints2
-	
+
 	else:
 		all_videos[video][view]['B'][frame_index] = keypoints1
 		all_videos[video][view]['A'][frame_index] = keypoints2
@@ -37,33 +37,44 @@ def add_keypoints_to_sequences(all_videos, video, view, frame_index, assignment,
 	return all_videos
 
 def translate_keypoints(body_keypoints):
-    mid_hip = body_keypoints[BODY_CENTER]
-    translated_keypoints = []
-    for keypoint in body_keypoints:
-        if keypoint.sum() == 0:
-            translated_keypoints.append(keypoint)
-        else:
-            translated_keypoints.append(keypoint - mid_hip)
-    return np.array(translated_keypoints)
+	mid_hip = body_keypoints[BODY_CENTER]
+	translated_keypoints = []
+	for keypoint in body_keypoints:
+		if keypoint.sum() == 0:
+			translated_keypoints.append(keypoint)
+		else:
+			translated_keypoints.append(keypoint - mid_hip)
 
-def interpolate_missing_keypoints(body_keypoints, body_keypoints_sequence):
-    # if half of the waist-up body parts are missing, eliminate this pose
-    missing_keypoints = np.where(body_keypoints.sum(axis=1))
-    if len(np.intersect1d(missing_keypoints, WAIST_UP_BODY_PART_INDICES)) > 7:
-        return np.array([[10000,10000]*25])
-    else:
-        pass
-        # start interpolating missing keypoints
-        # for i in range(len(body_keypoints_sequence)):
+	return np.array(translated_keypoints)
+
+def interpolate_missing_coordinates(one_coord_across_all_frames):
+	invalid_coords = [i for i, coords in enumerate(one_coord_across_all_frames)
+						if coords.sum() == 0]
+	valid_coords = np.array([i for i, coords in enumerate(one_coord_across_all_frames)
+						if coords.sum() != 0])
+	for i in invalid_coords:
+		distances_from_valid = abs(valid_coords - i)
+		min_distance_index = np.argmin(distances_from_valid)
+		one_coord_across_all_frames[i] = one_coord_across_all_frames[min_distance_index]
+	return one_coord_across_all_frames
+
+def interpolate_keypoints_all_frames(keypoints_from_all_frames):
+	# keypoint dim = #frames * #bodykeypoints * 2
+	keypoints_from_all_frames = np.swapaxes(keypoints_from_all_frames, 1, 2)
+	for coord_index in range(keypoints_from_all_frames.shape[2]):
+		if coord_index != constants["BODY_CENTER"]:
+			keypoints_from_all_frames[:,:,coord_index] = \
+				interpolate_missing_coordinates(keypoints_from_all_frames[:,:,coord_index])
+	return np.swapaxes(keypoints_from_all_frames,1,2)
 
 def scale_keypoints(body_keypoints):
-    neck = body_keypoints[NECK]
-    mid_hip = body_keypoints[BODY_CENTER]
-    l2 = np.linalg.norm(neck - mid_hip)
+	neck = body_keypoints[NECK]
+	mid_hip = body_keypoints[BODY_CENTER]
+	l2 = np.linalg.norm(neck - mid_hip)
 
-    if l2 == 0:
-        return body_keypoints
-    return body_keypoints / l2
+	if l2 == 0:
+		return body_keypoints
+	return body_keypoints / l2
 
 def normalize_keypoints(keypoints):
 	if type(keypoints) == str:
@@ -91,12 +102,12 @@ def filter_missing_important(keypoints):
 def filter_missing_too_many(keypoints):
 	if type(keypoints) == str:
 		return keypoints
-	
+
 	missing_waist_up = 0
 	for i in WAIST_UP_BODY_PART_INDICES:
 		if sum(keypoints[i]) == 0:
 			missing_waist_up += 1
-	
+
 	if missing_waist_up > \
 		len(WAIST_UP_BODY_PART_INDICES) * WAIST_UP_FILTER_RATIO:
 		return "toomany"
@@ -108,7 +119,7 @@ def filter_too_close(all_keypoints):
 		return all_keypoints
 
 	keypoints1, keypoints2 = all_keypoints
-	
+
 	if type(keypoints1) == str or type(keypoints2) == str:
 		return all_keypoints
 
@@ -123,24 +134,24 @@ def filter_too_close(all_keypoints):
 		return [keypoints1, keypoints2]
 
 def filter_keypoints(all_keypoints, view):
-	
+
 	# print("start")
 	# print([type(keypoints) for keypoints in all_keypoints])
-	
+
 	if view == "view6":
 		all_keypoints = filter_view6(all_keypoints)
 	# print("view6")
 	# print([type(keypoints) for keypoints in all_keypoints])
 	all_keypoints = filter_too_close(all_keypoints)
-	
+
 	all_keypoints = [filter_missing_important(keypoints) for keypoints in all_keypoints]
 	# print("important")
 	# print([type(keypoints) for keypoints in all_keypoints])
-	
+
 	all_keypoints = [filter_missing_too_many(keypoints) for keypoints in all_keypoints]
 	# print("toomany")
 	# print([type(keypoints) for keypoints in all_keypoints])
-	
+
 	# print("tooclose")
 	# print([type(keypoints) for keypoints in all_keypoints])
 	if len(all_keypoints) == 1:
@@ -160,14 +171,14 @@ def get_frame_image_filename(i):
 	i_str = str(i)
 	if len(i_str) < 4:
 		zeros = '0'*(4 - len(i_str))
-		return zeros+i_str+'.jpg' 
+		return zeros+i_str+'.jpg'
 
 def get_body_image_filename(i, ii):
 	i += 1
 	i_str = str(i)
 	ii_str = str(ii)
 
-	return i_str+'-'+ii_str+'.jpg' 
+	return i_str+'-'+ii_str+'.jpg'
 
 def get_crop_coordinates(body_keypoints):
 	if type(body_keypoints) == str or body_keypoints is None:
@@ -176,7 +187,7 @@ def get_crop_coordinates(body_keypoints):
 	max_x = body_keypoints[:,0].max()
 	min_y = min([coord for coord in body_keypoints[:,1] if coord != 0])
 	max_y = body_keypoints[:,1].max()
-	
+
 	return [int(coord) for coord in [min_x, max_x, min_y, max_y]]
 
 def get_torso_coordinates(body_keypoints):
@@ -214,13 +225,13 @@ def crop(keypoints1, keypoints2, frame_image, only_torsos):
 
 	if type(keypoints1) == str and type(keypoints2) == str:
 		return None
-	
-	if type(keypoints1) != str:			
+
+	if type(keypoints1) != str:
 		if only_torsos:
 			min_x, max_x, min_y, max_y = get_torso_coordinates(keypoints1)
 		else:
 			min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints1)
-	
+
 
 		cropped1 = frame_image[min_y:max_y, min_x:max_x].copy()
 
@@ -229,9 +240,9 @@ def crop(keypoints1, keypoints2, frame_image, only_torsos):
 			min_x, max_x, min_y, max_y = get_torso_coordinates(keypoints2)
 		else:
 			min_x, max_x, min_y, max_y = get_crop_coordinates(keypoints2)
-	
+
 		cropped2 = frame_image[min_y:max_y, min_x:max_x].copy()
-	
+
 	# fig = plt.figure()
 	# ax = fig.add_subplot(1, 2, 1)
 	# if cropped1 is not None:
@@ -257,7 +268,7 @@ def convert_colors(cropped1, cropped2, color):
 			cropped1 = cv2.cvtColor(cropped1, cv2.COLOR_BGR2HSV)
 		elif color == 'gray':
 			cropped1 = cv2.cvtColor(cropped1, cv2.COLOR_BGR2GRAY)
-	
+
 	if cropped2 is not None:
 		cropped2_rgb = cropped2.copy()
 		if color == 'hsv':
@@ -309,9 +320,9 @@ def get_most_similar_pair(one_sim_A, one_sim_B, two_sim_A, two_sim_B, reverse):
 
 	return best
 
-def assign(cropped1, cropped2, histA, histB, color, distance, only_hue, 
+def assign(cropped1, cropped2, histA, histB, color, distance, only_hue,
 	num_bins, comparison_indices, actorA, actorB):
-	
+
 	if distance == 'cor':
 		distance = cv2.HISTCMP_CORREL
 		reverse = False
@@ -326,8 +337,8 @@ def assign(cropped1, cropped2, histA, histB, color, distance, only_hue,
 	cropped1_rgb, cropped2_rgb, cropped1, cropped2 =  \
 		convert_colors(cropped1, cropped2, color)
 	hist1, hist2 = convert_to_hist(cropped1, cropped2, num_bins, only_hue, comparison_indices)
-	
-	if hist1 is not None:	
+
+	if hist1 is not None:
 		if distance == 'euc':
 			one_sim_A = euclidean(hist1, histA)
 			one_sim_B = euclidean(hist1, histB)
@@ -338,7 +349,7 @@ def assign(cropped1, cropped2, histA, histB, color, distance, only_hue,
 		one_sim_A = None
 		one_sim_B = None
 
-	if hist2 is not None:	
+	if hist2 is not None:
 		if distance == 'euc':
 			two_sim_A = euclidean(hist2, histA)
 			two_sim_B = euclidean(hist2, histB)
@@ -429,14 +440,14 @@ def construct_reference_histograms(color, only_hue, num_bins, hist_diff):
 	for i in range(1,17,2):
 		first_actor = ''+'0'*(2-len(str(i))) + str(i)
 		second_actor = ''+'0'*(2-len(str(i+1))) + str(i+1)
-	
+
 		first = cv2.imread(os.path.join(ACTOR_REFERENCE_IMAGES_DIR, first_actor+'.png'))
 		second = cv2.imread(os.path.join(ACTOR_REFERENCE_IMAGES_DIR, second_actor+'.png'))
 
 		if color == 'hsv':
 			first = cv2.cvtColor(first, cv2.COLOR_BGR2HSV)
 			second = cv2.cvtColor(second, cv2.COLOR_BGR2HSV)
-			
+
 			if only_hue:
 				first_hist = cv2.calcHist(first, [0], None, [min(num_bins, 255)], [0,255])
 				second_hist = cv2.calcHist(second, [0], None, [min(num_bins, 255)], [0,255])
@@ -468,11 +479,11 @@ def construct_reference_histograms(color, only_hue, num_bins, hist_diff):
 		second_hist = np.array([second_hist[i] for i in indices_to_compare])
 
 		reference_hists[first_actor] = first_hist
-		reference_hists[second_actor] = second_hist	
+		reference_hists[second_actor] = second_hist
 		reference_indices[first_actor] = indices_to_compare
 		reference_indices[second_actor] = indices_to_compare
-		
-	print(reference_hists)	
+
+	print(reference_hists)
 	return reference_hists, reference_indices
 
 def get_histogram_params(actorA, actorB):
