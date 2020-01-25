@@ -119,6 +119,7 @@ if __name__ == '__main__':
 				best_fold = k
 
 	av_scores = average_scores_across_folds(scores_per_fold)
+	scores = {'av_scores': av_scores, 'all': scores_per_fold}
 
 	best_epoch = np.amax(av_scores['dev'][1][:,2]).astype(np.int)
 	class_zero_scores = av_scores['dev'][0][best_epoch]
@@ -126,7 +127,7 @@ if __name__ == '__main__':
 	macro_scores = av_scores['dev']['macro'][best_epoch]
 
 	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
-		pickle.dump(av_scores, f)
+		pickle.dump(scores, f)
 
 	with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
 		f.write("BEST EPOCH: {} \n".format(best_epoch))

@@ -156,13 +156,13 @@ if __name__ == '__main__':
 			args.joint, args.emotion, args.input)
 	input_dim = get_input_dim(args.keypoints)
 	scores_per_fold = {'train':{}, 'dev':{}}
-	
+
 	best_f1 = 0
 
 	for k in range(args.num_folds):
-		
+
 		logger.new_fold(k)
-		
+
 		if not args.joint:
 			if args.modalities == 0:
 				if args.input == 'brute':
@@ -199,11 +199,11 @@ if __name__ == '__main__':
 		print("            Length train data: {}".format(len(train_data)))
 		print("              Length dev data: {}".format(len(dev_data)))
 		print("################################################")
-	
+
 
 		scores_per_fold['train'][k] = {'macro':[], 0:[], 1:[], 'loss':[], 'att_weights':[], 'acc':[]}
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
-		
+
 		for epoch in range(args.epochs):
 			print("                    TRAIN")
 			print("################################################")
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 										 train=True)
 			epoch_labels = epoch_labels.cpu()
 			epoch_predictions = epoch_predictions.cpu()
-			
+
 			epoch_att_weights = epoch_att_weights.cpu().numpy()
 			scores = get_scores(epoch_labels, epoch_predictions)
 			scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'train',
@@ -236,7 +236,7 @@ if __name__ == '__main__':
 										 train=False)
 			dev_labels = dev_labels.cpu()
 			dev_predictions = dev_predictions.cpu()
-	
+
 			dev_att_weights = dev_att_weights.cpu().numpy()
 			scores = get_scores(dev_labels, dev_predictions)
 			scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'dev',
@@ -264,27 +264,26 @@ if __name__ == '__main__':
 
 
 	av_scores = average_scores_across_folds(scores_per_fold)
-
+	scores = {'av_scores':av_scores, 'all':scores_per_fold}
 	best_epoch = np.amax(av_scores['dev'][1][:,2]).astype(np.int)
 	class_zero_scores = av_scores['dev'][0][best_epoch]
 	class_one_scores = av_scores['dev'][1][best_epoch]
 	macro_scores = av_scores['dev']['macro'][best_epoch]
 
 	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
-		pickle.dump(av_scores, f)
+		pickle.dump(scores, f)
 
 	with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
 		f.write("BEST EPOCH: {} \n".format(best_epoch))
 		f.write("{:>8} {:>8} {:>8} {:>8} {:>8}\n".format("class", "p", "r", "f", "acc"))
-		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("0", class_zero_scores[0], 
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("0", class_zero_scores[0],
 			class_zero_scores[1], class_zero_scores[2]))
-		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("1", class_one_scores[0], 
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("1", class_one_scores[0],
 			class_one_scores[1], class_one_scores[2]))
-		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro", 
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro",
 				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
 
 
 	logger.close(0, 0)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))
-
