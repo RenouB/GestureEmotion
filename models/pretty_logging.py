@@ -15,26 +15,12 @@ def construct_basename(args):
 		joint_str = 'IND'
 
 	mode_str = str(args.modalities)
-
+	interp_str = 'interp-'+str(args.interp)
 	lr_str = 'lr'+str(args.lr)
 	l2_str = 'l2'+str(args.l2)
 	dropout_str = 'dr'+str(args.dropout)
 	epochs_str = 'ep'+str(args.epochs)
-	basename = '-'.join([joint_str, mode_str, args.keypoints, lr_str, l2_str, dropout_str, epochs_str])
-
-	if args.test:
-		basename = 'TEST-'+basename
-	return basename
-
-def construct_crf_basename(args):
-	if args.joint:
-		joint_str = 'JOINT'
-	else:
-		joint_str = 'IND'
-
-	mode_str = str(args.modalities)
-
-	basename = '-'.join([joint_str, mode_str, args.keypoints])
+	basename = '-'.join([interp_str, joint_str, mode_str, args.keypoints, lr_str, l2_str, dropout_str, epochs_str])
 
 	if args.test:
 		basename = 'TEST-'+basename

@@ -81,9 +81,10 @@ if __name__ == "__main__":
 	parser.add_argument('-interval', default=3, type=int)
 	parser.add_argument('-seq_len', default=5, type=int)
 	parser.add_argument('-joint', action='store_true', default=True)
+	parser.add_argument('-interp', action='store_true', default=True)
 	args = parser.parse_args()
 
-	brute_data = PoseDataset(args.interval, args.seq_len, 'all', input='brute')
+	brute_data = PoseDataset(args.interval, args.seq_len, 'all', input='brute', interp=args.interp)
 
 	views = []
 	actor_pairs = []
@@ -111,5 +112,9 @@ if __name__ == "__main__":
 	print('actors', len(actors))
 	print('labels', labels.shape)
 	print('features', features.shape)
-	with open("svm_data.pkl", 'wb') as f:
+	if args.interp:
+		filename='svm_data_interp.pkl'
+	else:
+		filename='svm_data.pkl'
+	with open(filename, 'wb') as f:
 		pickle.dump(data, f)

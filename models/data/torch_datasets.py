@@ -16,7 +16,7 @@ from models.data.data_constructors import construct_data_filename
 
 class SvmPoseDataset(Dataset):
 
-	def __init__(self, emotion=0):
+	def __init__(self, emotion=0, interp=True):
 		with open(constants["SVM_DATA_PATH"], 'rb') as f:
 			data = pickle.load(f)
 		self.features = data['features']
@@ -46,9 +46,12 @@ class SvmPoseDataset(Dataset):
 
 class PoseDataset(Dataset):
 	def __init__(self, interval=4, seq_length=4, keypoints='full',joint=False,
-					emotion=None, input='brute'):
+					emotion=None, input='brute', interp=True):
 		self.joint = joint
-		filename = 'perturb-'+construct_data_filename(interval, seq_length, True)
+		if interp:
+			filename = 'interp-perturb-'+construct_data_filename(interval, seq_length, True)
+		else:
+			filename = 'perturb-'+construct_data_filename(interval, seq_length, True)
 
 		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
 			self.data = pickle.load(f)

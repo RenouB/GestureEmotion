@@ -31,6 +31,7 @@ if __name__ == '__main__':
 	parser.add_argument('-num_folds', default=8, type=int)
 	parser.add_argument('-test', action='store_true', default=False)
 	parser.add_argument('-debug', action='store_true', default=False)
+	parser.add_argument('-interp', action='store_true', default=True)
 	parser.add_argument('-comment', default='')
 	args = parser.parse_args()
 
@@ -44,14 +45,14 @@ if __name__ == '__main__':
 
 	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
-	basename = '-'.join(['svm', args.kernel, str(args.C), 'cw', str(args.class_weight)])
+	basename = '-'.join(['svm', 'interp-'+str(args.interp), args.kernel, str(args.C), 'cw', str(args.class_weight)])
 	write_dir = get_write_dir('SVM', joint=False, input_type='',
 	 				modalities=0, emotion= args.emotion)
 	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
 	# TODO: Add different modalities
-	data = SvmPoseDataset(args.emotion)
+	data = SvmPoseDataset(args.emotion, args.interp)
 
 	scores_per_fold = {'train':{}, 'dev':{}}
 	best_f1 = 0
@@ -80,9 +81,11 @@ if __name__ == '__main__':
 
 		if args.class_weight:
 			class_weight = balanced
-			svm = SVC(C=args.C, kernel=args.kernel, class_weight=class_weight)
+			svm = SVC(C=args.C, kernel=args.kernel, class_weight=class_weight,
+					random_state=200)
 		else:
-			svm = SVC(C=args.C, kernel=args.kernel)
+			svm = SVC(C=args.C, kernel=args.kernel, random_state=200)
+			
 		train = next(iter(train_loader))
 		print("Beginning training")
 		train_X = train['features'].numpy()

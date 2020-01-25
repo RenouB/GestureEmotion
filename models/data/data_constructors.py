@@ -27,16 +27,19 @@ def construct_data_filename(interval, seq_length, joint):
 
 	return filename
 
-def construct_pose_data(interval, seq_length, joint, debug):
+def construct_pose_data(interval, seq_length, joint, debug, interp):
 	annotations = pd.read_csv(GOLD_STANDARD_PATH)
 
 	if debug:
 		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "debug_cnn.pkl"), "rb") as f:
 			raw_data = pickle.load(f)
 	else:
-		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
-			raw_data = pickle.load(f)
-
+		if args.interp:
+			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
+				raw_data = pickle.load(f)
+		else:
+			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "interp_all_manually_selected_cnn.pkl"), "rb") as f:
+				raw_data = pickle.load(f)
 	data = {}
 	total_pose_before = 0
 	total_pose_after = 0
@@ -154,8 +157,10 @@ def construct_pose_data(interval, seq_length, joint, debug):
 			data[video][view]['B']['deltas'] = filtered['B']['deltas']
 			data[video][view]['A']['delta_deltas'] = filtered['A']['delta_deltas']
 			data[video][view]['B']['delta_deltas'] = filtered['B']['delta_deltas']
-
-	filename = 'perturb-'+construct_data_filename(interval, seq_length, joint, debug)
+	if args.interp:
+		filename = 'interp-perturb-'+construct_data_filename(interval, seq_length, joint)
+	else:
+		filename = 'perturb-'+construct_data_filename(interval, seq_length, joint)
 	print("Total poses before filtering:", total_pose_before)
 	print("Total labels before filtering:", total_labels_before)
 	print("Total poses after filtering:", total_pose_after)
@@ -173,6 +178,7 @@ if __name__ == "__main__":
 	parser.add_argument('-seq_len', default=5, type=int)
 	parser.add_argument('-joint', action='store_true', default=True)
 	parser.add_argument('-debug', action="store_true", default=False)
+	parser.add_argument('-interp', action='store_true', default=True)
 	args = parser.parse_args()
 
-	construct_pose_data(args.interval, args.seq_len, args.joint, args.debug)
+	construct_pose_data(args.interval, args.seq_len, args.joint, args.debug, args.interp)
