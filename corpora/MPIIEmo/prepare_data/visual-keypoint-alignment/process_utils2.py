@@ -50,9 +50,14 @@ def translate_keypoints(body_keypoints):
 def interpolate_missing_coordinates(one_coord_across_all_frames):
 	invalid_coords = [i for i, coords in enumerate(one_coord_across_all_frames)
 						if coords.sum() == 0]
-	valid_coords = np.array([i for i, coords in enumerate(one_coord_across_all_frames)
-						if coords.sum() != 0])
+
+	
+	if len(invalid_coords) == len(one_coord_across_all_frames):
+		one_coord_across_all_frames = np.array([2]*len(one_coord_across_all_frames))
+		return one_coord_across_all_frames
 	for i in invalid_coords:
+		valid_coords = np.array([i for i, coords in enumerate(one_coord_across_all_frames)
+						if coords.sum() != 0])
 		distances_from_valid = abs(valid_coords - i)
 		min_distance_index = np.argmin(distances_from_valid)
 		one_coord_across_all_frames[i] = one_coord_across_all_frames[min_distance_index]
@@ -61,6 +66,7 @@ def interpolate_missing_coordinates(one_coord_across_all_frames):
 def interpolate_keypoints_all_frames(keypoints_from_all_frames):
 	# keypoint dim = #frames * #bodykeypoints * 2
 	keypoints_from_all_frames = np.swapaxes(keypoints_from_all_frames, 1, 2)
+
 	for coord_index in range(keypoints_from_all_frames.shape[2]):
 		if coord_index != constants["BODY_CENTER"]:
 			keypoints_from_all_frames[:,:,coord_index] = \
