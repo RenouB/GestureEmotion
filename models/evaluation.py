@@ -79,48 +79,4 @@ def get_scores(labels, predictions):
 		scores[label]['r'] = rs[label]
 		scores[label]['f'] = fs[label]
 	return scores
-	# classes = np.unique(np.concatenate([labels, predictions], axis=0))
-	# scores = {}
-	# macro_p = 0
-	# macro_r = 0
-
-	# for clss in classes:
-	# 	scores[clss] = {}
-	# 	true_positives = len(np.intersect1d(np.where(labels == clss)[0],
-	# 						np.where(predictions == clss)[0]))
-	# 	false_positives = len(np.intersect1d(np.where(labels != clss)[0],
-	# 						np.where(predictions == clss)[0]))
-	# 	true_negatives = len(np.intersect1d(np.where(labels != clss)[0],
-	# 						np.where(predictions != clss)[0]))
-	# 	false_negatives = len(np.intersect1d(np.where(labels == clss)[0],
-	# 						np.where(predictions != clss)[0]))
-	# 	try:
-	# 		p = true_positives / (true_positives + false_positives)
-	# 	except ZeroDivisionError:
-	# 		p = 0
-	# 	scores[clss]['p']  = p
-
-	# 	try:
-	# 		r = true_positives / (true_positives + false_negatives)
-	# 	except ZeroDivisionError:
-	# 		r = 0
-	# 	scores[clss]['r']  = r
-
-	# 	try:
-	# 		scores[clss]['f'] = 2*p*r / (p+r)
-	# 	except ZeroDivisionError:
-	# 		scores[clss]['f'] = 0
-
-	# 	macro_p += p
-	# 	macro_r += r
-
-	# scores['macro_p'] = macro_p / len(classes)
-	# scores['macro_r'] = macro_r / len(classes)
-	# try:
-	# 	scores['macro_f'] = 2*scores['macro_p']*scores['macro_r'] / \
-	# 						(scores['macro_p'] + scores['macro_r'])
-	# except ZeroDivisionError:
-	# 	scores['macro_f'] = 0
-
-	# scores['acc'] = sum(labels == predictions) / len(labels)
-	# return scores
+	

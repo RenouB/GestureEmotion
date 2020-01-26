@@ -2,30 +2,22 @@ import os
 import json
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-with open(os.path.join(PROJECT_DIR,"corpora/MPIIEmo/prepare_data/body25_keypoint_mapping.json")) as f:
-    body_mapping = json.load(f)["mapping"]
-    body_mapping = {int(i): value for i, value in body_mapping.items()}
 constants = \
 {
 "PROJECT_DIR" : PROJECT_DIR,
-"MPIIEMO_DATA_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data"),
-"MPIIEMO_ANNOS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website"),
-"GOLD_STANDARD_PATH": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/data/aggregate_emotion_labels.csv"),
-"TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/10fps_views"),
-"SVM_DATA_PATH": os.path.join(PROJECT_DIR, "models/data/svm_data.pkl"),
+"MPIIEMO_ANNOS_DIR" : os.path.join(PROJECT_DIR, "MPIIEmo/annotations"),
+"MPIIEMO_ANNOS_WEBSITE" : os.path.join(PROJECT_DIR, "MPIIEmo/annos_website"),
+"GOLD_STANDARD_PATH": os.path.join(PROJECT_DIR, "MPIIEmo/annotations/aggregate_emotion_labels.csv"),
+"TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "MPIIEmo/views/10fps_views"),
+"SVM_DATA_PATH": os.path.join(PROJECT_DIR, "models//emotion_classification/data/svm_data.pkl"),
 "MODELS_DIR": os.path.join(PROJECT_DIR, 'models'),
-"MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/views/manually_selected_images"),
-"ACTOR_REFERENCE_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/annos_website/actor_ids/"),
-"RAW_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/raw"),
-"PROCESSED_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "corpora/MPIIEmo/features/body_features/processed"),
-"VERIFICATION_IMAGES_DIR": os.path.join(PROJECT_DIR, "corpora/MPIIEmo/prepare_data/verification_images"),
-"HISTOGRAMS_DATA_DIR": os.path.join(PROJECT_DIR, 'models/VisualPoseAlignment/data'),
-"MPIIEMO_ID" : "1rEFKedGwxqhQl0Z6fSRpaX9H058h6KAZ",
+"MANUALLY_SELECTED_IMAGES_DIR": os.path.join(PROJECT_DIR, "MPIIEmo/views/manually_selected_images"),
+"ACTOR_REFERENCE_IMAGES_DIR": os.path.join(PROJECT_DIR, "MPIIEmo/annos_website/actor_ids/"),
+"RAW_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "MPIIEmo/features/body_features/raw"),
+"PROCESSED_BODY_FEATS_DIR" : os.path.join(PROJECT_DIR, "MPIIEmo/features/body_features/processed"),
+"VERIFICATION_IMAGES_DIR": os.path.join(PROJECT_DIR, "MPIIEmo/prepare_data/verification_images"),
+"HISTOGRAMS_DATA_DIR": os.path.join(PROJECT_DIR, 'models/visual_pose_alignment/data'),
 "KEYPOINTS_FOR_SCALING" : (9, 15),
-"RAW_BODY_FEATS_DRIVE_ID" : "12tf83gQiewTNKgiyfnC4wUlWXZ6zp6rL",
-"PAFS" : [(17, 15), (15, 0), (0, 16), (16, 18), (0,1), (1, 2), (2, 3), (3, 4),
-          (1,5), (5,6), (6,7), (1,8), (8,9), (9, 10), (10, 11), (11, 24), (11, 22),
-          (22, 23), (8,12), (12,13), (13,14), (14,21), (14,19), (19, 20)],
 "SVM_ANGLES": [ [ (6,5), (2,5) ],
 				[ (3,2), (5,2) ],
 				[ (4,3), (2,3) ],
@@ -36,7 +28,6 @@ constants = \
 				[ (0,1), (2,1) ],
 				[ (0,1), (12,1) ],
 				[ (0,1), (9,1)] ],
-"BODY_KEYPOINT_MAPPING" : body_mapping,
 "STABLE_BODY_PART_INDICES" : [0, 1, 2, 5, 8, 9, 12, 15, 10, 17, 18],
 "WAIST_UP_BODY_PART_INDICES": [0, 1, 2, 3, 4, 5, 6, 7, 15, 16, 17, 18],
 "WAIST_UP_FILTER_RATIO": 1/2,
@@ -47,24 +38,5 @@ constants = \
 "FULL-HEAD":[2,3,4,5,6,7,1],
 "HANDS":[4,7],
 "HEAD":[17,15,16,18,0],
-"GOOGLE_DRIVE_FOLDER_ID" : "1rEFKedGwxqhQl0Z6fSRpaX9H058h6KAZ",
 "ACTOR_PAIRS": ['0102','0304','0506','0708','0910','1112','1314','1516']
-}
-
-
-color_histogram_constants = \
-{
-1: {'color': 'hsv',
-	'distance': 'cor',
-	'num_bins': 32,
-	'only_hue': True,
-	'hist_diff': False,
-	'actors' : ['02', '01', '09', '10', '03', '04', '15', '16']
-	}
-}
-
-cnn_params = \
-{
-	"POSE_DIM" : 50,
-	"NUM_CLASSES": 4
 }
