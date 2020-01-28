@@ -11,12 +11,13 @@ from sklearn.metrics import multilabel_confusion_matrix, classification_report
 from base_models import OneActorOneModalityBrute, OneActorOneModalityDeltas, \
 TwoActorsOneModalityCNN, TwoActorsOneModalitySimpleCNN
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
+print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
-from definitions import constants, cnn_params
+from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
-from models.data.torch_datasets import PoseDataset
+from models.emotion_classification.data.torch_datasets import PoseDataset
 from models.evaluation import get_scores, update_scores_per_fold, average_scores_across_folds
 import argparse
 import logging
@@ -99,7 +100,7 @@ if __name__ == '__main__':
 	parser.add_argument('-modalities', default=0, type=int)
 	parser.add_argument('-interval', default=3, type=int)
 	parser.add_argument('-seq_length', default=5, type=int)
-	parser.add_argument('-interp', action='store_true', default=True)
+	parser.add_argument('-interp', action='store_true', default=False)
 	parser.add_argument("-emotion", default=0, type=int)
 	parser.add_argument("-keypoints", default='full')
 	parser.add_argument("-input", default="brute")
