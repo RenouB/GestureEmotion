@@ -11,7 +11,7 @@ sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
-from models.data.data_constructors import construct_data_filename
+from models.emotion_classification.data.data_constructors import construct_data_filename
 
 
 class SvmPoseDataset(Dataset):
@@ -49,11 +49,11 @@ class PoseDataset(Dataset):
 					emotion=None, input='brute', interp=True):
 		self.joint = joint
 		if interp:
-			filename = 'interp-perturb-'+construct_data_filename(interval, seq_length, True)
+			path = constants["INTERP_CNN_DATA_PATH"]
 		else:
-			filename = 'perturb-'+construct_data_filename(interval, seq_length, True)
+			path = constants["NON_INTERP_CNN_DATA_PATH"]
 
-		with open(os.path.join(MODELS_DIR, 'data', filename), 'rb') as f:
+		with open(path, 'rb') as f:
 			self.data = pickle.load(f)
 
 		self.actor_pairsA = []

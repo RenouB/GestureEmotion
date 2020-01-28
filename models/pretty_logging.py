@@ -55,7 +55,8 @@ def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 	if emotion == 3:
 		emotion_str = 'surprise'
 
-	return os.path.join(MODELS_DIR, model_dir, input_type, emotion_str, joint_dir, mode_dir)
+	return os.path.join(MODELS_DIR, 'emotion_classification', 
+			model_dir, input_type, emotion_str, joint_dir, mode_dir)
 
 class PrettyLogger():
 	def __init__(self, args, logs_dir, basename, starttime):

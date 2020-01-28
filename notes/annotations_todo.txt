@@ -1,2 +1,0 @@
-The README says that person A is in the room originally and that person B enters.
-However according to the video titles its the opposite: person B is already in the room, person A enters.
