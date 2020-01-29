@@ -42,6 +42,7 @@ if __name__ == "__main__":
 	parser.add_argument('-only_hue', action="store_true", default=True, 
 						help="if using hsv color scheme, can use only hiue")
 	parser.add_argument('-C', default=0.001, type=float)
+	parser.add_argument('-kernel', default='rbf')
 	args = parser.parse_args()
 	
 	basename = '-'.join([args.color, 'only_hue', str(args.only_hue),
@@ -57,6 +58,7 @@ if __name__ == "__main__":
 	with open(os.path.join(HISTOGRAMS_DATA_DIR, basename+'test.pkl'), 'rb') as f:
 		test = pickle.load(f)
 
+	basename = '-'.join([str(args.C), args.kernel, basename])
 	pair_ids = list(train.keys())
 
 	scores_per_fold = {'train':{},'dev':{}}
@@ -68,7 +70,7 @@ if __name__ == "__main__":
 
 		print("PROCESSING {}".format(pair_id))
 		
-		clf = LinearSVC(random_state = RANDOM_SEED, tol=0.00001, C=args.c)
+		clf = LinearSVC(random_state = RANDOM_SEED, tol=0.00001, C=args.C)
 		
 		X = train[pair_id]['hists'][:,0,:,:].squeeze(2)
 		y = train[pair_id]['labels'][:,0]
