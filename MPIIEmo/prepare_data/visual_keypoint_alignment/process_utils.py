@@ -3,10 +3,10 @@ import os, sys
 from scipy.spatial.distance import cosine, euclidean
 import matplotlib.pyplot as plt
 # quick fix to get script to run from anywhere
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-4])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
 import cv2
-from definitions import constants, color_histogram_constants
+from definitions import constants
 
 ''' contains many utilities used to process raw body features '''
 
@@ -180,7 +180,7 @@ def get_frame_image_filename(i):
 		return zeros+i_str+'.jpg'
 
 def get_body_image_filename(i, ii):
-	i += 1
+	# i += 1
 	i_str = str(i)
 	ii_str = str(ii)
 
@@ -489,17 +489,4 @@ def construct_reference_histograms(color, only_hue, num_bins, hist_diff):
 		reference_indices[first_actor] = indices_to_compare
 		reference_indices[second_actor] = indices_to_compare
 
-	print(reference_hists)
 	return reference_hists, reference_indices
-
-def get_histogram_params(actorA, actorB):
-	for param_set in color_histogram_constants:
-		actors = color_histogram_constants[param_set]['actors']
-		if actorA in actors and actorB in actors:
-			color = color_histogram_constants[param_set]['color']
-			only_hue = color_histogram_constants[param_set]['only_hue']
-			num_bins = color_histogram_constants[param_set]['num_bins']
-			distance = color_histogram_constants[param_set]['distance']
-			return color, only_hue, num_bins, distance, param_set
-
-		return None, None, None, None, None

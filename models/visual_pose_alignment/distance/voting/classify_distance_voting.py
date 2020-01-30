@@ -7,6 +7,7 @@ import time
 from argparse import ArgumentParser
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-4])
+print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]

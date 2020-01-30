@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-from process_utils2 import filter_keypoints, get_crop_coordinates, get_body_image_filename, \
+from process_utils import filter_keypoints, get_crop_coordinates, get_body_image_filename, \
 convert_keypoints_to_array, crop, add_keypoints_to_sequences, normalize_keypoints, \
 interpolate_keypoints_all_frames, interpolate_missing_coordinates
 
@@ -63,7 +63,7 @@ for split, folder in [(train, 'train'), (test, 'test')]:
 				all_together = add_keypoints_to_sequences(all_together, video.name, view.name,
 							 frame_index, assignment, keypoints1, keypoints2)
 
-# begin interpolation - replace with nearest neighbour or 2
+begin interpolation - replace with nearest neighbour or 2
 for video, views in all_together.items():
 	for view, actor in views.items():
 		for actor, frames in actor.items():
