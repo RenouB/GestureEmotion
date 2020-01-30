@@ -110,7 +110,8 @@ class PoseDataset(Dataset):
 					delta_deltas = delta_deltas.reshape(new_shape)
 					delta_deltas = delta_deltas[:,:,keypoints_to_retain,:]
 					delta_deltas = delta_deltas.reshape(new_shape[:2]+(-1,))
-					delta_deltas = list(deltas)
+					delta_deltas = list(delta_deltas)
+
 
 
 					if emotion is not None:
@@ -143,6 +144,8 @@ class PoseDataset(Dataset):
 			self.labels = self.labelsA + self.labelsB
 			self.deltas = self.deltasA + self.deltasB
 			self.delta_deltas = self.delta_deltasA + self.delta_deltasB
+			print(len(self.deltas[0]))
+			print(len(self.delta_deltas[0]))
 			self.actors = self.actorsA + self.actorsB
 			self.actor_pairs = self.actor_pairsA + self.actor_pairsB
 			self.views = self.viewsA + self.viewsB
