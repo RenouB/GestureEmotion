@@ -37,16 +37,29 @@ if __name__ == "__main__":
 					file_path = os.path.join(root, file)
 					with open(file_path, 'rb') as f:
 						scores = pickle.load(f)
-						print("unpickled")
 					all_scores[experiment][input_dir][file] = scores
 					dev_f1s = scores['av_scores']['dev'][1][:,-1]
 					best = np.amax(dev_f1s)
-					print(best)
 					if best > best_f1:
 						best_f1 = best
-						best_epoch = np.where(dev_f1s == best)[0]
+						best_epoch = np.where(dev_f1s == best)[0][0]
 						best_model = file
 	print('best f1:', best_f1)
 	print('best epoch:', best_epoch)
 	print('best model:', best_model)
+	print('\n')
 
+	for experiment, inputs in all_scores.items():
+		print("##################################\n")
+		print(experiment)
+		for input, files in inputs.items():
+			print("###################################\n")
+			print(input)
+			for file, scores in files.items():
+				best_av = scores['av_scores']['dev'][1][best_epoch]
+				print(scores['all']['dev'].keys())
+				all_folds_best_epoch = np.concatenate([np.expand_dims(scores['all']['dev'][k][1][best_epoch], axis=1) for k in range(8)], axis=1)
+				print(file)
+				print(np.around(best_av * 100, decimals=2))
+				print(np.around(all_folds_best_epoch.std(axis=1) * 100, decimals=2))
+				print('\n')

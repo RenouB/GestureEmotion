@@ -24,7 +24,7 @@ import logging
 from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
 import time
 
-def get_input_dim(keypoints):
+def get_input_dim(keypoints, input):
 	if keypoints == 'full':
 		dim = len(constants["WAIST_UP_BODY_PART_INDICES"]) * 2
 	if keypoints == 'full-hh':
@@ -35,6 +35,10 @@ def get_input_dim(keypoints):
 		dim = len(constants["HEAD"]) * 2
 	if keypoints == 'hands':
 		dim = len(constants["HANDS"]) * 2
+
+	if input == 'deltas-noatt':
+		return dim * 3
+
 	return dim
 
 def compute_epoch(model, data_loader, loss_fxn, optim,
@@ -53,17 +57,20 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 		# first take care of independent modeling, different modalities
 		if not joint:
 			if modalities == 0:
+				labels = batch['labels']
 				if args.input == 'brute':
 					pose = batch['pose']
-					labels = batch['labels']
 					# att weights are empty placeholder
 					out, att_weights = model(pose)
 				elif args.input == 'deltas':
 					pose = batch['pose']
-					labels = batch['labels']
 					deltas = batch['deltas']
 					delta_deltas = batch['delta_deltas']
 					out, att_weights = model(pose, deltas, delta_deltas)
+				elif args.input == 'deltas-noatt':
+					pose = torch.cat([batch['pose'][:,-3:,:], batch['deltas'][:,-3:,:],
+					 		batch['delta_deltas']], axis=2)
+					out, att_weights = model(pose)
 		# now take care of joint modeling, different modalities
 		else:
 			if modalities == 0:
@@ -156,7 +163,7 @@ if __name__ == '__main__':
 	# TODO: Add different modalities
 	data = PoseDataset(args.interval, args.seq_length, args.keypoints,
 			args.joint, args.emotion, args.input, args.interp)
-	input_dim = get_input_dim(args.keypoints)
+	input_dim = get_input_dim(args.keypoints, args.input)
 	scores_per_fold = {'train':{}, 'dev':{}}
 
 	best_f1 = 0
@@ -167,17 +174,17 @@ if __name__ == '__main__':
 
 		if not args.joint:
 			if args.modalities == 0:
-				if args.input == 'brute':
+				if args.input == 'brute' or args.input == 'deltas-noatt':
 					model = OneActorOneModalityBrute(input_dim, args.n_filters,
 							range(1, args.filter_sizes+1), args.cnn_output_dim,
 							args.project_output_dim, 1, args.dropout)
 
 
-				else:
+				elif args.input == 'deltas':
 					model = OneActorOneModalityDeltas(input_dim, args.n_filters,
-							range(1, args.filter_sizes+1), args.cnn_output_dim,
-							args.project_output_dim, args.att_vector_dim,
-							1, args.dropout)
+						range(1, args.filter_sizes+1), args.cnn_output_dim,
+						args.project_output_dim, args.att_vector_dim,
+						1, args.dropout)
 
 		loss_fxn = torch.nn.BCELoss()
 
