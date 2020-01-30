@@ -33,6 +33,10 @@ def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 		model_dir = 'SVM'
 	elif model_type == 'random':
 		model_dir = 'rand'
+	elif model_type == 'BiLSTM':
+		model_dir = 'BiLSTM'
+	elif model_type == 'Linear':
+		model_dir = 'Linear'
 
 	if joint:
 		joint_dir = 'joint'
@@ -55,7 +59,7 @@ def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 	if emotion == 3:
 		emotion_str = 'surprise'
 
-	return os.path.join(MODELS_DIR, 'emotion_classification', 
+	return os.path.join(MODELS_DIR, 'emotion_classification',
 			model_dir, input_type, emotion_str, joint_dir, mode_dir)
 
 class PrettyLogger():

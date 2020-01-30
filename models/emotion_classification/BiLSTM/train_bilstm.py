@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
 torch.manual_seed(200)
-from base_models import OneActorOneModalityBrute, OneActorOneModalityDeltas
+from bilstm import BiLSTM
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
@@ -53,32 +53,16 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 			print('Processing batch', batch_counter)
 
 		# first take care of independent modeling, different modalities
-		if not joint:
-			if modalities == 0:
-				labels = batch['labels']
-				if args.input == 'brute':
-					pose = batch['pose']
-					# att weights are empty placeholder
-					out, att_weights = model(pose)
-				elif args.input == 'deltas':
-					pose = batch['pose']
-					deltas = batch['deltas']
-					delta_deltas = batch['delta_deltas']
-					out, att_weights = model(pose, deltas, delta_deltas)
-				elif args.input == 'deltas-noatt':
-					pose = torch.cat([batch['pose'][:,-3:,:], batch['deltas'][:,-3:,:],
-					 		batch['delta_deltas']], axis=2)
-					out, att_weights = model(pose)
-		# now take care of joint modeling, different modalities
-		else:
-			if modalities == 0:
-				poseA = batch['poseA']
-				labelsA = batch['labelsA'].unsqueeze(1)
-				poseB = batch['poseB']
-				labelsB = batch['labelsB'].unsqueeze(1)
-				out, att_weights = model(poseA, poseB)
-				labels = torch.cat([labelsA, labelsB], dim=1)
-				labels = labels.flatten()
+
+		labels = batch['labels']
+		if args.input == 'brute':
+			pose = batch['pose']
+			# att weights are empty placeholder
+			out, att_weights = model(pose)
+		elif args.input == 'deltas-noatt':
+			pose = torch.cat([batch['pose'][:,-3:,:], batch['deltas'][:,-3:,:],
+					batch['delta_deltas']], axis=2)
+			out, att_weights = model(pose)
 
 		labels = labels.unsqueeze(1)
 		predictions = (out > 0.5).int()
@@ -92,7 +76,6 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 			optim.zero_grad()
 			loss.backward()
 			optim.step()
-
 
 	return torch.cat(epoch_labels, dim=0), torch.cat(epoch_predictions, dim=0), \
 			epoch_loss, torch.cat(epoch_att_weights, axis=0)
@@ -109,26 +92,20 @@ if __name__ == '__main__':
 	parser.add_argument("-emotion", default=0, type=int)
 	parser.add_argument("-keypoints", default='full')
 	parser.add_argument("-input", default="brute")
-
-	parser.add_argument('-n_filters', default=50, type=int)
-	parser.add_argument('-filter_sizes', default=3, type=int)
-	parser.add_argument('-cnn_output_dim', default=60, type=int)
-	parser.add_argument('-project_output_dim', default=30, type=int)
-	parser.add_argument('-att_vector_dim', default=30, type=int)
+	parser.add_argument('-hidden_size', default=60, type=int)
+	parser.add_argument('-lstm_layers', default=2, type=int)
 	parser.add_argument('-batchsize', type=int, default=20)
 	parser.add_argument('-lr', type=float, default=0.001)
 	parser.add_argument('-l2', type=float, default=0.001)
 	parser.add_argument('-dropout', default=0.5, type=float, help='dropout probability')
 	parser.add_argument('-optim', default='adam')
-
 	parser.add_argument('-cuda', default=False, action='store_true',  help='use cuda')
-	# parser.add_argument('-gpu', default=0, type=int, help='gpu id') could probs delete this
-
 	parser.add_argument('-num_folds', default=8, type=int)
 	parser.add_argument('-test', action='store_true', default=False)
 	parser.add_argument('-debug', action='store_true', default=False)
 	parser.add_argument('-comment', default='')
 	args = parser.parse_args()
+
 
 	if args.debug:
 		print_denominator = 5
@@ -140,8 +117,8 @@ if __name__ == '__main__':
 	print('epochs', args.epochs)
 	if args.cuda:
 		use_gpu = lambda x=True: torch.set_default_tensor_type(torch.cuda.FloatTensor
-                                             if torch.cuda.is_available() and x
-                                             else torch.FloatTensor)
+											 if torch.cuda.is_available() and x
+											 else torch.FloatTensor)
 		use_gpu()
 		device = torch.cuda.current_device()
 	else:
@@ -152,9 +129,8 @@ if __name__ == '__main__':
 	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = construct_basename(args)+'-'+starttime
-	write_dir = get_write_dir('CNN', input_type = args.input, joint=args.joint,
-	 				modalities=args.modalities,
-		emotion= args.emotion)
+	write_dir = get_write_dir('BiLSTM', input_type = args.input, joint=args.joint,
+					modalities=args.modalities, emotion= args.emotion)
 	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
@@ -171,18 +147,7 @@ if __name__ == '__main__':
 		logger.new_fold(k)
 
 		if not args.joint:
-			if args.modalities == 0:
-				if args.input == 'brute' or args.input == 'deltas-noatt':
-					model = OneActorOneModalityBrute(input_dim, args.n_filters,
-							range(1, args.filter_sizes+1), args.cnn_output_dim,
-							args.project_output_dim, 1, args.dropout)
-
-
-				elif args.input == 'deltas':
-					model = OneActorOneModalityDeltas(input_dim, args.n_filters,
-						range(1, args.filter_sizes+1), args.cnn_output_dim,
-						args.project_output_dim, args.att_vector_dim,
-						1, args.dropout)
+			model = BiLSTM(input_dim, args.hidden_size, args.lstm_layers, args.dropout)
 
 		loss_fxn = torch.nn.BCELoss()
 

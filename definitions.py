@@ -10,6 +10,7 @@ constants = \
 "GOLD_STANDARD_PATH": os.path.join(PROJECT_DIR, "MPIIEmo/annotations/aggregate_emotion_labels.csv"),
 "TEN_FPS_VIEWS_DIR" : os.path.join(PROJECT_DIR, "MPIIEmo/views/10fps_views"),
 "SVM_DATA_PATH": os.path.join(PROJECT_DIR, "models/emotion_classification/data/svm_data.pkl"),
+"INTERP_SVM_DATA_PATH": os.path.join(PROJECT_DIR, "models/emotion_classification/data/svm_data_interp.pkl"),
 "INTERP_CNN_DATA_PATH": os.path.join(PROJECT_DIR, "models/emotion_classification/data/interp-perturb-joint-int3-seq5.pkl"),
 "NON_INTERP_CNN_DATA_PATH": os.path.join(PROJECT_DIR, "models/emotion_classification/data/perturb-joint-int3-seq5.pkl"),
 "MODELS_DIR": os.path.join(PROJECT_DIR, 'models'),

@@ -15,9 +15,12 @@ from models.emotion_classification.data.data_constructors import construct_data_
 
 
 class SvmPoseDataset(Dataset):
-
 	def __init__(self, emotion=0, interp=True):
-		with open(constants["SVM_DATA_PATH"], 'rb') as f:
+		if interp:
+			path = constants["INTERP_SVM_DATA_PATH"]
+		else:
+			path = constants["SVM_DATA_PATH"]
+		with open(path, 'rb') as f:
 			data = pickle.load(f)
 		self.features = data['features']
 		self.labels = data['labels'][:,emotion]
@@ -144,8 +147,6 @@ class PoseDataset(Dataset):
 			self.labels = self.labelsA + self.labelsB
 			self.deltas = self.deltasA + self.deltasB
 			self.delta_deltas = self.delta_deltasA + self.delta_deltasB
-			print(len(self.deltas[0]))
-			print(len(self.delta_deltas[0]))
 			self.actors = self.actorsA + self.actorsB
 			self.actor_pairs = self.actor_pairsA + self.actor_pairsB
 			self.views = self.viewsA + self.viewsB
