@@ -5,19 +5,18 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, Subset
 np.random.seed(200)
-from sklearn.metrics import multilabel_confusion_matrix, classification_report
-
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
+print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
-from definitions import constants, cnn_params
+from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
 
-from models.data.torch_datasets import PoseDataset
-from models.evaluation import get_scores
+from models.emotion_classification.data.torch_datasets import PoseDataset
+from models.evaluation import get_scores, update_scores_per_fold, average_scores_across_folds
 import argparse
 import logging
-from models.pretty_logging import PrettyLogger, construct_crf_basename, get_write_dir
+from models.pretty_logging import PrettyLogger, get_write_dir
 import time
 
 
@@ -28,7 +27,9 @@ if __name__ == '__main__':
 	parser.add_argument('-epochs', type=int, default=1)
 	parser.add_argument('-joint', action="store_true", default=False)
 	parser.add_argument('-modalities', default=0, type=int)
+	parser.add_argument("-input", default='no-input')
 	parser.add_argument('-attention', default=False)
+	parser.add_argument("-interp", default=False)
 	parser.add_argument('-interval', default=3, type=int)
 	parser.add_argument('-seq_length', default=5, type=int)
 	parser.add_argument("-emotion", default=0, type=int)
@@ -37,30 +38,27 @@ if __name__ == '__main__':
 	parser.add_argument('-debug', action='store_true', default=False)
 	parser.add_argument('-comment', default='')
 	args = parser.parse_args()
-	
-	epoch = 0	
+
+	epoch = 0
 	print("################################################")
 	print("                  STARTING")
-	
+
 	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = '-'.join([args.method, str(args.interval), str(args.seq_length)])
-	write_dir = get_write_dir('random', attention=False, joint=args.joint, modalities=args.modalities, 
+	write_dir = get_write_dir('random', input_type=args.input, joint=args.joint, modalities=args.modalities,
 		emotion= args.emotion)
 	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
 	# TODO: Add different modalities
-	data = PoseDataset(args.interval, args.seq_length, args.keypoints, args.joint, args.debug, args.emotion)
-	best_f1 = -1
-	best_k = -1
-	final_scores_per_fold = {}
-	losses = {}
-	f1s = {}
-	final_f1s = []
-	
+	data = PoseDataset(args.interval, args.seq_length, args.keypoints,
+			args.joint, args.emotion, args.input, args.interp)
+	scores_per_fold = {'train':{}, 'dev':{}}
+
+	best_f1 = 0
+
 	for k in range(args.num_folds):
-		f1s[k] = {'train':[], 'dev':[]}
 		logger.new_fold(k)
 		train_indices, dev_indices = data.split_data(k, args.emotion)
 		train_data = Subset(data, train_indices)
@@ -70,13 +68,13 @@ if __name__ == '__main__':
 		train_labels = torch.Tensor([[data[i]['labels']] for i in train_indices])
 		dev_labels = torch.Tensor([[data[i]['labels']] for i in dev_indices])
 
-		prob_1 =  len(np.where(train_labels == 1)) / len(train_labels)
-		
+		prob_1 =  sum(train_labels == 1).item() / len(train_labels)
+
 		if args.method == 'random':
 			train_predictions = torch.Tensor([np.random.choice([0,1], size=len(train_labels), p=[1 - prob_1, prob_1])]).reshape(-1,1)
-			
+
 			dev_predictions = torch.Tensor([np.random.choice([0,1], size=len(dev_labels), p=[1 - prob_1, prob_1])]).reshape(-1,1)
-			
+
 		elif args.method == 'majority':
 			if prob_1 >= 0.5:
 				train_predictions = torch.Tensor([1]*len(train_labels)).unsqueeze(1)
@@ -92,45 +90,46 @@ if __name__ == '__main__':
 		print("################################################")
 		print("                    TRAIN")
 		print("################################################")
-		
-		
-		scores = get_scores(train_labels, train_predictions, detailed=False)
-		f1s[k]['train'].append(scores['micro_f'])
-		
+
+		loss = 0
+		att_weights = torch.Tensor([[0,0,0]])
+		scores_per_fold['train'][k] = {'macro':[], 0:[], 1:[], 'loss':[], 'att_weights':[], 'acc':[]}
+		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
+		scores = get_scores(train_labels, train_predictions)
+		scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'train',
+							loss, att_weights, len(train_data), k)
 		logger.update_scores(scores, epoch, 'TRAIN')
 
-		train_classification_report = classification_report(train_labels, train_predictions)
-		conf = multilabel_confusion_matrix(train_labels, train_predictions)
-		scores['confusion_matrix'] = conf
-
-		
 		print("################################################")
 		print("                     EVAL")
 		print("################################################")
-		
-		scores = get_scores(dev_labels, dev_predictions, detailed=False)
-		f1s[k]['dev'].append(scores['micro_f'])
+
+		scores = get_scores(dev_labels, dev_predictions)
+		scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'dev',
+							loss, att_weights, len(dev_data), k)
 		logger.update_scores(scores, epoch, 'DEV')
 
-		dev_classification_report = classification_report(dev_labels, dev_predictions)
-		conf = multilabel_confusion_matrix(dev_labels, dev_predictions)
-		scores['confusion_matrix'] = conf
-		final_scores_per_fold[k] = scores
-		final_f1s.append(scores['micro_f'])
+	av_scores = average_scores_across_folds(scores_per_fold)
+	scores = {'av_scores':av_scores, 'all':scores_per_fold}
+	best_epoch = np.amax(av_scores['dev'][1][:,2]).astype(np.int)
+	class_zero_scores = av_scores['dev'][0][best_epoch]
+	class_one_scores = av_scores['dev'][1][best_epoch]
+	macro_scores = av_scores['dev']['macro'][best_epoch]
 
-		with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
-			f.write('\n')
-			f.write("FOLD {} \n".format(k))
-			f.write('\n')
-			f.write("#################################### \n")
-			f.write("DEV \n")
-			f.write("#################################### \n")
-			f.write(dev_classification_report)
-
-	final_scores_per_fold['f1s'] = f1s
 	with open(os.path.join(write_dir, 'scores', basename+'.pkl'), 'wb') as f:
-		pickle.dump(final_scores_per_fold, f)
-	logger.close(best_f1, best_k)
+		pickle.dump(scores, f)
+
+	with open(os.path.join(write_dir, 'scores', basename+'.csv'), 'a+') as f:
+		f.write("BEST EPOCH: {} \n".format(best_epoch))
+		f.write("{:>8} {:>8} {:>8} {:>8} {:>8}\n".format("class", "p", "r", "f", "acc"))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("0", class_zero_scores[0],
+			class_zero_scores[1], class_zero_scores[2]))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} \n".format("1", class_one_scores[0],
+			class_one_scores[1], class_one_scores[2]))
+		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro",
+				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
+
+
+	logger.close(0, 0)
 	print("STARTIME {}".format(starttime))
 	print("ENDTIME {}".format(time.strftime('%H%M-%b-%d-%Y')))
-	print("mean micro f1 {:.2f}".format(np.mean(final_f1s)))

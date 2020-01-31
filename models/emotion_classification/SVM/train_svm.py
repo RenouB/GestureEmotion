@@ -8,12 +8,12 @@ from sklearn.svm import SVC
 np.random.seed(200)
 
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
-from models.data.torch_datasets import SvmPoseDataset
+from models.emotion_classification.data.torch_datasets import SvmPoseDataset
 from models.evaluation import get_scores, update_scores_per_fold, average_scores_across_folds
 import argparse
 import logging
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 	parser.add_argument('-num_folds', default=8, type=int)
 	parser.add_argument('-test', action='store_true', default=False)
 	parser.add_argument('-debug', action='store_true', default=False)
-	parser.add_argument('-interp', action='store_true', default=True)
+	parser.add_argument('-interp', action='store_true', default=False)
 	parser.add_argument('-comment', default='')
 	args = parser.parse_args()
 

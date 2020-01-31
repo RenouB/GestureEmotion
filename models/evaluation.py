@@ -51,9 +51,10 @@ def update_scores_per_fold(scores_per_fold, scores, split, loss, att_weights, da
 def get_scores(labels, predictions):
 	if type(labels) != np.ndarray:
 		labels = labels.cpu().numpy()[:,0]
+		labels = labels.astype(int)
 	if type(predictions) != np.ndarray:
 		predictions = predictions.cpu().numpy()[:,0]
-
+		predictions = predictions.astype(int)
 
 	macro_p, macro_r, macro_f, _ = precision_recall_fscore_support(labels, predictions,
 									average='macro')
@@ -79,4 +80,3 @@ def get_scores(labels, predictions):
 		scores[label]['r'] = rs[label]
 		scores[label]['f'] = fs[label]
 	return scores
-	
