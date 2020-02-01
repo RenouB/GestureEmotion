@@ -37,7 +37,8 @@ def get_write_dir(model_type, input_type, joint, modalities, emotion=None):
 		model_dir = 'BiLSTM'
 	elif model_type == 'Linear':
 		model_dir = 'Linear'
-
+	elif model_type =='JointBiLSTM':
+		model_dir = 'JointBiLSTM'
 	if joint:
 		joint_dir = 'joint'
 	else:

@@ -1,0 +1,14 @@
+LINEAR VS SVM:
+
+anger:     SVM 35.3 / 7.07, Linear 31.0 / 5.59
+happiness: SVM 26.0 / 11.9, Linear 28.3 / 14.7
+sadness:   SVM 25.8 / 16.2, Linear 23.0 / 14.6
+surprise:  SVM 10.4 / 6.28, Linear 5.34 / 6.63
+
+Linear only beats SVM on happiness.
+For linear no differences between interp and non interp.
+For SVM, non-interp out performs in 3/4 cases.
+
+CNN:
+interp vs non interp
+wrt brute: 
