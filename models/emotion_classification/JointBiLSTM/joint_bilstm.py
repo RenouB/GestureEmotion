@@ -19,6 +19,7 @@ class JointBiLSTM(nn.Module):
         self.evidenceB = nn.Sequential(nn.Linear(hidden_dim*2, attention_dim), nn.ReLU(), nn.Dropout())
         self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
         self.classify = nn.Linear(attention_dim, 1)
+        self.softmax = nn.Softmax(dim=0)
         print(self)
     def forward(self, posesA, posesB):
 
@@ -37,8 +38,9 @@ class JointBiLSTM(nn.Module):
         evidenceB = self.evidenceB(finalB)
         scoreA = self.attention_vector(evidenceA)
         scoreB = self.attention_vector(evidenceB)
+        scoresA = self.softmax(torch.cat([scoreA, scoreB], dim=0))
         att_weightsA = torch.cat([scoreA, scoreB], dim=0)
-        context = evidenceA*scoreA + evidenceB*scoreB
+        context = evidenceA*scoresA[0] + evidenceB*scoresA[1]
         outA = self.classify(context)
         outA = torch.sigmoid(outA)
 
@@ -46,9 +48,9 @@ class JointBiLSTM(nn.Module):
         evidenceA = self.evidenceB(finalA)
         scoreA = self.attention_vector(evidenceA)
         scoreB = self.attention_vector(evidenceB)
-        att_weightsB = torch.cat([scoreA, scoreB], dim=0)
-        context = evidenceA*scoreA + evidenceB*scoreB
+        scoresB = self.softmax(torch.cat([scoreA, scoreB], dim=0))
+        context = evidenceA*scoresB[0] + evidenceB*scoreB[1]
         outB = self.classify(context)
         outB = torch.sigmoid(outB)
 
-        return outA, outB, att_weightsA.detach(), att_weightsB.detach()
+        return outA, outB, scoresA.detach(), scoresB.detach()
