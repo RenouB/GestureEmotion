@@ -6,7 +6,6 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
-torch.manual_seed(200)
 from joint_bilstm import JointBiLSTM
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
@@ -80,7 +79,7 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 		epoch_predictions.append(predictionsB)
 		epoch_att_weights.append(att_weightsA)
 		epoch_att_weights.append(att_weightsB)
-		
+
 		loss = loss_fxn(torch.cat([outA, outB], dim=0),
 			torch.cat([labelsA.double(), labelsB.double()], dim=0))
 		epoch_loss += loss.item()
@@ -160,7 +159,7 @@ if __name__ == '__main__':
 
 		logger.new_fold(k)
 
-
+		torch.manual.seed(200)
 		model = JointBiLSTM(input_dim, args.hidden_size, args.attention_dim,
 					args.lstm_layers, args.dropout)
 
@@ -178,7 +177,6 @@ if __name__ == '__main__':
 			train_indices = train_indices[:1500]
 			dev_indices = dev_indices[:1500]
 		train_data = Subset(data, train_indices)
-		train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 		dev_data = Subset(data, dev_indices)
 		dev_loader = DataLoader(dev_data, batch_size=args.batchsize)
 		print("################################################")
@@ -192,6 +190,8 @@ if __name__ == '__main__':
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
 
 		for epoch in range(args.epochs):
+			torch.manual.seed(epoch)
+			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")
 			print("                    EPOCH {}".format(epoch))

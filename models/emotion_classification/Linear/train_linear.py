@@ -119,6 +119,7 @@ if __name__ == '__main__':
 
 		logger.new_fold(k)
 
+		torch.manual.seed(200)
 		model = Linear(input_dim, args.output_dim, args.num_hidden, args.dropout)
 
 		loss_fxn = torch.nn.BCELoss()
@@ -135,7 +136,6 @@ if __name__ == '__main__':
 			train_indices = train_indices[:1500]
 			dev_indices = dev_indices[:1500]
 		train_data = Subset(data, train_indices)
-		train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 		dev_data = Subset(data, dev_indices)
 		dev_loader = DataLoader(dev_data, batch_size=args.batchsize)
 		print("################################################")
@@ -149,6 +149,8 @@ if __name__ == '__main__':
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
 
 		for epoch in range(args.epochs):
+			torch.manual.seed(epoch)
+			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")
 			print("                    EPOCH {}".format(epoch))

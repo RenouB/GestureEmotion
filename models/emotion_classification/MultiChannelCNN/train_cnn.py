@@ -6,7 +6,6 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
-torch.manual_seed(200)
 from base_models import OneActorOneModalityBrute, OneActorOneModalityDeltas
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
@@ -167,7 +166,7 @@ if __name__ == '__main__':
 	best_f1 = 0
 
 	for k in range(args.num_folds):
-
+		torch.manual_seed(200)
 		logger.new_fold(k)
 
 		if not args.joint:
@@ -198,7 +197,6 @@ if __name__ == '__main__':
 			train_indices = train_indices[:1500]
 			dev_indices = dev_indices[:1500]
 		train_data = Subset(data, train_indices)
-		train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 		dev_data = Subset(data, dev_indices)
 		dev_loader = DataLoader(dev_data, batch_size=args.batchsize)
 		print("################################################")
@@ -212,6 +210,8 @@ if __name__ == '__main__':
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
 
 		for epoch in range(args.epochs):
+			torch.manual.seed(epoch)
+			train_loader = DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")
 			print("                    EPOCH {}".format(epoch))
