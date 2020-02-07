@@ -1,0 +1,55 @@
+
+all results. ignoring interpolation, doesn't matter.
+BiLSTM, JointBiLSTM, presenting brute features
+where applicable, full body
+
+            anger           happiness       sadness         surprise        mean
+SVM         35.54 / 7.07    25.99 / 11.91   25.76 / 16.23   10.38 / 6.28    24.42
+Linear      31.04 / 5.59    28.27 / 14.64   23.01 / 14.57   5.34  / 6.63    21.92
+CNN         17.23 / 13.09   18.19 / 18.00   13.08 / 15.29   13.48 / 14.26   15.50
+AttCNN      22.97 / 10.98   18.05 / 18.33   13.83 / 16.63   7.67  / 10.06   15.62
+BiLSTM      33.33 / 10.76   32.31 / 18.72   19.68 / 18.38   14.96 / 10.52   25.07
+JointBiLSTM 47.04 / 20.24   34.09 / 19.41   22.20 / 19.90   19.82 / 15.49   30.79
+
+JointBiLSTM anger and SVM anger: 17.80
+JointBiLSTM and BiLSTM anger: 13.61
+
+JointBiLSTm and SVM happiness: 33.23
+JointBiLSTM and BiLSTM happiness: 85.50
+
+SVM sadness and Linear sadness: 42.93
+SVM and JointBiLSTM sadness:: 71.86
+
+JointBiLSTM and BiLSTM surprise: 53.48
+JointBiLSTM and CNN surprise: 46.09
+
+
+global p values:
+JointBiLSTM and BiLSTM: 25.50
+            and SVM: 13.50
+            and Linear: 7.18
+            and AttCNN: 0.27
+            and CNN: 0.08
+
+BiLSTM and SVM: 71.38
+      and Linear: 45.32
+      and AttCNN: 2.50
+      and CNN: 0.77
+
+SVM and Linear: 67.53
+    and attCNN: 4.12
+    and CNN: 1.23
+
+Linear and CNN: 3.81
+      and attCNN: 10.39
+
+CNN and attCNN: 69.85
+
+
+best results for each emotion
+
+emotion     model                 p               r               f
+anger       JointBiLSTM-full-hh   57.59 / 20.81   53.98 / 28.59   49.96 / 19.87
+happiness   JointBiLSTM-full      42.52 / 29.64   43.27 / 16.85   37.01 / 20.75
+sadness     SVM                   28.29 / 21.64   29.45 / 19.25   25.76 / 16.22
+surprise    JointBiLSTM-full      33.46 / 26.12   30.32 / 25.08   25.04 / 15.59
