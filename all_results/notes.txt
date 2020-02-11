@@ -1,45 +1,24 @@
-LINEAR VS SVM:
-
-anger:     SVM 35.3 / 7.07, Linear 31.0 / 5.59
-happiness: SVM 26.0 / 11.9, Linear 28.3 / 14.7
-sadness:   SVM 25.8 / 16.2, Linear 23.0 / 14.6
-surprise:  SVM 10.4 / 6.28, Linear 5.34 / 6.63
-
-Linear only beats SVM on happiness.
-For linear no differences between interp and non interp.
-For SVM, non-interp out performs in 3/4 cases.
-
-CNN:
-interp vs non interp
-wrt brute:
+interp f:     mean: 15.60, std: 10.75
+noninterp f:  mean: 15.75, std 10.89
+p-value: 0.9149
+doesn't make a difference really.
+exact same number of experiments
 
 
-BODY PART STUFF
+brute or delta?
+first lets consider everything
+brute f: mean 16.91, std 10.05
+deltas f: mean 13.39, std 11.17
+p: 0.0111
 
-#anger
-full = [16.9, 17.2, 18.5, 31.0, 28.5]
-full head = [13.8, 11.9, 11.1, 30.5, 33.6]
-full hh = [21.8, 23.7, 18.0,26.9, 31.1]
-head = [17.7, 17.4, 10.2, 22.1, 27.5]
-hands = [8.10, 8.05, 0.00, 12.4, 14.3]
+Now let's exclude hands and head
+because out of 32 times where f score was <= 0.02, 26 of those times were
+hands or head.
+of those 26 times, 19 were delta features.
+so let's exclude these and recompare.
 
-#happiness
-full = [18.2, 15.3, 17.4, 32.3, 31.9]
-full-head = [25.2, 23.2, 15.1, 27.1]
-full-hh =[ 20.4, 21.4, 10.1, 25.9, 25.5]
-head = [1.28, 0.00, 0.00, 19.0, 17.0]
-hands 7.78, 5.66, 0.25, 19.1, 16.0]
+deltas mean: 14.74 std: 12.10
+brute mean: 21.27, 0.0947
+p = 0.0003
 
-#sadness
-full = [11.6, 10.8, 11.0, 19.7, 16.2]
-full-head = [5.46, 6.43, 3.39, 14.9, 11.7]
-full-hh = [9.69, 9.24, 6.04, 11.5, 11.8]
-head = [20.9, 18.7, 4.30, 13.7]
-hands = [10.6, 10.9, 0.01, 12.7]
-
-#surprise
-full = [13.3, 15.3, 15.0, 14.2]
-full-head = [20.5, 18.4, 20.2, 14.5]
-full-hh = [12.3, 11.1, 16.3, 13.6]
-head = [0.08, 0.08, 24.1]
-hands = [11.4, 10.3, 10.4, 7.45]
+so brute features are definitely better.
