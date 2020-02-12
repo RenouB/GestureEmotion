@@ -136,8 +136,8 @@ def construct_pose_data(interval, seq_length, joint, debug, interp):
 				filtered['B']['labels'] = [label for label in labelsB if label is not None]
 				filtered['A']['deltas'] = [delta for delta in deltasA if delta is not None]
 				filtered['B']['deltas'] = [delta for delta in deltasB if delta is not None]
-				filtered['A']['delta_deltass'] = [delta_deltas for delta_deltas in delta_deltassA if delta_deltas is not None]
-				filtered['B']['delta_deltass'] = [delta_deltas for delta_deltas in delta_deltassB if delta_deltas is not None]
+				filtered['A']['delta_deltas'] = [delta_deltas for delta_deltas in delta_deltassA if delta_deltas is not None]
+				filtered['B']['delta_deltas'] = [delta_deltas for delta_deltas in delta_deltassB if delta_deltas is not None]
 
 			total_pose_before += (len(data[video][view]['A']['poses']) \
 						+ len(data[video][view]['B']['poses']))

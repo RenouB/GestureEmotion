@@ -20,7 +20,7 @@ class JointBiLSTM(nn.Module):
         self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
         self.classify = nn.Linear(attention_dim, 1)
         self.softmax = nn.Softmax(dim=0)
-        print(self)
+        # print(self)
     def forward(self, posesA, posesB):
 
         A = torch.transpose(posesA, dim0=1, dim1=0)

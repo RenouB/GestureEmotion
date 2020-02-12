@@ -269,7 +269,7 @@ if __name__ == '__main__':
 			class_one_scores[1], class_one_scores[2]))
 		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro",
 				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
-
+				
 
 	logger.close(0, 0)
 	print("STARTIME {}".format(starttime))

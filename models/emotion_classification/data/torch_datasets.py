@@ -48,8 +48,8 @@ class SvmPoseDataset(Dataset):
 
 
 class PoseDataset(Dataset):
-	def __init__(self, interval=4, seq_length=4, keypoints='full',joint=False,
-					emotion=None, input='brute', interp=True):
+	def __init__(self, interval=3, seq_length=5, keypoints='full',joint=False,
+					emotion=0, input='brute', interp=True):
 		self.joint = joint
 		if interp:
 			path = constants["INTERP_CNN_DATA_PATH"]
@@ -115,8 +115,6 @@ class PoseDataset(Dataset):
 					delta_deltas = delta_deltas.reshape(new_shape[:2]+(-1,))
 					delta_deltas = list(delta_deltas)
 
-
-
 					if emotion is not None:
 						labels = np.array(actors[actor]["labels"])[:,emotion]
 						labels = labels.tolist()
@@ -153,9 +151,9 @@ class PoseDataset(Dataset):
 
 	def __len__(self):
 		if not self.joint:
-			return len(self.poses) - 1
+			return len(self.poses) - 2
 		else:
-			return len(self.posesA) - 1
+			return len(self.posesB) - 1
 
 	def __getitem__(self, i):
 		if not self.joint:
