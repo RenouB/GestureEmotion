@@ -153,9 +153,9 @@ if __name__ == '__main__':
 	input_dim = get_input_dim(args.keypoints, args.input)
 	scores_per_fold = {'train':{}, 'dev':{}}
 
-	best_f1 = 0
 
 	for k in range(args.num_folds):
+		best_f1 = 0
 
 		logger.new_fold(k)
 
@@ -246,7 +246,7 @@ if __name__ == '__main__':
 				best_f1 = f1
 				best_epoch = epoch
 				best_fold = k
-				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
+				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(fold)+'.weights'))
 
 
 
@@ -269,7 +269,7 @@ if __name__ == '__main__':
 			class_one_scores[1], class_one_scores[2]))
 		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro",
 				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
-				
+
 
 	logger.close(0, 0)
 	print("STARTIME {}".format(starttime))

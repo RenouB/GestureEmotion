@@ -42,14 +42,14 @@ class OneActorOneModalityDeltas(nn.Module):
 		self.cnn_block3 = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
 						nn.ReLU())
 
-		self.project1 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-		self.project2 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-		self.project3 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-
-		self.score1 = Attention(project_output_dim, att_vector_dim, dropout)
-		self.score2 = Attention(project_output_dim, att_vector_dim, dropout)
-		self.score3 = Attention(project_output_dim, att_vector_dim, dropout)
-
+		self.project1 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.project2 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.project3 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.evidenceA = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidenceB = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidenceC = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
+		self.softmax = nn.Softmax(dim=1)
 		self.classify = nn.Linear(project_output_dim, num_classes)
 
 	def forward(self, poses, deltas, delta_deltas):
@@ -58,21 +58,23 @@ class OneActorOneModalityDeltas(nn.Module):
 
 		poses = self.cnn_block1(poses)
 		poses = self.project1(poses)
-		score1 = self.score1(poses)
+		evidence1 = self.evidence1(poses)
+		score1 = self.attention_vector(evidence1)
 
 		deltas = self.cnn_block2(deltas)
 		deltas = self.project2(deltas)
-		score2 = self.score2(deltas)
+		evidence2 = self.evidence2(deltas)
+		score2 = self.attention_vector(evidence2)
 
 		delta_deltas = self.cnn_block3(delta_deltas)
 		delta_deltas = self.project3(delta_deltas)
-		score3 = self.score3(delta_deltas)
-		scores = F.softmax(torch.cat([score1, score2, score3], dim=0), dim=0)
+		evidence3 = self.evidence2(delta_deltas)
+		score3 = self.attention_vector(evidence3)
 
+		scores = self.softmax(torch.cat[evidence1, evidence2, evidence3],dim=0))
 		context = scores[0]*poses + scores[1]*deltas + scores[2]*delta_deltas
 		context = self.classify(context)
 		out = torch.sigmoid(context)
-
 
 		return out, torch.cat([score1, score2, score3], dim=1).detach()
 

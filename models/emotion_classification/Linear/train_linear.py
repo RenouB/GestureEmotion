@@ -113,9 +113,9 @@ if __name__ == '__main__':
 	input_dim = 80
 	scores_per_fold = {'train':{}, 'dev':{}}
 
-	best_f1 = 0
 
 	for k in range(args.num_folds):
+		best_f1 = 0
 
 		logger.new_fold(k)
 
@@ -205,9 +205,7 @@ if __name__ == '__main__':
 				best_f1 = f1
 				best_epoch = epoch
 				best_fold = k
-				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
-
-
+				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(k)+'.weights'))
 
 	av_scores = average_scores_across_folds(scores_per_fold)
 	scores = {'av_scores':av_scores, 'all':scores_per_fold}

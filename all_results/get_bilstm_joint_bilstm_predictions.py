@@ -44,20 +44,21 @@ def get_input_dim(keypoints, input):
 	return dim
 
 if __name__ == "__main__":
-    for model in ["BiLSTM"]:
+    for model in ["BiLSTM","JointBiLSTM"]:
 
         data_length = 14839*2
-        for body_part in body_parts[:2]:
-            att_weights_dct["body_part"]+= [body_part]*data_length
-            att_weights_dct["model"]+= [body_part]*data_length
+        for body_part in body_parts:
+            if model == "JointBiLSTM":
+                att_weights_dct["body_part"]+= [body_part]*data_length
+                att_weights_dct["model"]+= [body_part]*data_length
+                att_weights_dct["datapoint"] += [i for i in range(data_length)]
+                att_weights_dct["actor"] += ['A']*(data_length // 2) + ['B']*(data_length // 2)
             predictions_dct["body_part"]+= [body_part]*data_length
-            predictions_dct["model"]+= [body_part]*data_length
-            att_weights_dct["datapoint"] += [i for i in range(data_length)]
+            predictions_dct["model"]+= [model]*data_length
             predictions_dct["datapoint"] += [i for i in range(data_length)]
-            att_weights_dct["actor"] += ['A']*(data_length // 2) + ['B']*(data_length // 2)
             predictions_dct["actor"] += ['A']*(data_length // 2) + ['B']*(data_length // 2)
 
-            for emotion_index, emotion_str in emotions[:1]:
+            for emotion_index, emotion_str in emotions:
                 print(model, body_part, emotion_str)
                 # initialize dataset, model
                 input_dim = get_input_dim(body_part, 'brute')
@@ -65,7 +66,6 @@ if __name__ == "__main__":
                     data = PoseDataset(interval=3, seq_length=5, keypoints=body_part,
                                         joint = False, emotion=emotion_index, input='brute',
                                         interp=False)
-                    print(len(data))
                     net = BiLSTM(input_dim, hidden_dim=60,lstm_layer=2,dropout=0.5)
                     weights_name = 'interp-False-IND-0-'+body_part+ \
                                     '-lr0.001-l20.001-dr0.5-ep100'
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                                 lstm_layer=2,dropout=0.5)
                     weights_name = 'interp-False-JOINT-0-'+body_part+ \
                                     '-lr0.001-l20.001-dr0.5-ep100'
-                    ind_or_joint = 'joint/ind/'
+                    ind_or_joint = 'joint/pose/'
 
                 weights_dir = os.path.join(SCORES_DIR, model, 'run1-noninterp', 'brute', emotion_str,
                                             ind_or_joint, 'weights/')
@@ -100,24 +100,27 @@ if __name__ == "__main__":
                 for batch in loader:
                     if model == "BiLSTM":
                         out, _ = net(batch['pose'].double())
-                        predictions = (out >= 0.5).int().tolist()
+                        predictions = (out >= 0.5).int()[:,0].tolist()
                         predsA = predictions[:int(len(predictions) / 2)]
                         predsB = predictions[int(len(predictions) / 2):]
                         print("PREDS", len(predictions))
                     else:
                         outA, outB, attA, attB = net(batch['poseA'].double(), batch['poseB'].double())
                         # print(attA.shape, attB.shape)
-                        predsA = (outA >= 0.5).int().tolist()
-                        predsB = (outA >= 0.5).int().tolist()
+                        predsA = (outA >= 0.5).int()[:,0].tolist()
+                        predsB = (outA >= 0.5).int()[:,0].tolist()
                         # print(attA)
                         # print(attB)
                         attA = attA.reshape(-1,2).numpy()
-                        attB= attB.reshape(-1,2).numpy()
+                        attB = attB.reshape(-1,2).numpy()
+                        print(attA.shape, attB.shape)
+                        print(len(attA[:,1].tolist() + attB[:,0].tolist()))
                         att_weights_dct[emotion_str+"0"] += attA[:,0].tolist() \
                                                         +attB[:,0].tolist()
                         att_weights_dct[emotion_str+"1"] += attA[:,1].tolist() \
                                                         +attB[:,1].tolist()
                     predictions_dct[emotion_str] += predsA+predsB
+
                     print('inference complete')
 
 for key, item in att_weights_dct.items():
