@@ -246,7 +246,7 @@ if __name__ == '__main__':
 				best_f1 = f1
 				best_epoch = epoch
 				best_fold = k
-				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(fold)+'.weights'))
+				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(k)+'.weights'))
 
 
 

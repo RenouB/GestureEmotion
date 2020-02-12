@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 from torch import nn
-from layers import CNN, Attention
+from layers import CNN
 torch.manual_seed(200)
 
 class OneActorOneModalityBrute(nn.Module):
@@ -29,7 +29,7 @@ class OneActorOneModalityBrute(nn.Module):
 
 class OneActorOneModalityDeltas(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes,
-				 cnn_output_dim, project_output_dim, att_vector_dim,
+				 cnn_output_dim, project_output_dim, attention_dim,
 				 num_classes, dropout):
 
 		super().__init__()
@@ -45,9 +45,9 @@ class OneActorOneModalityDeltas(nn.Module):
 		self.project1 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
 		self.project2 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
 		self.project3 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
-		self.evidenceA = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
-		self.evidenceB = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
-		self.evidenceC = nn.Sequential(nn.Linear(project_output__dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidence1 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidence2 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidence3 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
 		self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
 		self.softmax = nn.Softmax(dim=1)
 		self.classify = nn.Linear(project_output_dim, num_classes)

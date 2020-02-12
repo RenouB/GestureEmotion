@@ -4,7 +4,7 @@ CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 0 -input deltas
 CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 0 -input deltas -keypoints head -epochs 100 -batchsize 20 -cuda -l2 0.001 > outs/anger_head.out &
 CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 0 -input deltas -keypoints hands -epochs 100 -batchsize 20 -cuda -l2 0.001 > outs/anger_hands.out &
 
-CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 1 -input deltas -keypoints full -epochs 100  -batchsize 20 -cuda -l2 0.001 > outs/happiness_full.out &
+CUDA_VISIBLE_DEVICES=2 python3 train_cnn.py -num_folds 8 -emotion 1 -input deltas -keypoints full -epochs 2 -num_folds 2  -batchsize 20 -cuda -l2 0.001 > outs/happiness_full.out &
 CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 1 -input deltas -keypoints full-hh -epochs 100  -batchsize 20 -cuda -l2 0.001 > outs/happiness_full_hh.out &
 CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 1 -input deltas -keypoints full-head -epochs 100  -batchsize 20 -cuda -l2 0.001 > outs/happiness_full_head.out &
 CUDA_VISIBLE_DEVICES=2 python train_cnn.py -num_folds 8 -emotion 1 -input deltas -keypoints head -epochs 100 -batchsize 20 -cuda -l2 0.001 > outs/happiness_head.out &
