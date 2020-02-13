@@ -15,7 +15,7 @@ sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
-from models.emotion_classification.data.torch_datasets import SvmPoseDataset
+from models.emotion_classification.data.datasets import SvmPoseDataset
 from models.evaluation import get_scores, update_scores_per_fold, average_scores_across_folds
 import argparse
 import logging

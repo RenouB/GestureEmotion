@@ -18,28 +18,53 @@ GOLD_STANDARD_PATH = constants["GOLD_STANDARD_PATH"]
 MODELS_DIR = constants["MODELS_DIR"]
 SVM_PART_PAIRS = constants["SVM_ANGLES"]
 
+"""
+this script will construct a pickle file containing all data necessary for all
+SVM and Linear models. It computes angles between different body parts
+at each timepoint in a pose sequence, before computing statistical properties
+of these angles over the entire sequence.
+
+this script cannot be run without many files from previous data preprocessing steps.
+these are large and are not included in the repo.
+"""
+
+
 def get_v(body_part1, body_part2):
+	"""
+	given coordinates for two body parts, calculates the vector between them
+	"""
 	return np.array([body_part1[0] - body_part2[0],
 				body_part1[1] - body_part2[1]])
 
 def get_angle(v1, v2):
+	"""
+	get the angle between two vectors calculated using function above
+	"""
 	return np.arccos(np.dot(v1,v2) / (np.linalg.norm(v1)*np.linalg.norm(v2)))
 
 def keypoint_sequence_to_angles_seq(keypoints_seq):
+	"""
+	converts a sequence of brute body keypoints to a sequence of body part angles
+	"""
 	# keypoints_seq = 5 x 50
 	angles_seq = []
 	keypoints_seq = np.squeeze(keypoints_seq, axis=0)
 	for seq in keypoints_seq:
+		# unflatten keypoints seq
 		seq = seq.reshape(25,2)
 		angles = []
+		# for each pair of body part vectors, calculate angle between them
 		for part_pairs in SVM_PART_PAIRS:
-				# use pair1 to create v1
+
 			pair1 = part_pairs[0]
 			body_part1 = seq[pair1[0]]
 			body_part2 = seq[pair1[1]]
+			# if either of the body parts has a zero value, this means it
+			# hasn't been properly detected.
 			if 0 in body_part1 or 0 in body_part2:
 				angles.append(0)
 				continue
+			# calculate first bodypart vector
 			v1 = get_v(body_part1, body_part2)
 			pair2 = part_pairs[1]
 			body_part1 = seq[pair2[0]]
@@ -47,7 +72,9 @@ def keypoint_sequence_to_angles_seq(keypoints_seq):
 			if 0 in body_part1 or 0 in body_part2:
 				angles.append(0)
 				continue
+			# calculate second body part vector
 			v2 = get_v(body_part1, body_part2)
+			# get angle between them and append to angle sequence
 			angle = get_angle(v1, v2)
 			angles.append(angle)
 		angles_seq.append(angles)
@@ -55,7 +82,10 @@ def keypoint_sequence_to_angles_seq(keypoints_seq):
 	return np.array(angles_seq)
 
 def compute_statistics(angles_seq):
-
+	"""
+	Given an angle sequence, will compute a variety of statistics for
+	each angle.
+	"""
 	features = []
 	for col_index in range(angles_seq.shape[1]):
 		column = angles_seq[:,col_index]
