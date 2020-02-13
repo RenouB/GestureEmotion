@@ -17,7 +17,7 @@ Most of these will not work if run (the data files required are not provided),
 but should the reader decide to work directly with the MPIIEmo data, these scripts
 may prove useful.
 
-##SETUP INSTRUCTIONS:
+## SETUP INSTRUCTIONS:
 
 Download emotion classification data from
 https://drive.google.com/open?id=1Iy77VZ1MXNa3qU7h4YLj8MkdMNLqAHMy
@@ -30,9 +30,9 @@ unzip into models/pose_alignment/data
 create your virtual environment and ensure you have all requirements in
 requirements.txt
 
-##HOW TO RUN?
+## HOW TO RUN?
 Navigate to the folder of a given model (for example, models/emotion_classification/BiLSTM).
 Here you will find a readme with example commands that may be run to train and test the model (hopefully reproducing reported results).
 
-##WHERE ARE MY OUTPUTS?
+## WHERE ARE MY OUTPUTS?
 Most models have an analogous directory structure. At it's deepest point, (for example, BiLSTM/brute/anger/ind/pose/) there will be logs, weights and scores directories. All outputs will be stored there.
