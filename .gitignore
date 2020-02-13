@@ -1,8 +1,13 @@
 pydial/
 venv/
 MLSTM-FCN/
+all_results/
+
 drive_download/
+report/
+final_presentation/
 model/outputs
+!**.gitkeep
 !drive_download/.gitkeep
 **/mycreds.txt
 **/10fps_views
@@ -10,6 +15,7 @@ model/outputs
 **/views
 **/zips
 **.weights
+hci/
 openpose
 **.csv
 **/.Rhistory
