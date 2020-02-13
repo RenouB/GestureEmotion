@@ -70,17 +70,11 @@ class OneActorOneModalityDeltas(nn.Module):
 		delta_deltas = self.project3(delta_deltas)
 		evidence3 = self.evidence2(delta_deltas)
 		score3 = self.attention_vector(evidence3)
-
-		scores = self.softmax(torch.cat([evidence1, evidence2, evidence3],dim=0))
-		context = scores[0]*poses + scores[1]*deltas + scores[2]*delta_deltas
+		scores = self.softmax(torch.cat([score1, score2, score3],dim=1))
+		context = scores[:,0,None]*poses + scores[:,1,None]*deltas + scores[:,2,None]*delta_deltas
 		context = self.classify(context)
 		out = torch.sigmoid(context)
-
-		return out, torch.cat([score1, score2, score3], dim=1).detach()
-
-
-
-
+		return out, scores.detach()
 
 class TwoActorsOneModalityCNN(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes,

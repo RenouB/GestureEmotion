@@ -38,9 +38,10 @@ class JointBiLSTM(nn.Module):
         evidenceB = self.evidenceB(finalB)
         scoreA = self.attention_vector(evidenceA)
         scoreB = self.attention_vector(evidenceB)
-        scoresA = self.softmax(torch.cat([scoreA, scoreB], dim=0))
-        att_weightsA = torch.cat([scoreA, scoreB], dim=0)
-        context = evidenceA*scoresA[0] + evidenceB*scoresA[1]
+        scoresA = self.softmax(torch.cat([scoreA, scoreB], dim=1))
+        print(scoreA.shape, scoreB.shape, scoresA.shape)
+        print(scoresA)
+        context = evidenceA*scoresA[:,0,None] + evidenceB*scoresA[:,1,None]
         outA = self.classify(context)
         outA = torch.sigmoid(outA)
 
@@ -48,8 +49,10 @@ class JointBiLSTM(nn.Module):
         evidenceA = self.evidenceB(finalA)
         scoreA = self.attention_vector(evidenceA)
         scoreB = self.attention_vector(evidenceB)
-        scoresB = self.softmax(torch.cat([scoreA, scoreB], dim=0))
-        context = evidenceA*scoresB[0] + evidenceB*scoreB[1]
+        scoresB = self.softmax(torch.cat([scoreA, scoreB], dim=1))
+        print(scoreA.shape, scoreB.shape, scoresA.shape)
+        print(scoresA)
+        context = evidenceA*scoresB[:,0,None] + evidenceB*scoresB[:,1,None]
         outB = self.classify(context)
         outB = torch.sigmoid(outB)
 
