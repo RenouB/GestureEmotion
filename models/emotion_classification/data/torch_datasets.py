@@ -50,7 +50,7 @@ class SvmPoseDataset(Dataset):
 
 class PoseDataset(Dataset):
 	def __init__(self, interval=3, seq_length=5, keypoints='full',joint=False,
-					emotion=0, input='brute', interp=True):
+					emotion=None, input='brute', interp=True):
 		self.joint = joint
 		if interp:
 			path = constants["INTERP_CNN_DATA_PATH"]
