@@ -139,12 +139,11 @@ if __name__ == '__main__':
 	input_dim = get_input_dim(args.keypoints, args.input)
 	scores_per_fold = {'train':{}, 'dev':{}}
 
-	best_f1 = 0
 
 	for k in range(args.num_folds):
-
+		best_f1 = 0
 		logger.new_fold(k)
-		torch.manual.seed(200)
+		torch.manual_seed(200)
 		if not args.joint:
 			model = BiLSTM(input_dim, args.hidden_size, args.lstm_layers, args.dropout)
 
@@ -175,7 +174,7 @@ if __name__ == '__main__':
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
 
 		for epoch in range(args.epochs):
-			torch.manual.seed(epoch)
+			torch.manual_seed(epoch)
 			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")
@@ -231,7 +230,7 @@ if __name__ == '__main__':
 				best_f1 = f1
 				best_epoch = epoch
 				best_fold = k
-				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'.weights'))
+				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(k)+'.weights'))
 
 
 

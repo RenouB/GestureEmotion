@@ -22,8 +22,6 @@ import time
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-
-
 	parser.add_argument("-emotion", default=0, type=int)
 	parser.add_argument('-C', type=float, default=1)
 	parser.add_argument('-kernel', default='rbf')
@@ -69,7 +67,7 @@ if __name__ == '__main__':
 			dev_indices = dev_indices[:9000]
 
 		train_data = Subset(data, train_indices)
-		train_loader = DataLoader(train_data, batch_size=len(train_indices), shuffle=True)
+		train_loader = DataLoader(train_data, batch_size=len(train_indices))
 		dev_data = Subset(data, dev_indices)
 		dev_loader = DataLoader(dev_data, batch_size=len(dev_indices))
 

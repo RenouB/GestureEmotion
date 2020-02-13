@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 from torch import nn
-from layers import CNN, Attention
+from layers import CNN
 torch.manual_seed(200)
 
 class OneActorOneModalityBrute(nn.Module):
@@ -29,7 +29,7 @@ class OneActorOneModalityBrute(nn.Module):
 
 class OneActorOneModalityDeltas(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes,
-				 cnn_output_dim, project_output_dim, att_vector_dim,
+				 cnn_output_dim, project_output_dim, attention_dim,
 				 num_classes, dropout):
 
 		super().__init__()
@@ -42,14 +42,14 @@ class OneActorOneModalityDeltas(nn.Module):
 		self.cnn_block3 = nn.Sequential(CNN(feats_dim, n_filters, filter_sizes, cnn_output_dim, dropout),
 						nn.ReLU())
 
-		self.project1 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-		self.project2 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-		self.project3 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.Dropout(), nn.ReLU())
-
-		self.score1 = Attention(project_output_dim, att_vector_dim, dropout)
-		self.score2 = Attention(project_output_dim, att_vector_dim, dropout)
-		self.score3 = Attention(project_output_dim, att_vector_dim, dropout)
-
+		self.project1 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.project2 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.project3 = nn.Sequential(nn.Linear(cnn_output_dim, project_output_dim), nn.ReLU(), nn.Dropout())
+		self.evidence1 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidence2 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.evidence3 = nn.Sequential(nn.Linear(project_output_dim, attention_dim), nn.ReLU(), nn.Dropout())
+		self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
+		self.softmax = nn.Softmax(dim=1)
 		self.classify = nn.Linear(project_output_dim, num_classes)
 
 	def forward(self, poses, deltas, delta_deltas):
@@ -58,27 +58,23 @@ class OneActorOneModalityDeltas(nn.Module):
 
 		poses = self.cnn_block1(poses)
 		poses = self.project1(poses)
-		score1 = self.score1(poses)
+		evidence1 = self.evidence1(poses)
+		score1 = self.attention_vector(evidence1)
 
 		deltas = self.cnn_block2(deltas)
 		deltas = self.project2(deltas)
-		score2 = self.score2(deltas)
+		evidence2 = self.evidence2(deltas)
+		score2 = self.attention_vector(evidence2)
 
 		delta_deltas = self.cnn_block3(delta_deltas)
 		delta_deltas = self.project3(delta_deltas)
-		score3 = self.score3(delta_deltas)
-		scores = F.softmax(torch.cat([score1, score2, score3], dim=0), dim=0)
-
-		context = scores[0]*poses + scores[1]*deltas + scores[2]*delta_deltas
+		evidence3 = self.evidence2(delta_deltas)
+		score3 = self.attention_vector(evidence3)
+		scores = self.softmax(torch.cat([score1, score2, score3],dim=1))
+		context = scores[:,0,None]*poses + scores[:,1,None]*deltas + scores[:,2,None]*delta_deltas
 		context = self.classify(context)
 		out = torch.sigmoid(context)
-
-
-		return out, torch.cat([score1, score2, score3], dim=1).detach()
-
-
-
-
+		return out, scores.detach()
 
 class TwoActorsOneModalityCNN(nn.Module):
 	def __init__(self, feats_dim, n_filters, filter_sizes,

@@ -6,11 +6,11 @@ from argparse import ArgumentParser
 from torch.utils.data import Dataset, Subset, DataLoader
 from torch_datasets import PoseDataset
 from scipy.signal import argrelextrema
+import scipy.stats
 
-
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
-print(PROJECT_DIR)
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 sys.path.insert(0, PROJECT_DIR)
+print(PROJECT_DIR)
 from definitions import constants
 
 PROCESSED_BODY_FEATS_DIR = constants["PROCESSED_BODY_FEATS_DIR"]
@@ -60,20 +60,19 @@ def compute_statistics(angles_seq):
 	for col_index in range(angles_seq.shape[1]):
 		column = angles_seq[:,col_index]
 		# num local maxima
-
 		features.append(len(argrelextrema(column, np.greater)[0]))
-		features.append(len(argrelextrema(column, np.less)[0]))
 		features.append(column.mean())
 		features.append(column.std())
 		features.append(column.max())
-		features.append(column.mean())
+		features.append(column.min())
+		features.append(scipy.stats.skew(column))
+		# num zero crossings
 		features.append((np.diff(np.sign(column)) != 0).sum())
 		mean_centered = column - column.mean()
+		# num mean crossings
 		features.append((np.diff(np.sign(mean_centered)) != 0).sum())
 	features = np.array(features)
 
-	# print("##################")
-	# print(features)
 	return features
 
 if __name__ == "__main__":

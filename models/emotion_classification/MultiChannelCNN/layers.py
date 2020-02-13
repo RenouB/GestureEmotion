@@ -20,7 +20,6 @@ class CNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, pose):
-
         #pose = [batch size, seq len, pose dim]
         pose = pose.unsqueeze(1)
         #pose = [batch size, 1, seq len, pose dim]
@@ -30,17 +29,4 @@ class CNN(nn.Module):
         #pooled_n = [batch size, n_filters]
         cat = self.dropout(torch.cat(pooled, dim = 1))
         #cat = [batch size, n_filters * len(filter_sizes)]
-
         return self.fc(cat)
-
-class Attention(nn.Module):
-
-    def __init__(self, input_dim, att_vector_dim, dropout):
-        super().__init__()
-        self.linear_block = nn.Sequential(nn.Linear(input_dim, att_vector_dim), nn.Dropout(), nn.ReLU())
-        self.att_vector = nn.Linear(att_vector_dim, 1)
-
-    def forward(self, feats):
-        projection = self.linear_block(feats)
-        score = self.att_vector(projection)
-        return score
