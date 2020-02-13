@@ -1,9 +1,0 @@
-/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019
-/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019
-/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/models
-################################################
-                  STARTING
-epochs 70
-device:  cpu
-batchsize:  20
-/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/models/emotion_classification/Linear/stats/surprise/ind/pose
