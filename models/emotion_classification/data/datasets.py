@@ -12,7 +12,7 @@ print(PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
 sys.path.insert(0, MODELS_DIR)
-from models.emotion_classification.data.data_constructors import construct_data_filename
+from models.emotion_classification.data.construct_neural_data import construct_data_filename
 
 """
 contains datastructures for loading SVM and neural model emotion classification
