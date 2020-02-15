@@ -6,7 +6,7 @@ from torch import nn
 JointBiLSTM model. This model uses an attention mechanism to adaptively
 weight representations of actors A and B to reconstruct a context vector
 which is used to classify.
-""""
+"""
 
 class JointBiLSTM(nn.Module):
     def __init__(self, input_dim, hidden_dim=60, attention_dim=60, lstm_layer=2, dropout=0.5):

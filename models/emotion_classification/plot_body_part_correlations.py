@@ -4,7 +4,7 @@ import pandas as pd
 import os, sys
 import matplotlib.pyplot as plt
 import seaborn as sns
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-1])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 MODELS_DIR = constants["MODELS_DIR"]
@@ -18,14 +18,20 @@ region_indices = {"full_hh" : constants["FULL-HH"],
 
 df = pd.read_csv("body_stat_correlations.csv")
 df = df[(df.stat != "kurtosis") & (df.stat != "skewness")]
-print(df.stat.unique())
+print(len(df))
 body_parts = df.body_part.tolist()
 regions = []
 for part in body_parts:
+    appended=False
     for region, indices in region_indices.items():
         if part in indices:
             regions.append(region)
-
+            appended = True
+    if appended == False:
+        print(region_indices)
+        print('not appended', part)
+print(len(df.body_part))
+print(len(regions))
 df["region"] = regions
 df = df.groupby(['region', 'stat'], as_index=False).mean()[["stat","region","anger","happiness","sadness","surprise"]]
 

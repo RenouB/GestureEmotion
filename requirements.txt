@@ -1,13 +1,10 @@
-google-colab
 opencv-python
-pydrive
 pandas
 torch
 numpy
-statsmodels
 scipy
 sklearn
-sklearn_crfsuite
 tensorflow
 imutils
 matplotlib
+seaborn
