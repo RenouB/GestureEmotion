@@ -13,7 +13,7 @@ from models.emotion_classification.BiLSTM.bilstm import BiLSTM
 from models.emotion_classification.JointBiLSTM.joint_bilstm import JointBiLSTM
 from models.emotion_classification.data.datasets import PoseDataset
 from argparse import ArgumentParser
-SCORES_DIR = os.path.join(PROJECT_DIR, "all_results/score_files")
+SCORES_DIR = os.path.join(PROJECT_DIR, "models/emotion_classification")
 print(SCORES_DIR)
 emotions=[(0,"anger"),(1,"happiness"),(2,"sadness"),(3,"surprise")]
 body_parts=["full","full-hh","head","hands"]
