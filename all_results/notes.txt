@@ -1,0 +1,24 @@
+interp f:     mean: 15.60, std: 10.75
+noninterp f:  mean: 15.75, std 10.89
+p-value: 0.9149
+doesn't make a difference really.
+exact same number of experiments
+
+
+brute or delta?
+first lets consider everything
+brute f: mean 16.91, std 10.05
+deltas f: mean 13.39, std 11.17
+p: 0.0111
+
+Now let's exclude hands and head
+because out of 32 times where f score was <= 0.02, 26 of those times were
+hands or head.
+of those 26 times, 19 were delta features.
+so let's exclude these and recompare.
+
+deltas mean: 14.74 std: 12.10
+brute mean: 21.27, 0.0947
+p = 0.0003
+
+so brute features are definitely better.
