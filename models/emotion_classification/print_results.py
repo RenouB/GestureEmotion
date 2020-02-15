@@ -2,19 +2,16 @@ import pandas as pd
 import numpy as np
 from scipy.stats import ttest_ind
 df = pd.read_csv("all_results.csv")
-av_df = df[(df.fold == "average") & (df.interp == True)]
-folds_df = df[(df.fold != "average") & (df.interp == True)]
+av_df = df[(df.fold == "average")]
+folds_df = df[(df.fold != "average")]
 
 foldwise_f_scores = {"rand":{}, "SVM":{}, "Linear":{}, "CNN":{}, "attCNN":{},
                 "BiLSTM":{}, "JointBiLSTM":{}}
 av_f_scores = {"rand":{}, "SVM":{}, "Linear":{}, "CNN":{}, "attCNN":{},
                 "BiLSTM":{}, "JointBiLSTM":{}}
 
-# f_scores_to_print = {"models":[], "anger":[], "happiness":[], "sadness":[],
-#                     "surprise":[]}
 
-for model in ["SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
-    print(av_df.model.unique())
+for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
     for emotion in ["anger", "happiness", "sadness", "surprise"]:
         model_key = model
         if model == "attCNN":
@@ -29,14 +26,6 @@ for model in ["SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
         else:
             feats = "brute"
             body_part = "full"
-        # print(emotion, model_key, body_part, feats)
-        # print(av_df[(av_df.emotion == emotion) & (av_df.model == model_key)])
-        #             & (av_df.feats == feats) & ((av_df.body_part == body_part)
-        #             # | (av_df.body_part.isna()))]
-
-        # print(av_df.model.unique())
-        # print(emotion, model_key, feats)
-        # print(av_df[(av_df.emotion == emotion) & (av_df.model == model_key)])# & ((av_df.feats == feats) | (av_df.feats.isna()))])
 
         av_model_results = av_df[(av_df.emotion == emotion) & (av_df.model == model_key)
                             & (av_df.feats == feats) & ((av_df.body_part == body_part)
@@ -44,17 +33,14 @@ for model in ["SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
         foldwise_model_results = folds_df[(folds_df.emotion == emotion) & (folds_df.model == model_key)
                             & (folds_df.feats == feats) & ((folds_df.body_part == body_part)
                             | (folds_df.body_part.isna()))]
-        # print(model, emotion)
-        # print(av_model_results)
-        # if old_model == "attCNN":
-            # print(av_model_results)
-            # print(emotion)
-        print(av_model_results)
+
         av_f_scores[model][emotion] = (av_model_results.f.iloc[0], av_model_results.f_std.iloc[0])
         foldwise_f_scores[model][emotion] = list(foldwise_model_results.f)
 
-# print out a nice results table#
-
+print("GLOBAL RESULTS TABLE")
+print("Reporting F1 score on the positive emotion class, averaged across all eight folds.")
+print("Features used: attCNN; deltas. BiLSTM, JointBiLSTM, CNN: brute. SVM, Linear: statistical")
+print("results reported for attCNN, BiLSTM, JointBILSTM and CNN are from FULL body part models.")
 print("{:>14} {:>14} {:>14} {:>14} {:>14} {:>14}".format("model", "anger", "happiness", "sadness", "surprise", "mean"))
 for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
     to_print = "{:<14}".format(model)
@@ -62,7 +48,7 @@ for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]
     mean_std = 0
     all_f_scores = []
     for emotion in ["anger", "happiness", "sadness", "surprise"]:
-        print(av_f_scores[model])
+        # print(av_f_scores[model])
         to_print += "{:<6.2f}/ {:<6.2f}{:3}".format(av_f_scores[model][emotion][0]*100,
                                                 av_f_scores[model][emotion][1]*100,"")
         mean_f += av_f_scores[model][emotion][0]
@@ -74,8 +60,9 @@ for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]
     to_print += "{:<6.2f} / {:<6.2f}".format(mean*100, std*100)
     print(to_print)
 
-# so nice, now I have a nice little table of average performance and std!
-# Now I want p values between all model pairs for each emotion and all together
+# p values
+
+print("\n\nP values between different model outputs, for all emotions and per emotion.")
 models = ["rand", "SVM","Linear","CNN","attCNN","BiLSTM","JointBiLSTM"]
 foldwise_fs_per_model = {}
 for model in models:
