@@ -73,8 +73,10 @@ if __name__ == '__main__':
 		dev_labels = torch.Tensor([[data[i]['labels']] for i in dev_indices])
 
 		# get probability of positive class from training data
-		prob_1 =  sum(train_labels == 1).item() / len(train_labels)
-
+		prob_1 =  sum(train_labels.numpy() == 1).item() / len(train_labels)
+		print(sum(train_labels == 1))
+		print(len(train_labels))
+		print("prob 1", prob_1)
 		if args.method == 'random':
 			# use weighted random choice to make predictions
 			train_predictions = torch.Tensor([np.random.choice([0,1], size=len(train_labels), p=[1 - prob_1, prob_1])]).reshape(-1,1)
