@@ -20,7 +20,7 @@ results_dict = {"model": [], "feats": [],"body_part": [], "interp": [],
 				"acc":[], "acc_std":[]}
 
 
-for model_folder in ["SVM","BiLSTM","JointBiLSTM","MultiChannelCNN","rand","Linear"]:
+for model_folder in ["rand", "SVM","BiLSTM","JointBiLSTM","MultiChannelCNN","rand","Linear"]:
 	model = model_folder
 	for feature_subdir in ["brute", "deltas", "deltas-noatt", "stats", "no-input"]:
 		if model_folder == "MultiChannelCNN" and feature_subdir == "deltas":

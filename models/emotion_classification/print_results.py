@@ -13,12 +13,11 @@ av_f_scores = {"rand":{}, "SVM":{}, "Linear":{}, "CNN":{}, "attCNN":{},
 # f_scores_to_print = {"models":[], "anger":[], "happiness":[], "sadness":[],
 #                     "surprise":[]}
 
-for model in ["SVM", "Linear", "MultiChannelCNN", "BiLSTM", "JointBiLSTM"]:
+for model in ["SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
     print(av_df.model.unique())
     for emotion in ["anger", "happiness", "sadness", "surprise"]:
         model_key = model
         if model == "attCNN":
-            model_key = "CNN"
             feats = "deltas"
             body_part = "full"
         elif model == "SVM" or model == "Linear":
@@ -55,6 +54,7 @@ for model in ["SVM", "Linear", "MultiChannelCNN", "BiLSTM", "JointBiLSTM"]:
         foldwise_f_scores[model][emotion] = list(foldwise_model_results.f)
 
 # print out a nice results table#
+
 print("{:>14} {:>14} {:>14} {:>14} {:>14} {:>14}".format("model", "anger", "happiness", "sadness", "surprise", "mean"))
 for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]:
     to_print = "{:<14}".format(model)
@@ -62,6 +62,7 @@ for model in ["rand", "SVM", "Linear", "CNN", "attCNN", "BiLSTM", "JointBiLSTM"]
     mean_std = 0
     all_f_scores = []
     for emotion in ["anger", "happiness", "sadness", "surprise"]:
+        print(av_f_scores[model])
         to_print += "{:<6.2f}/ {:<6.2f}{:3}".format(av_f_scores[model][emotion][0]*100,
                                                 av_f_scores[model][emotion][1]*100,"")
         mean_f += av_f_scores[model][emotion][0]
