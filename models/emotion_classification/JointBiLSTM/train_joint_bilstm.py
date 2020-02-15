@@ -21,7 +21,18 @@ import logging
 from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
 import time
 
+"""
+train and evaluate a JointBiLSTM for emotion classification
+this script is not systematically commented. it is analogous to
+BiLSTM/train_bilstm.py, which is commented.
+"""
+
 def get_input_dim(keypoints, input):
+	"""
+	get input dimension of keypoints for a given body part subset
+	keypoints: full, full-hh, full-head, head or hands
+	input: deltas-noatt, deltas or brute
+	"""
 	if keypoints == 'full':
 		dim = len(constants["WAIST_UP_BODY_PART_INDICES"]) * 2
 	if keypoints == 'full-hh':
@@ -40,6 +51,17 @@ def get_input_dim(keypoints, input):
 
 def compute_epoch(model, data_loader, loss_fxn, optim,
 					joint, modalities, print_denominator, train):
+	"""
+	compute one training/dev epoch
+	model: neural network
+	data_loader: train or dev data loader
+	loss_fxn:
+	optim:
+	joint: deprecated param
+	modalities: deprecated param
+	print_denominator: print more often for debugging
+	train: bool. indicates whether train or dev
+	"""
 	epoch_loss = 0
 	epoch_labels = []
 	epoch_predictions = []
@@ -95,28 +117,34 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-epochs', type=int, default=1)
-	parser.add_argument('-joint', action="store_true", default=True)
-	parser.add_argument('-modalities', default=0, type=int)
-	parser.add_argument('-interval', default=3, type=int)
-	parser.add_argument('-seq_length', default=5, type=int)
-	parser.add_argument('-interp', action='store_true', default=False)
-	parser.add_argument("-emotion", default=0, type=int)
-	parser.add_argument("-keypoints", default='full')
-	parser.add_argument("-input", default="brute")
-	parser.add_argument('-hidden_size', default=60, type=int)
-	parser.add_argument("-attention_dim", default=60, type=int)
-	parser.add_argument('-lstm_layers', default=2, type=int)
-	parser.add_argument('-batchsize', type=int, default=10)
+	parser.add_argument('-epochs', type=int, default=1, help="number of epochs")
+	parser.add_argument('-joint', action="store_true", default=False,
+						help="if joint, models emotions of actors jointly")
+	parser.add_argument('-modalities', default=0, type=int, help="deprecated")
+	parser.add_argument('-interval', default=3, type=int, help="deprecated. keep default")
+	parser.add_argument('-seq_length', default=5, type=int, help="deprecated. keep default")
+	parser.add_argument('-interp', action='store_true', default=False,
+						help="deprecated. keep default. use interpolated data.")
+	parser.add_argument("-emotion", default=0, type=int,
+						help="anger: 0, happiness: 1, sadness: 2, surprise: 3")
+	parser.add_argument("-keypoints", default='full',
+						help="full, full-head, full-hh, head or hands")
+	parser.add_argument("-input", default="brute", help="brute or deltas-noatt")
+	parser.add_argument("-attention_dim", default=60, type=int,
+						help="dimensionality of evidence layer outputs and att vector")
+	parser.add_argument('-lstm_layers', default=2, type=int, help="num lstm layers")
+	parser.add_argument('-batchsize', type=int, default=20)
 	parser.add_argument('-lr', type=float, default=0.001)
 	parser.add_argument('-l2', type=float, default=0.001)
 	parser.add_argument('-dropout', default=0.5, type=float, help='dropout probability')
-	parser.add_argument('-optim', default='adam')
+	parser.add_argument('-optim', default='adam', help="deprecated. keep default")
 	parser.add_argument('-cuda', default=False, action='store_true',  help='use cuda')
-	parser.add_argument('-num_folds', default=8, type=int)
-	parser.add_argument('-test', action='store_true', default=False)
-	parser.add_argument('-debug', action='store_true', default=False)
-	parser.add_argument('-comment', default='')
+	parser.add_argument('-num_folds', default=8, type=int,
+						help="reducing number of folds will exclude certain actor pairs")
+	parser.add_argument('-test', action='store_true', default=False, help="deprecated")
+	parser.add_argument('-debug', action='store_true', default=False,
+						help="use very small subset of data, for debugging")
+	parser.add_argument('-comment', default='', help="you may append a comment to all outputs")
 	args = parser.parse_args()
 
 
@@ -230,23 +258,18 @@ if __name__ == '__main__':
 								dev_loss, dev_att_weights, len(dev_data), k)
 			logger.update_scores(scores, epoch, 'DEV')
 
-		unique_labels = np.unique(dev_labels.numpy())
-		print(unique_labels)
-		if 1 in unique_labels:
-			print()
-			f1 = scores['macro_f']
-			print(scores)
-			print(f1)
-			if f1 > best_f1:
-				print('#########################################')
-				print('       New best : {:.2f} (previous {:.2f})'.format(f1, best_f1))
-				print('        at fold : {}'.format(k))
-				print('         saving model weights')
-				print('#########################################')
-				best_f1 = f1
-				best_epoch = epoch
-				best_fold = k
-				torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(k)+'.weights'))
+
+		f1 = scores[0]['f']
+		if f1 > best_f1:
+			print('#########################################')
+			print('       New best : {:.2f} (previous {:.2f})'.format(f1, best_f1))
+			print('        at fold : {}'.format(k))
+			print('         saving model weights')
+			print('#########################################')
+			best_f1 = f1
+			best_epoch = epoch
+			best_fold = k
+			torch.save(model.state_dict(), os.path.join(write_dir, 'weights', basename+'fold{}'.format(k)+'.weights'))
 
 
 

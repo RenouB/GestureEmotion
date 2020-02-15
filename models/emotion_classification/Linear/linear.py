@@ -2,6 +2,10 @@ import torch
 from torch.nn import functional as F
 from torch import nn
 
+"""
+A multilayer perception for emotion classification.
+"""
+
 class Linear(nn.Module):
     def __init__(self, input_dim, output_dim, num_hidden, dropout):
         super().__init__()

@@ -19,6 +19,10 @@ import logging
 from models.pretty_logging import PrettyLogger, get_write_dir
 import time
 
+"""
+A simple random baseline for emotion classification
+
+"""
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -68,14 +72,16 @@ if __name__ == '__main__':
 		train_labels = torch.Tensor([[data[i]['labels']] for i in train_indices])
 		dev_labels = torch.Tensor([[data[i]['labels']] for i in dev_indices])
 
+		# get probability of positive class from training data
 		prob_1 =  sum(train_labels == 1).item() / len(train_labels)
 
 		if args.method == 'random':
+			# use weighted random choice to make predictions
 			train_predictions = torch.Tensor([np.random.choice([0,1], size=len(train_labels), p=[1 - prob_1, prob_1])]).reshape(-1,1)
-
 			dev_predictions = torch.Tensor([np.random.choice([0,1], size=len(dev_labels), p=[1 - prob_1, prob_1])]).reshape(-1,1)
 
 		elif args.method == 'majority':
+			# always predict majority class
 			if prob_1 >= 0.5:
 				train_predictions = torch.Tensor([1]*len(train_labels)).unsqueeze(1)
 				dev_predictions = torch.Tensor([1]*len(dev_labels)).unsqueeze(1)

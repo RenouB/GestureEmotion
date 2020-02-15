@@ -20,17 +20,33 @@ import logging
 from models.pretty_logging import PrettyLogger, construct_basename, get_write_dir
 import time
 
+"""
+An SVM framework for emotion classification.
+
+many aspects of this script are not commented because they are analogous to
+BiLSTM/train_bilstm.py
+"""
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-emotion", default=0, type=int)
-	parser.add_argument('-C', type=float, default=1)
-	parser.add_argument('-kernel', default='rbf')
-	parser.add_argument('-class_weight', action="store_true", default=False)
-	parser.add_argument('-num_folds', default=8, type=int)
-	parser.add_argument('-test', action='store_true', default=False)
-	parser.add_argument('-debug', action='store_true', default=False)
-	parser.add_argument('-interp', action='store_true', default=False)
-	parser.add_argument('-comment', default='')
+	parser.add_argument("-emotion", default=0, type=int,
+						help="anger:0, happiness:1, sadness:2, surprise:3")
+	parser.add_argument('-C', type=float, default=1,
+						help="penalty for SVM")
+	parser.add_argument('-kernel', default='sigmoid',
+						help="sigmoid, rbf, poly")
+	parser.add_argument('-class_weight', action="store_true", default=False,
+						help="deprecated")
+	parser.add_argument('-num_folds', default=8, type=int,
+						help="reducing num folds excludes actor pairs. cannot handle more than 8 folds.")
+	parser.add_argument('-test', action='store_true', default=False,
+						help="deprecated")
+	parser.add_argument('-debug', action='store_true', default=False,
+						help="debug mode runs on tiny subset of data")
+	parser.add_argument('-interp', action='store_true', default=False,
+						help="use interpolated data")
+	parser.add_argument('-comment', default='',
+						help="comments will be appended to all outputs")
 	args = parser.parse_args()
 
 	if args.debug:
@@ -41,7 +57,6 @@ if __name__ == '__main__':
 	print("################################################")
 	print("                  STARTING")
 
-	# basename for logs, weights
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = '-'.join(['svm', 'c-'+str(args.C),'interp-'+str(args.interp), args.kernel, str(args.C), 'cw', str(args.class_weight)])
 	write_dir = get_write_dir('SVM', joint=False, input_type='',
@@ -49,13 +64,14 @@ if __name__ == '__main__':
 	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
 
-	# TODO: Add different modalities
+
 	data = SvmPoseDataset(args.emotion, args.interp)
 
 	scores_per_fold = {'train':{}, 'dev':{}}
-	best_f1 = 0
+	# epoch is irrelevant here, set a dummy value
 	epoch = 0
 	for k in range(args.num_folds):
+		best_f1 = 0
 		logger.new_fold(k)
 		scores_per_fold['train'][k] = {'macro':[], 0:[], 1:[], 'loss':[], 'att_weights':[], 'acc':[]}
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
@@ -77,12 +93,8 @@ if __name__ == '__main__':
 		print("              Length dev data: {}".format(len(dev_data)))
 		print("################################################")
 
-		if args.class_weight:
-			class_weight = balanced
-			svm = SVC(C=args.C, kernel=args.kernel, class_weight=class_weight,
-					random_state=200)
-		else:
-			svm = SVC(C=args.C, kernel=args.kernel, random_state=200)
+
+		svm = SVC(C=args.C, kernel=args.kernel, random_state=200)
 
 		train = next(iter(train_loader))
 		print("Beginning training")
@@ -107,17 +119,12 @@ if __name__ == '__main__':
 							0, [0,0,0], len(dev_data), k)
 		logger.update_scores(scores, 0, 'DEV')
 
-		unique_labels = np.unique(dev_y)
-		print(unique_labels)
-		if 1 in unique_labels:
-			print()
-			f1 = scores['macro_f']
-			print(scores)
-			print(f1)
-			if f1 > best_f1:
-				best_f1 = f1
-				best_epoch = epoch
-				best_fold = k
+
+		f1 = scores[0]['f']
+		if f1 > best_f1:
+			best_f1 = f1
+			best_epoch = epoch
+			best_fold = k
 
 	av_scores = average_scores_across_folds(scores_per_fold)
 	scores = {'av_scores': av_scores, 'all': scores_per_fold}

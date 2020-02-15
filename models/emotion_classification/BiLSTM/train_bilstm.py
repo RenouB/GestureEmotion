@@ -22,7 +22,9 @@ from models.pretty_logging import PrettyLogger, construct_basename, get_write_di
 import time
 
 """
-Train a BiLSTM model for emotion classification
+Train a BiLSTM model for emotion classification.
+
+All functionality pertaining to joint modeling and different modalities is deprecated.
 """
 
 def get_input_dim(keypoints, input):
