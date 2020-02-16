@@ -5,16 +5,17 @@ import os
 import sys
 import pandas as pd
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
 
 
 ''' converts raw_annotations.mat into dictionary, then dictionary into five dataframes'''
 
-RAW_ANNOS_PATH = os.path.join(constants["MPIIEMO_ANNOS_DIR"],'raw_annotations.mat')
+RAW_ANNOS_PATH = os.path.join(constants["MPIIEMO_ANNOS_WEBSITE"],'raw_annotations.mat')
 INFO_NAMES = ["scenario", "subscenario", "actorA", "actorB", "ratedActor", "videoTime"]
-WRITE_DIR = constants["MPIIEMO_DATA_DIR"]
+WRITE_DIR = constants["MPIIEMO_ANNOS_DIR"]
 
 # load mat file, get annotations
 mat = scipy.io.loadmat(RAW_ANNOS_PATH)
@@ -82,7 +83,7 @@ with open(os.path.join(WRITE_DIR, 'annotations_dict.pkl'), 'wb') as f:
 
 
 INFO_NAMES = ["scenario", "subscenario", "actorA", "actorB", "ratedActor", "videoTime"]
-WRITE_DIR = constants["MPIIEMO_DATA_DIR"]
+WRITE_DIR = constants["MPIIEMO_ANNOS_DIR"]
 
 with open(os.path.join(WRITE_DIR, "annotations_dict.pkl"), 'rb') as f:
     annos = pickle.load(f)

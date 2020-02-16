@@ -6,7 +6,7 @@ import pandas as pd
 from argparse import ArgumentParser
 from torch.utils.data import Dataset, Subset
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
@@ -55,7 +55,7 @@ def construct_pose_data(interval, seq_length, joint, debug, interp):
 	annotations = pd.read_csv(GOLD_STANDARD_PATH)
 
 	# load raw keypoints
-	if args.interp:
+	if not args.interp:
 		with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
 			raw_data = pickle.load(f)
 	else:
@@ -234,4 +234,4 @@ if __name__ == "__main__":
 	parser.add_argument('-interp', action='store_true', default=True)
 	args = parser.parse_args()
 
-	construct_pose_data(args.interval, args.seq_len, args.joint, args.interp)
+	construct_pose_data(args.interval, args.seq_len, args.joint, False, args.interp)

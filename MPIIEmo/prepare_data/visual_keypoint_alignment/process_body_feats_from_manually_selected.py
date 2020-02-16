@@ -63,15 +63,15 @@ for split, folder in [(train, 'train'), (test, 'test')]:
 				all_together = add_keypoints_to_sequences(all_together, video.name, view.name,
 							 frame_index, assignment, keypoints1, keypoints2)
 
-begin interpolation - replace with nearest neighbour or 2
+# begin interpolation - replace with nearest neighbour or 2
 for video, views in all_together.items():
 	for view, actor in views.items():
 		for actor, frames in actor.items():
 			all_keypoints = np.array([keypoints for keypoints in frames.values()
 								if type(keypoints) == np.ndarray])
-			
 
 
+			print("how many frames", len(frames))
 			all_keypoints = interpolate_keypoints_all_frames(all_keypoints)
 			for i, keypoints in enumerate(all_keypoints):
 				all_together[video][view][actor][i] = keypoints
