@@ -104,7 +104,7 @@ if __name__ == '__main__':
 	parser.add_argument('-modalities', default=0, type=int)
 	parser.add_argument('-interval', default=3, type=int)
 	parser.add_argument('-seq_length', default=5, type=int)
-	parser.add_argument('-interp', action='store_true', default=False)
+	parser.add_argument('-interp', action='store_true', default=True)
 	parser.add_argument("-emotion", default=0, type=int)
 	parser.add_argument("-keypoints", default='full')
 	parser.add_argument("-input", default="brute")

@@ -88,7 +88,7 @@ if __name__ == '__main__':
 	parser.add_argument("-output_dim", default=60, type=int,
 						help="dimensionality of hidden layer outputs")
 	parser.add_argument('-batchsize', type=int, default=20)
-	parser.add_argument('-keypoints', default='all',
+	parser.add_argument('-keypoints', default='full',
 						help="full, full-head, full-hh, head or hands")
 	parser.add_argument('-input', default='stats')
 	parser.add_argument('-lr', type=float, default=0.001)

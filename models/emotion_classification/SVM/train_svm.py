@@ -43,7 +43,7 @@ if __name__ == '__main__':
 						help="deprecated")
 	parser.add_argument('-debug', action='store_true', default=False,
 						help="debug mode runs on tiny subset of data")
-	parser.add_argument('-interp', action='store_true', default=False,
+	parser.add_argument('-interp', action='store_true', default=True,
 						help="use interpolated data")
 	parser.add_argument('-comment', default='',
 						help="comments will be appended to all outputs")
