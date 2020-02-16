@@ -22,14 +22,14 @@ import time
 HISTOGRAMS_DATA_DIR = constants["HISTOGRAMS_DATA_DIR"]
 MPIIEMO_ANNOS_WEBSITE = constants["MPIIEMO_ANNOS_WEBSITE"]
 
-''' 
-This script will assigns poses to actors by 
+'''
+This script will assigns poses to actors by
 comparing the color histogram of a cropped body image
 to  reference color histograms of the actors.
 '''
 
 if __name__ == "__main__":
-	
+
 	parser = ArgumentParser()
 	parser.add_argument('-color', default='hsv', help="color channels to use")
 	parser.add_argument('-num_bins', default=32, type=int, help="histogram binning strategy")
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	basename = '-'.join([args.color, 'only_hue', str(args.only_hue),
 					 str(args.num_bins)])+'-'
-	
+
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	logs_dir = './outputs/logs'
 
@@ -51,21 +51,22 @@ if __name__ == "__main__":
 	elif args.distance == "intersect":
 		distance = cv2.HISTCMP_INTERSECT
 		reverse = False
-	
+
 	with open(os.path.join(HISTOGRAMS_DATA_DIR, basename+'test.pkl'), 'rb') as f:
 		test = pickle.load(f)
 
 	basename += args.distance+'-'
 	logger = PrettyLogger(args, logs_dir, basename, starttime)
 	pair_ids = list(test.keys())
-	
+
 	reference_histograms = {}
 	for reference_image in os.scandir(os.path.join(MPIIEMO_ANNOS_WEBSITE, 'actor_ids')):
 		actor_id = reference_image.name[:-4]
 		im = cv2.imread(reference_image.path)
+		print(reference_image.path)
 		reference_histograms[actor_id] = convert_to_histogram(im, args.num_bins,
 											args.color, args.only_hue)
-	
+
 	scores_per_fold = {'train':{},'dev':{}}
 	k = -1
 	for pair_id in pair_ids:
@@ -73,7 +74,7 @@ if __name__ == "__main__":
 		scores_per_fold['train'][k] = {'macro':[[0,0,0]], 0:[[0,0,0]], 1:[[0,0,0]], 'loss':[[0]], 'att_weights':[[0,0,0]], 'acc':[[0]]}
 		scores_per_fold['dev'][k] = {'macro':[], 0:[], 1:[], 'loss': [], 'att_weights':[], 'acc':[]}
 		print("PROCESSING {}".format(pair_id))
-		
+
 		actorA = pair_id[:2]
 		actorB = pair_id[2:]
 		test_X = test[pair_id]['hists'][:,0,:,:].squeeze(2)
@@ -97,10 +98,10 @@ if __name__ == "__main__":
 		scores = get_scores(test_labels, predictions)
 		scores_per_fold = update_scores_per_fold(scores_per_fold, scores, 'dev',
 							0, [0,0,0], len(test_labels), k)
-	
+
 		logger.update_scores(scores, pair_id, 'DEV')
-		
-		
+
+
 
 	av_scores = average_scores_across_folds(scores_per_fold)
 	scores = {'average': av_scores, 'all':scores_per_fold}
@@ -115,5 +116,5 @@ if __name__ == "__main__":
 		f.write("{:>8} {:>8} {:>8} {:>8} {:>8}\n".format("class", "p", "r", "f", "acc"))
 		f.write("{:8} {:8.4f} {:8.4f} {:8.4f} {:8.4f} \n".format("macro",
 				macro_scores[0], macro_scores[1], macro_scores[2], av_scores['dev']['acc'][best_epoch][0]))
-	
+
 	logger.close(0, 0)

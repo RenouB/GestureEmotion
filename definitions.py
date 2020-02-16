@@ -1,4 +1,4 @@
-import os
+	import os
 import json
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -37,7 +37,7 @@ constants = \
 "TOO_CLOSE_THRESHOLD":70,
 "BODY_CENTER" : 8,
 "NECK": 1,
-"FULL-HH":[2,3,1,5,6],
+"FULL-HH":[2,3,1,5,6,7],
 "FULL-HEAD":[2,3,4,5,6,7,1],
 "HANDS":[4,7],
 "HEAD":[17,15,16,18,0],
