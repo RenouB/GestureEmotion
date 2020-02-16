@@ -61,6 +61,8 @@ if __name__ == "__main__":
 
 	reference_histograms = {}
 	for reference_image in os.scandir(os.path.join(MPIIEMO_ANNOS_WEBSITE, 'actor_ids')):
+		if reference_image.name == ".gitkeep":
+			continue
 		actor_id = reference_image.name[:-4]
 		im = cv2.imread(reference_image.path)
 		print(reference_image.path)
