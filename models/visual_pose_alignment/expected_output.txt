@@ -1,0 +1,29 @@
+::::::::::::::
+
+SVM/voting/outputs/scores/1-sigmoid-hsv-only_hue-True-32-.csv
+::::::::::::::
+BEST EPOCH: 0 
+   class        p        r        f      acc
+macro      0.5594   0.5505   0.5286   0.5761 
+::::::::::::::
+
+SVM/whole_image/outputs/scores/1-sigmoid-hsv-only_hue-True-32-.csv
+::::::::::::::
+BEST EPOCH: 0 
+   class        p        r        f      acc
+macro      0.4833   0.4952   0.4605   0.4987 
+::::::::::::::
+
+distance/voting/outputs/scores/hsv-only_hue-True-32-.csv
+::::::::::::::
+BEST EPOCH: 0 
+   class        p        r        f      acc
+macro      0.4820   0.4898   0.3651   0.4620 
+
+::::::::::::::
+distance/whole_image/outputs/scores/hsv-only_hue-True-32-cor-.csv
+::::::::::::::
+BEST EPOCH: 0 
+   class        p        r        f      acc
+macro      0.4854   0.4729   0.3688   0.4530 
+
