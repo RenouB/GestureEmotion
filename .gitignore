@@ -7,6 +7,7 @@ drive_download/
 report/
 final_presentation/
 model/outputs
+hci
 !**.gitkeep
 !drive_download/.gitkeep
 **/mycreds.txt
