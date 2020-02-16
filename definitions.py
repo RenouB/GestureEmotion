@@ -1,4 +1,4 @@
-	import os
+import os
 import json
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 
