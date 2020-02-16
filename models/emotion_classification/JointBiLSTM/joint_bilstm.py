@@ -23,8 +23,8 @@ class JointBiLSTM(nn.Module):
                             dropout = dropout,
                             bidirectional=True)
         # evidence matrices project hidden state outputs for actors 1 and 2
-        self.evidence1 = nn.Sequential(nn.Linear(hidden_dim*2, attention_dim), nn.ReLU(), nn.Dropout())
-        self.evidence2 = nn.Sequential(nn.Linear(hidden_dim*2, attention_dim), nn.ReLU(), nn.Dropout())
+        self.evidenceA = nn.Sequential(nn.Linear(hidden_dim*2, attention_dim), nn.ReLU(), nn.Dropout())
+        self.evidenceB = nn.Sequential(nn.Linear(hidden_dim*2, attention_dim), nn.ReLU(), nn.Dropout())
         # evidence vector uses evidences 1 and 2 to generate score
         self.attention_vector = nn.Sequential(nn.Linear(attention_dim, 1), nn.ReLU(), nn.Dropout())
         # softmax is used to normalize attention scores
@@ -48,23 +48,23 @@ class JointBiLSTM(nn.Module):
 
         # classify actor A. in this scenario, A is fed to evidence 1
         # and B to evidence 2
-        evidence1 = self.evidence1(finalA)
-        evidence2 = self.evidence2(finalB)
-        score1 = self.attention_vector(evidence1)
-        score2 = self.attention_vector(evidence2)
+        evidenceA = self.evidenceA(finalA)
+        evidenceB = self.evidenceB(finalB)
+        score1 = self.attention_vector(evidenceA)
+        score2 = self.attention_vector(evidenceB)
         scoresA = self.softmax(torch.cat([score1, score2], dim=0))
-        context = evidence1*scores[1] + evidence2*scoresA[2]
+        context = evidenceA*scoresA[1] + evidenceB*scoresA[2]
         outA = self.classify(context)
         outA = torch.sigmoid(outA)
 
         # classify actor B. The opposite occurs; B is fed to evidence 1
         # and A to evidence 2
-        evidence1 = self.evidence1(finalB)
-        evidence2 = self.evidenceB(finalA)
-        score1 = self.attention_vector(evidence1)
-        score2 = self.attention_vector(evidence2)
+        evidenceA = self.evidenceA(finalB)
+        evidenceB = self.evidenceB(finalA)
+        score1 = self.attention_vector(evidenceA)
+        score2 = self.attention_vector(evidenceB)
         scoresB = self.softmax(torch.cat([score1, score2], dim=0))
-        context = evidence1*scoresB[0] + evidence2*scoreB[1]
+        context = evidenceA*scoresB[0] + evidenceB*scoresB[1]
         outB = self.classify(context)
         outB = torch.sigmoid(outB)
 

@@ -110,6 +110,11 @@ if __name__ == "__main__":
 			dict_for_df["max"] += desc.minmax[1].tolist()
 
 
+df["p-anger"] = predictions.anger
+df["p-happiness"] = predictions.happiness
+df["p-sadness"] = predictions.sadness
+df["p-surprise"] = predictions.surprise
+
 for key, value in dict_for_df.items():
 	print(key, len(value))
 df = pd.DataFrame(dict_for_df)

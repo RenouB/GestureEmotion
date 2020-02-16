@@ -44,7 +44,7 @@ def get_input_dim(keypoints, input):
 	return dim
 
 if __name__ == "__main__":
-    for model in ["BiLSTM","JointBiLSTM"]:
+    for model in ["BiLSTM", "JointBiLSTM"]:
 
         data_length = 14839*2
         for body_part in body_parts:
@@ -64,9 +64,9 @@ if __name__ == "__main__":
                 elif emotion_index == 1:
                     fold = 'fold1.weights'
                 elif emotion_index == 2:
-                    fold = 'fold2.weights'
+                    fold = 'fold7.weights'
                 elif emotion_index == 3:
-                    fold = 'fold4.weights'
+                    fold = 'fold7.weights'
 
                 print(model, body_part, emotion_str)
                 # initialize dataset, model
@@ -76,7 +76,7 @@ if __name__ == "__main__":
                                         joint = False, emotion=emotion_index, input='brute',
                                         interp=False)
                     net = BiLSTM(input_dim, hidden_dim=60,lstm_layer=2,dropout=0.5)
-                    weights_name = 'interp-False-IND-0-'+body_part+ \
+                    weights_name = 'interp-True-IND-0-'+body_part+ \
                                     '-lr0.001-l20.001-dr0.5-ep70'
                     ind_or_joint ='ind/pose'
 
@@ -86,14 +86,16 @@ if __name__ == "__main__":
                                         interp=False)
                     net = JointBiLSTM(input_dim, hidden_dim=60,attention_dim=60,
                                 lstm_layer=2,dropout=0.5)
-                    weights_name = 'interp-False-JOINT-0-'+body_part+ \
-                                    '-lr0.001-l20.001-dr0.5-ep60'
+                    weights_name = 'interp-True-JOINT-0-'+body_part+ \
+                                    '-lr0.001-l20.001-dr0.5-ep70'
                     ind_or_joint = 'joint/pose/'
 
                 weights_dir = os.path.join(SCORES_DIR, model, 'brute', emotion_str,
                                             ind_or_joint, 'weights/')
 
                 print(len(data))
+                print(weights_name)
+                print(fold)
                 file = [file.path for file in os.scandir(weights_dir) if file.name.startswith(weights_name)
                         and file.name.endswith(fold)][0]
                 try:
