@@ -80,7 +80,7 @@ if __name__ == '__main__':
 	parser.add_argument('-epochs', type=int, default=1, help="num of epochs")
 	parser.add_argument('-joint', action="store_true", default=False, help="deprecated")
 	parser.add_argument('-modalities', default=0, type=int, help="deprecated")
-	parser.add_argument('-interp', action='store_true', default=False,
+	parser.add_argument('-interp', action='store_true', default=True,
 						help="deprecated. keep default.")
 	parser.add_argument("-emotion", default=0, type=int,
 						help="anger: 0, happiness: 1, sadness: 2, surprise: 3")
