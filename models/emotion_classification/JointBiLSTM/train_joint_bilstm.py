@@ -123,7 +123,7 @@ if __name__ == '__main__':
 	parser.add_argument('-modalities', default=0, type=int, help="deprecated")
 	parser.add_argument('-interval', default=3, type=int, help="deprecated. keep default")
 	parser.add_argument('-seq_length', default=5, type=int, help="deprecated. keep default")
-	parser.add_argument('-interp', action='store_true', default=False,
+	parser.add_argument('-interp', action='store_true', default=True,
 						help="deprecated. keep default. use interpolated data.")
 	parser.add_argument("-emotion", default=0, type=int,
 						help="anger: 0, happiness: 1, sadness: 2, surprise: 3")
