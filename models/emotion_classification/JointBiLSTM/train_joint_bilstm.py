@@ -118,7 +118,7 @@ def compute_epoch(model, data_loader, loss_fxn, optim,
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-epochs', type=int, default=1, help="number of epochs")
-	parser.add_argument('-joint', action="store_true", default=False,
+	parser.add_argument('-joint', action="store_true", default=True,
 						help="if joint, models emotions of actors jointly")
 	parser.add_argument('-modalities', default=0, type=int, help="deprecated")
 	parser.add_argument('-interval', default=3, type=int, help="deprecated. keep default")
@@ -130,6 +130,7 @@ if __name__ == '__main__':
 	parser.add_argument("-keypoints", default='full',
 						help="full, full-head, full-hh, head or hands")
 	parser.add_argument("-input", default="brute", help="brute or deltas-noatt")
+	parser.add_argument("-hidden_size", default=60, help="lstm hidden state size")
 	parser.add_argument("-attention_dim", default=60, type=int,
 						help="dimensionality of evidence layer outputs and att vector")
 	parser.add_argument('-lstm_layers', default=2, type=int, help="num lstm layers")

@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
-from base_models import OneActorOneModalityBrute, OneActorOneModalityDeltas
+from cnns import OneActorOneModalityBrute, OneActorOneModalityDeltas
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)

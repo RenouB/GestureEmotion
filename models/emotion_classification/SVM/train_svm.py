@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
 	starttime = time.strftime('%H%M-%b-%d-%Y')
 	basename = '-'.join(['svm', 'c-'+str(args.C),'interp-'+str(args.interp), args.kernel, str(args.C), 'cw', str(args.class_weight)])
-	write_dir = get_write_dir('SVM', joint=False, input_type='',
+	write_dir = get_write_dir('SVM', joint=False, input_type='stats',
 	 				modalities=0, emotion= args.emotion)
 	print(write_dir)
 	logger = PrettyLogger(args, os.path.join(write_dir, 'logs'), basename, starttime)
