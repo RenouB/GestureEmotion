@@ -20,7 +20,7 @@ may prove useful.
 ## SETUP INSTRUCTIONS:
 
 Download emotion classification data from
-https://drive.google.com/open?id=1Iy77VZ1MXNa3qU7h4YLj8MkdMNLqAHMy
+https://drive.google.com/file/d/1UwPfRUsOpAGJOhURKZW-6pvm6JU3ggeF
 
 Unzip into models/emotion_classification/data.
 
@@ -28,6 +28,11 @@ Download pose alignment data from
 https://drive.google.com/open?id=1vcXJz4zeCrVkS7W5ahsTLlpNznPsmF8c
 
 Unzip into models/pose_alignment/data.
+
+Download actor reference images from
+https://drive.google.com/open?id=1YIX_cGfjjIgiYrvmkF97k9QHh8yEyEpG
+
+Unzip into MPIIEmo/annos_website/actor_ids
 
 create your virtual environment and ensure you have all requirements in
 requirements.txt

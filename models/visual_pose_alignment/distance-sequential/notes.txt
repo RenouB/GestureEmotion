@@ -1,8 +1,0 @@
-Based on positioning rules, you can assign frames to actors a / b at beginning
-
-What must be done?
-
-Loop over filtered, non-normalized body keypoints.
-Crop images, get histograms
-at beginning, assign to actor labels based on rules
-then build sequence using similarity
