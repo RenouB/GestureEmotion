@@ -16,9 +16,9 @@ fi
 
 cd raw_features
 
-TEN_FPS_VIEWS_DIR=../../corpora/MPIIEmo/views/10fps_views
-RAW_BODY_FEATS_DIR=../../corpora/MPIIEmo/features/body_features/raw
-VERIFICATION_IMAGES_DIR=../../corpora/MPIIEmo/prepare_data/verification_images
+TEN_FPS_VIEWS_DIR=../MPIIEmo/views/10fps_views
+RAW_BODY_FEATS_DIR=../MPIIEmo/body_features/raw
+VERIFICATION_IMAGES_DIR=../MPIIEmo/prepare_data/verification_images
 
 # unzip raw feats into correct folder
 if [ -d "$RAW_BODY_FEATS_DIR" ]; then
