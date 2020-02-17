@@ -222,7 +222,7 @@ def construct_pose_data(interval, seq_length, joint, debug, interp):
 		filename = 'perturb-'+construct_data_filename(interval, seq_length, joint)
 
 	# save
-	with open(os.path.join(MODELS_DIR, 'data', filename), 'wb') as f:
+	with open(os.path.join(MODELS_DIR, 'emotion_classification', 'data', filename), 'wb') as f:
 		pickle.dump(data, f)
 
 

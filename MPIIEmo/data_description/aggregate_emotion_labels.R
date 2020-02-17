@@ -1,10 +1,10 @@
 library(tidyverse)
 
-df0 <- read.csv("../data/df0.csv")
-df1 <- read.csv("../data/df1.csv")
-df2 <- read.csv("../data/df2.csv")
-df3 <- read.csv("../data/df3.csv")
-df4 <- read.csv("../data/df4.csv")
+df0 <- read.csv("../annotations/df0.csv")
+df1 <- read.csv("../annotations/df1.csv")
+df2 <- read.csv("../annotations/df2.csv")
+df3 <- read.csv("../annotations/df3.csv")
+df4 <- read.csv("../annotations/df4.csv")
 
 emotions <- c("Anger","Happiness", "Sadness", "Surprise")
 
