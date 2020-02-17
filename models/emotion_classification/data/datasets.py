@@ -2,7 +2,6 @@ import os
 import sys
 import pickle
 import numpy as np
-import pandas as pd
 from torch.utils.data import Dataset
 from argparse import ArgumentParser
 
@@ -50,8 +49,6 @@ class SvmPoseDataset(Dataset):
 				train_indices.append(i)
 
 		return train_indices, dev_indices
-
-
 
 class PoseDataset(Dataset):
 	def __init__(self, interval=3, seq_length=5, keypoints='full',joint=False,
@@ -210,7 +207,3 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	dataset = PoseDataset(args.interval, args.seq_len, args.joint)
-
-	for item in dataset:
-		print(item['labelA'])
-		print(item['labelB'])
