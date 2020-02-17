@@ -6,7 +6,7 @@ import pandas as pd
 from argparse import ArgumentParser
 from torch.utils.data import Dataset, Subset
 
-PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-2])
+PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
 sys.path.insert(0, PROJECT_DIR)
 from definitions import constants
@@ -35,10 +35,10 @@ def construct_pose_data(interval, seq_length, joint, debug, interp):
 			raw_data = pickle.load(f)
 	else:
 		if args.interp:
-			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
+			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "interp_all_manually_selected_cnn.pkl"), "rb") as f:
 				raw_data = pickle.load(f)
 		else:
-			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "interp_all_manually_selected_cnn.pkl"), "rb") as f:
+			with open(os.path.join(PROCESSED_BODY_FEATS_DIR, "all_manually_selected_cnn.pkl"), "rb") as f:
 				raw_data = pickle.load(f)
 	data = {}
 	total_pose_before = 0
