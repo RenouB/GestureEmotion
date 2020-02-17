@@ -4,7 +4,6 @@ torch
 numpy
 scipy
 sklearn
-tensorflow
 imutils
 matplotlib
 seaborn

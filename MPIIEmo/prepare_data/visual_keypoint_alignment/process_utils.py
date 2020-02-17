@@ -60,7 +60,7 @@ def interpolate_missing_coordinates(one_coord_across_all_frames):
 						if coords.sum() != 0])
 		distances_from_valid = abs(valid_coords - i)
 		min_distance_index = np.argmin(distances_from_valid)
-		one_coord_across_all_frames[i] = one_coord_across_all_frames[min_distance_index]
+		one_coord_across_all_frames[i] = one_coord_across_all_frames[valid_coords[min_distance_index]]
 	return one_coord_across_all_frames
 
 def interpolate_keypoints_all_frames(keypoints_from_all_frames):
