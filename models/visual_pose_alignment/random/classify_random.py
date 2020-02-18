@@ -22,6 +22,7 @@ import time
 HISTOGRAMS_DATA_DIR = constants["HISTOGRAMS_DATA_DIR"]
 MPIIEMO_ANNOS_WEBSITE = constants["MPIIEMO_ANNOS_WEBSITE"]
 RANDOM_SEED = 200
+np.random.seed(RANDOM_SEED)
 
 """
 For each actor pair, classifies images randomly according to label distribution

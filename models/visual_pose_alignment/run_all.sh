@@ -9,4 +9,5 @@ python3 train_svm_voting.py
 cd ../whole_image
 python3 train_svm_whole_image.py
 cd ../..
+more random/outputs/scores/*csv | cat
 more */*/*/scores/*csv | cat
