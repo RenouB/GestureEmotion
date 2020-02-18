@@ -46,11 +46,11 @@ def get_input_dim(keypoints, input):
 if __name__ == "__main__":
     for model in ["BiLSTM", "JointBiLSTM"]:
 
-        data_length = 14839*2
+        data_length = 29424
         for body_part in body_parts:
             if model == "JointBiLSTM":
                 att_weights_dct["body_part"]+= [body_part]*data_length
-                att_weights_dct["model"]+= [body_part]*data_length
+                att_weights_dct["model"]+= [model]*data_length
                 att_weights_dct["datapoint"] += [i for i in range(data_length)]
                 att_weights_dct["actor"] += ['A']*(data_length // 2) + ['B']*(data_length // 2)
             predictions_dct["body_part"]+= [body_part]*data_length
@@ -132,7 +132,7 @@ if __name__ == "__main__":
                         att_weights_dct[emotion_str+"1"] += attA[:,1].tolist() \
                                                         +attB[:,1].tolist()
                     predictions_dct[emotion_str] += predsA+predsB
-
+                    print(len(predsA+predsB), "yaaa")
                     print('inference complete')
 
 for key, item in att_weights_dct.items():
