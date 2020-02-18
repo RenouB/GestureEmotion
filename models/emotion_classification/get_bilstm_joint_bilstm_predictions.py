@@ -74,20 +74,20 @@ if __name__ == "__main__":
                 if model == "BiLSTM":
                     data = PoseDataset(interval=3, seq_length=5, keypoints=body_part,
                                         joint = False, emotion=emotion_index, input='brute',
-                                        interp=False)
+                                        interp=True)
                     net = BiLSTM(input_dim, hidden_dim=60,lstm_layer=2,dropout=0.5)
                     weights_name = 'interp-True-IND-0-'+body_part+ \
-                                    '-lr0.001-l20.001-dr0.5-ep70'
+                                    '-lr0.001-l20.001-dr0.5-ep20'
                     ind_or_joint ='ind/pose'
 
                 elif model == "JointBiLSTM":
                     data = PoseDataset(interval=3, seq_length=5, keypoints=body_part,
                                         joint=True, emotion=emotion_index, input='brute',
-                                        interp=False)
+                                        interp=True)
                     net = JointBiLSTM(input_dim, hidden_dim=60,attention_dim=60,
                                 lstm_layer=2,dropout=0.5)
                     weights_name = 'interp-True-JOINT-0-'+body_part+ \
-                                    '-lr0.001-l20.001-dr0.5-ep70'
+                                    '-lr0.001-l20.001-dr0.5-ep20'
                     ind_or_joint = 'joint/pose/'
 
                 weights_dir = os.path.join(SCORES_DIR, model, 'brute', emotion_str,

@@ -52,16 +52,16 @@ if __name__ == "__main__":
 
 	labels = []
 	for emotion in [0,1,2,3]:
-		data = PoseDataset(3, 5, args.keypoints, False, emotion, 'brute', False)
+		data = PoseDataset(3, 5, args.keypoints, False, emotion, 'brute', True)
 		data_loader = DataLoader(data, batch_size=len(data))
 		data = next(iter(data_loader))
 		labels.append(data['labels'].numpy())
 	poses = data["pose"]
 	# convert poses to batch * sequence length * 12 * 2
-	missing_keypoint_counts = {i:0 for i in index_to_body_part.values()}
+	# missing_keypoint_counts = {i:0 for i in index_to_body_part.values()}
 	dict_for_df = {"datapoint":[], "body_part":[], "dim":[], "mean":[],"min":[], "max":[],"variance":[],
 	"kurtosis":[],"skewness":[], "rel_max":[], "displacement":[], "anger":[], "happiness":[],
-	"sadness":[], "surprise":[],"missing":[]}
+	"sadness":[], "surprise":[]}
 	poses = poses.reshape(poses.shape[0], poses.shape[1], 12, 2)
 	# apply describe to x coords of every sequence
 	for data_index, datapoint in enumerate(poses):
@@ -69,10 +69,10 @@ if __name__ == "__main__":
 			print(data_index)
 		x_coords = datapoint[:,:,0]
 		y_coords = datapoint[:,:,1]
-		missing_keypoints = (y_coords + x_coords == 0)
-		total_missing_keypoints = missing_keypoints.sum(axis=0)
-		for i in range(12):
-			missing_keypoint_counts[index_to_body_part[i]] += total_missing_keypoints[i]
+		# missing_keypoints = (y_coords + x_coords == 0)
+		# total_missing_keypoints = missing_keypoints.sum(axis=0)
+		# for i in range(12):
+		# 	missing_keypoint_counts[index_to_body_part[i]] += total_missing_keypoints[i]
 		# missing_keypoint_counts[i] +=
 		x_desc = stats.describe(x_coords,axis=0)
 		y_desc = stats.describe(y_coords,axis=0)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 				dict_for_df["dim"] += ["y" for i in range(12)]
 				dict_for_df["rel_max"] += y_rel_max.tolist()
 				dict_for_df["displacement"] += y_displacement.tolist()
-			dict_for_df["missing"] += total_missing_keypoints.tolist()
+			# dict_for_df["missing"] += total_missing_keypoints.tolist()
 			dict_for_df["mean"] += desc.mean.tolist()
 			dict_for_df["variance"] += desc.variance.tolist()
 			dict_for_df["skewness"] += desc.skewness.tolist()
@@ -110,13 +110,13 @@ if __name__ == "__main__":
 			dict_for_df["max"] += desc.minmax[1].tolist()
 
 
-df["p-anger"] = predictions.anger
-df["p-happiness"] = predictions.happiness
-df["p-sadness"] = predictions.sadness
-df["p-surprise"] = predictions.surprise
+# df["p-anger"] = predictions.anger
+# df["p-happiness"] = predictions.happiness
+# df["p-sadness"] = predictions.sadness
+# df["p-surprise"] = predictions.surprise
 
 for key, value in dict_for_df.items():
 	print(key, len(value))
 df = pd.DataFrame(dict_for_df)
 df.to_csv("body_keypoint_stats.csv")
-print(missing_keypoint_counts)
+# print(missing_keypoint_counts)

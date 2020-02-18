@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 from argparse import ArgumentParser
 from torch.utils.data import Dataset, Subset, DataLoader
-from torch_datasets import PoseDataset
+from datasets import PoseDataset
 from scipy.signal import argrelextrema
 import scipy.stats
 
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 
 	brute_data = PoseDataset(args.interval, args.seq_len, 'all', input='brute', interp=args.interp)
-
+	print(len(brute_data))
 	views = []
 	actor_pairs = []
 	actors = []

@@ -30,7 +30,7 @@ correlations_df = {"body_part":[], "stat":[], "anger":[],
                     "p_happiness":[], "p_sadness":[], "p_surprise":[]}
 for body_part in df.body_part.unique():
     for stat in ["mean","min", "max","variance", "kurtosis","skewness", "rel_max",
-    "missing", "displacement"]:
+     "displacement"]: # "missing",
         correlations = [0,0,0,0,0,0,0,0]
         for dim in ["x","y"]:
             subset = df[(df.body_part == body_part) & (df.dim == dim)]
@@ -38,7 +38,7 @@ for body_part in df.body_part.unique():
             for i, emotion in enumerate(["anger", "happiness", "sadness", "surprise",
                                         "p_anger", "p_happiness", "p_sadness",
                                         "p_surprise"]):
-                
+
                 correlations[i] += (stats.pearsonr(subset[stat], subset[emotion])[0])
 
         correlations = np.array(correlations) / 2
