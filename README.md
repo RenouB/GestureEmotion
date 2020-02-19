@@ -19,9 +19,6 @@ may prove useful.
 
 ## SETUP INSTRUCTIONS:
 
-Download the zipped data from:
-https://drive.google.com/open?id=1Ok3cLvCY9zTPL_1gAKnneFotS8afQ_VH
-
 run unpack_data.sh
 
 create your virtual environment and ensure you have all requirements in
