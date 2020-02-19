@@ -110,13 +110,10 @@ if __name__ == "__main__":
 			dict_for_df["max"] += desc.minmax[1].tolist()
 
 
-# df["p-anger"] = predictions.anger
-# df["p-happiness"] = predictions.happiness
-# df["p-sadness"] = predictions.sadness
-# df["p-surprise"] = predictions.surprise
 
-for key, value in dict_for_df.items():
-	print(key, len(value))
-df = pd.DataFrame(dict_for_df)
-df.to_csv("body_keypoint_stats.csv")
+
+	for key, value in dict_for_df.items():
+		print(key, len(value))
+	df = pd.DataFrame(dict_for_df)
+	df.to_csv("body_keypoint_stats.csv")
 # print(missing_keypoint_counts)

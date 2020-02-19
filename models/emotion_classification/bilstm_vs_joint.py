@@ -20,12 +20,12 @@ labels = pd.read_csv("body_keypoint_stats.csv")
 
 labels = labels[(labels.body_part == 0) & (labels.dim == 'x')]
 
-a_labels = labels[:14839]
-b_labels = labels[14839:]
-a_bilstm = bilstm[:14839]
-b_bilstm = bilstm[14839:]
-a_joint = joint[:14839]
-b_joint = joint[14839:]
+a_labels = labels[:len(labels) // 2]
+b_labels = labels[len(labels) // 2:]
+a_bilstm = bilstm[:len(labels) // 2]
+b_bilstm = bilstm[len(labels) // 2:]
+a_joint = joint[:len(labels) // 2]
+b_joint = joint[len(labels) // 2:]
 a_joint.reset_index(drop=True, inplace=True)
 b_joint.reset_index(drop=True, inplace=True)
 a_bilstm.reset_index(drop=True, inplace=True)
@@ -56,40 +56,40 @@ for emotion in emotions:
 
 print(emotions)
 for emotion in emotions:
-    both_one[emotion]['joint'] = [i for i in range(14839) if
+    both_one[emotion]['joint'] = [i for i in range(len(labels) // 2) if
                                     a_as_lists[emotion]['joint'][i] == 1 and
                                     b_as_lists[emotion]['joint'][i] == 1]
-    both_one[emotion]['bilstm'] = [i for i in range(14839) if
+    both_one[emotion]['bilstm'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['bilstm'][i] == 1 and
                                 b_as_lists[emotion]['bilstm'][i] == 1]
-    both_one[emotion]['labels'] = [i for i in range(14839) if
+    both_one[emotion]['labels'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['labels'][i] == 1 and
                                 b_as_lists[emotion]['labels'][i] == 1]
-    both_zero[emotion]['joint'] = [i for i in range(14839) if
+    both_zero[emotion]['joint'] = [i for i in range(len(labels) // 2) if
                                     a_as_lists[emotion]['joint'][i] == 0 and
                                     b_as_lists[emotion]['joint'][i] == 0]
-    both_zero[emotion]['bilstm'] = [i for i in range(14839) if
+    both_zero[emotion]['bilstm'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['bilstm'][i] == 0 and
                                 b_as_lists[emotion]['bilstm'][i] == 0]
-    both_zero[emotion]['labels'] = [i for i in range(14839) if
+    both_zero[emotion]['labels'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['labels'][i] == 0 and
                                 b_as_lists[emotion]['labels'][i] == 0]
-    different_10[emotion]['joint'] = [i for i in range(14839) if
+    different_10[emotion]['joint'] = [i for i in range(len(labels) // 2) if
                                     a_as_lists[emotion]['joint'][i] == 1 and
                                     b_as_lists[emotion]['joint'][i] == 0]
-    different_10[emotion]['bilstm'] = [i for i in range(14839) if
+    different_10[emotion]['bilstm'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['bilstm'][i] == 1 and
                                 b_as_lists[emotion]['bilstm'][i] == 0]
-    different_10[emotion]['labels'] = [i for i in range(14839) if
+    different_10[emotion]['labels'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['labels'][i] == 1 and
                                 b_as_lists[emotion]['labels'][i] == 0]
-    different_10[emotion]['joint'] = [i for i in range(14839) if
+    different_10[emotion]['joint'] = [i for i in range(len(labels) // 2) if
                                     a_as_lists[emotion]['joint'][i] == 0 and
                                     b_as_lists[emotion]['joint'][i] == 1]
-    different_01[emotion]['bilstm'] = [i for i in range(14839) if
+    different_01[emotion]['bilstm'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['bilstm'][i] == 0 and
                                 b_as_lists[emotion]['bilstm'][i] == 1]
-    different_01[emotion]['labels'] = [i for i in range(14839) if
+    different_01[emotion]['labels'] = [i for i in range(len(labels) // 2) if
                                 a_as_lists[emotion]['labels'][i] == 0 and
                                 b_as_lists[emotion]['labels'][i] == 1]
 

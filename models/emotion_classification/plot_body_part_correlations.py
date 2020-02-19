@@ -53,49 +53,49 @@ print('diff happiness', (abs(df.happiness - df.p_happiness)).mean())
 print('diff sadness', (abs(df.sadness - df.p_sadness)).mean())
 print('diff surprise', (abs(df.surprise - df.p_surprise)).mean())
 
-#
+
+for emotion in emotions:
+
+
+    cat = sns.catplot(x="region", y='p_'+emotion, hue="stat", data=df, kind="bar",
+            hue_order=["mean","max","min","rel_max","displacement","variance","missing"],
+            order=["full_hh","head","hands"], palette=sns.color_palette("hls", 7))
+    cat.set(xlabel="body part region", ylabel="correlation",ylim=(-12,10))
+    plt.subplots_adjust(top=0.9)
+    plt.suptitle(emotion, fontsize = 16)
+
+
+    ax = plt.gca()
+    y_coords = []
+    x_mins = []
+    x_maxes = []
+    for region in ['full_hh', 'head', 'hands']:
+        for stat in ['mean','max','min','rel_max','displacement','variance','missing']:
+            print("##################")
+            print(region, stat, emotion)
+            print(df[(df.region == region) & (df.stat == stat)]['p_'+emotion])
+            y_coords.append(df[(df.region == region) & (df.stat == stat)][emotion])
+    # print(len(y_coords))
+    # print(y_coords)
+    x_coords = []
+    colors = ["#7d120a", "#785f04", "#047516", "#04756d", "#043575", "#4f0475", "#750462"] * 3
+    print(len(colors))
+    patches = sorted(ax.patches, key=lambda e: e.get_x())
+    for i, p in enumerate(patches):
+        ax.hlines(y=y_coords[i], xmin=p.get_x(), xmax=p.get_x()+p.get_width(), linewidth=3, colors=colors[i])
+
+    # ax.hlines(y_coords, x_mins, x_maxes)
+
+
+plt.show()
+
+# emotions = ["p_anger","p_happiness","p_sadness","p_surprise"]
 # for emotion in emotions:
-#
-#
-#     cat = sns.catplot(x="region", y='p_'+emotion, hue="stat", data=df, kind="bar",
+#     cat = sns.catplot(x="region", y=emotion, hue="stat", data=df, kind="bar",
 #             hue_order=["mean","max","min","rel_max","displacement","variance","missing"],
-#             order=["full_hh","head","hands"], palette=sns.color_palette("hls", 7))
+#             order=["full_hh","head","hands"], palette=sns.color_palette("hls", 8))
 #     cat.set(xlabel="body part region", ylabel="correlation",ylim=(-10,10))
 #     plt.subplots_adjust(top=0.9)
 #     plt.suptitle(emotion, fontsize = 16)
 #
-#
-#     ax = plt.gca()
-#     y_coords = []
-#     x_mins = []
-#     x_maxes = []
-#     for region in ['full_hh', 'head', 'hands']:
-#         for stat in ['mean','max','min','rel_max','displacement','variance','missing']:
-#             print("##################")
-#             print(region, stat, emotion)
-#             print(df[(df.region == region) & (df.stat == stat)]['p_'+emotion])
-#             y_coords.append(df[(df.region == region) & (df.stat == stat)][emotion])
-#     # print(len(y_coords))
-#     # print(y_coords)
-#     x_coords = []
-#     colors = ["#7d120a", "#785f04", "#047516", "#04756d", "#043575", "#4f0475", "#750462"] * 3
-#     print(len(colors))
-#     patches = sorted(ax.patches, key=lambda e: e.get_x())
-#     for i, p in enumerate(patches):
-#         ax.hlines(y=y_coords[i], xmin=p.get_x(), xmax=p.get_x()+p.get_width(), linewidth=3, colors=colors[i])
-#
-#     # ax.hlines(y_coords, x_mins, x_maxes)
-#
-#
-# plt.show()
-#
-# # emotions = ["p_anger","p_happiness","p_sadness","p_surprise"]
-# # for emotion in emotions:
-# #     cat = sns.catplot(x="region", y=emotion, hue="stat", data=df, kind="bar",
-# #             hue_order=["mean","max","min","rel_max","displacement","variance","missing"],
-# #             order=["full_hh","head","hands"], palette=sns.color_palette("hls", 8))
-# #     cat.set(xlabel="body part region", ylabel="correlation",ylim=(-10,10))
-# #     plt.subplots_adjust(top=0.9)
-# #     plt.suptitle(emotion, fontsize = 16)
 # #
-# # #
