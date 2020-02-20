@@ -7,6 +7,9 @@ from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
 from cnns import OneActorOneModalityBrute, OneActorOneModalityDeltas
+torch.backends.cudnn.deterministic = True
+
+
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
@@ -167,6 +170,8 @@ if __name__ == '__main__':
 	for k in range(args.num_folds):
 		best_f1 = 0
 		torch.manual_seed(200)
+		torch.cuda.manual_seed(200)
+
 		logger.new_fold(k)
 
 		if not args.joint:
@@ -211,6 +216,8 @@ if __name__ == '__main__':
 
 		for epoch in range(args.epochs):
 			torch.manual_seed(epoch)
+			torch.cuda.manual_seed(epoch)
+
 			train_loader = DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")
