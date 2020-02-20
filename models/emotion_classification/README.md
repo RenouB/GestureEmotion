@@ -1,10 +1,10 @@
-run run_toy.sh
+run run_joint_bilstm.sh
+
 then scores_to_csv.py
+
 then print_results.py
 
-Output will have errors, but should have results for one JointBiLSTM model. Compare this to expected_toy_output.txt
-
-If this works, run run_joint_bilstm.sh and repeat the same process, comparing against expected_joint_outputs.txt
+Output will have errors, but should have results for the JointBiLSTM model. Compare this to expected_output.txt
 
 Results will not be exactly the same as those in the report, because an issue with random seeds was fixed at the last minute.
 
