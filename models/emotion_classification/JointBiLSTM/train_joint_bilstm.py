@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
 from joint_bilstm import JointBiLSTM
+torch.backends.cudnn.deterministic = True
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
@@ -189,6 +190,7 @@ if __name__ == '__main__':
 		logger.new_fold(k)
 
 		torch.manual_seed(200)
+		torch.cuda.manual_seed(200)
 		model = JointBiLSTM(input_dim, args.hidden_size, args.attention_dim,
 					args.lstm_layers, args.dropout)
 
@@ -220,7 +222,8 @@ if __name__ == '__main__':
 
 		for epoch in range(args.epochs):
 			torch.manual_seed(epoch)
-			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
+			torch.cuda.manual_seed(epoch)
+			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True, num_workers=0)
 			print("                    TRAIN")
 			print("################################################")
 			print("                    EPOCH {}".format(epoch))
