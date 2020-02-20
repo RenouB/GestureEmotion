@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, Subset
 from torch.optim import Adam, SGD
 from torch.nn import functional as F
 from bilstm import BiLSTM
+torch.backends.cudnn.deterministic = True
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
@@ -191,6 +192,8 @@ if __name__ == '__main__':
 		logger.new_fold(k)
 		# at beginning of each fold, reseed model with same seed
 		torch.manual_seed(200)
+		torch.cuda.manual_seed(200)
+
 		# initialize model, loss function, optimizer
 		model = BiLSTM(input_dim, args.hidden_size, args.lstm_layers, args.dropout)
 		loss_fxn = torch.nn.BCELoss()
@@ -221,6 +224,8 @@ if __name__ == '__main__':
 		for epoch in range(args.epochs):
 			# provide epoch as seed and shuffle training data
 			torch.manual_seed(epoch)
+			torch.cuda.manual_seed(epoch)
+
 			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")

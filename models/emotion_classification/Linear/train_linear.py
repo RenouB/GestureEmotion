@@ -8,6 +8,9 @@ from torch.optim import Adam, SGD
 from torch.nn import functional as F
 torch.manual_seed(200)
 from linear import Linear
+torch.backends.cudnn.deterministic = True
+
+
 
 PROJECT_DIR = '/'.join(os.path.dirname(os.path.realpath(__file__)).split("/")[:-3])
 print(PROJECT_DIR)
@@ -143,6 +146,8 @@ if __name__ == '__main__':
 		logger.new_fold(k)
 
 		torch.manual_seed(200)
+		torch.cuda.manual_seed(200)
+
 		model = Linear(input_dim, args.output_dim, args.num_hidden, args.dropout)
 
 		loss_fxn = torch.nn.BCELoss()
@@ -173,6 +178,8 @@ if __name__ == '__main__':
 
 		for epoch in range(args.epochs):
 			torch.manual_seed(epoch)
+			torch.cuda.manual_seed(epoch)
+
 			train_loader =DataLoader(train_data, batch_size=args.batchsize, shuffle=True)
 			print("                    TRAIN")
 			print("################################################")

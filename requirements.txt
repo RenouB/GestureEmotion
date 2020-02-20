@@ -1,6 +1,6 @@
 opencv-python
 pandas
-torch
+torch=1.2
 numpy
 scipy
 sklearn
