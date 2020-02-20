@@ -189,8 +189,8 @@ if __name__ == '__main__':
 
 		logger.new_fold(k)
 
-		torch.manual_seed(200)
-		torch.cuda.manual_seed(200)
+		torch.manual_seed(300)
+		torch.cuda.manual_seed(300)
 		model = JointBiLSTM(input_dim, args.hidden_size, args.attention_dim,
 					args.lstm_layers, args.dropout)
 
