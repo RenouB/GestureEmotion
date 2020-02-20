@@ -28,8 +28,9 @@ create your virtual environment and ensure you have all requirements in
 requirements.txt
 
 ## HOW TO RUN MODELS?
-Navigate to the folder of a given model (for example, models/emotion_classification/BiLSTM).
+Navigate to the the folder folder for a given task (for example, models/emotion_classification/ or models/visual_pose_alignment).
 Here you will find a readme with example commands that may be run to train and test a given model.
+Compare your outputs to expected_outputs.txt
 
 ## WHERE ARE MY OUTPUTS?
 Most models have an analogous directory structure. At it's deepest point, (for example, BiLSTM/brute/anger/ind/pose/) there will be logs, weights and scores directories. All outputs will be stored there.
