@@ -1,0 +1,18 @@
+        model          anger      happiness        sadness       surprise           mean
+print_results.py:64: RuntimeWarning: Mean of empty slice.
+  mean = all_f_scores.mean()
+/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/env/lib64/python3.7/site-packages/numpy/core/_methods.py:161: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/env/lib64/python3.7/site-packages/numpy/core/_methods.py:217: RuntimeWarning: Degrees of freedom <= 0 for slice
+  keepdims=keepdims)
+/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/env/lib64/python3.7/site-packages/numpy/core/_methods.py:186: RuntimeWarning: invalid value encountered in true_divide
+  arrmean, rcount, out=arrmean, casting='unsafe', subok=False)
+/mount/studenten/SpokenLanguageProcessing/2019/WokeSpoke/HCIWinter2019/env/lib64/python3.7/site-packages/numpy/core/_methods.py:209: RuntimeWarning: invalid value encountered in double_scalars
+  ret = ret.dtype.type(ret / rcount)
+rand          nan    / nan   
+SVM           nan    / nan   
+Linear        nan    / nan   
+CNN           nan    / nan   
+attCNN        nan    / nan   
+BiLSTM        nan    / nan   
+JointBiLSTM   41.77 / 12.84    41.05 / 21.05    --- missing --- 23.18 / 10.90    35.33  / 17.78
